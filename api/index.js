@@ -898,14 +898,25 @@ export default async function handler(req, res) {
         if (p.fInvite) bad("You already invited this author");
         p.fInvite = { by: m.id, ts: Date.now() };
         note(db, p.by, "featinvite", m.id, p.id);
+        const au = U(db, p.by);
+        /* Email goes out only for: invitation, acceptance, rejection. Everything after that happens on the site. */
+        if (au && au.email) mails.push(() => sendMail(au.email, "You are invited to Feature Picks",
+          `${m.name} (@${m.handle}) invited your post "${p.title}" to Feature Picks.\n\nOpen Tangerine Takes and check your notifications to accept or decline:\n${origin}`,
+          `<p><b>${esc(m.name)}</b> (@${esc(m.handle)}) invited your post <b>${esc(p.title)}</b> to Feature Picks.</p><p>Open <a href="${origin}">Tangerine Takes</a> and check your notifications to accept or decline.</p>`));
         break;
       }
       case "featreply": {
         const m = me(), p = P(d.id);
         if (p.by !== m.id) bad("Only the author can answer this");
         if (!p.fInvite) bad("There is no invite for this post");
-        if (d.ok) { p.fInvite.accepted = true; note(db, p.fInvite.by, "featyes", m.id, p.id); }  /* not featured yet: the editor sends notes / edits first, then adds it */
-        else delete p.fInvite;
+        const inv = p.fInvite, ed = U(db, inv.by), yes = !!d.ok;
+        if (yes) { inv.accepted = true; note(db, inv.by, "featyes", m.id, p.id); }  /* not featured yet: the editor sends notes / edits first, then adds it */
+        else { note(db, inv.by, "featno", m.id, p.id); delete p.fInvite; }
+        if (ed && ed.email) {
+          const subj = yes ? "Feature Picks invite accepted" : "Feature Picks invite declined";
+          const msg = `${m.name} (@${m.handle}) ${yes ? "accepted" : "declined"} your Feature Picks invite for "${p.title}".` + (yes ? `\n\nYou can now send notes or edit the post on the site, then add it to Feature Picks:\n${origin}` : "");
+          mails.push(() => sendMail(ed.email, subj, msg, "<p>" + esc(msg).replace(/\n/g, "<br>") + "</p>"));
+        }
         break;
       }
       case "featpublish": {
