@@ -396,7 +396,7 @@ export default async function handler(req, res) {
         if (p.featured || (p.fInvite && p.fInvite.accepted)) {
           p.img = await putImg(p.img, d);
           const ft = clip(d.ftag, 20);
-          p.ftag = ["Article", "Essay", "Review", "Post"].includes(ft) ? ft : "";
+          p.ftag = ["Article", "Essay", "Review", "Recommendation", "Post"].includes(ft) ? ft : "";
         }
         if (p.draft && !keepDraft) { delete p.draft; p.ts = Date.now(); mentions(db, p.text, m.id, p.id); }
         else if (!p.draft && !editorOnFeatured && !p.featured) p.edited = true;
