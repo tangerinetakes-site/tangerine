@@ -309,14 +309,14 @@ body{margin:0;background:var(--bg)}
 @media(prefers-reduced-motion:reduce){#tg .fb-book,#tg .fb-leaf{transition:none!important}}
 #tg .fbg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin:10px 0}
 #tg .fbg-i{position:relative;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:var(--os);cursor:grab}
-#tg .fbg-i img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;pointer-events:none}
+#tg .fbg-i img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;pointer-events:none}
 #tg .fbg-n{position:absolute;top:4px;left:4px;background:var(--od);color:#fff;border-radius:999px;font-size:.75rem;font-weight:800;padding:1px 7px}
 #tg .fbg-b{display:flex;justify-content:space-between;gap:2px;padding:3px;background:var(--bg)}
 #tg .fbg-b button{flex:1;padding:4px 0;font-size:.85rem;border:1px solid var(--line);border-radius:8px;background:var(--os);color:var(--od);cursor:pointer;box-shadow:none}
 #tg .fb-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
 #tg .fb-card{display:grid;gap:6px;align-content:start}
 #tg .fb-cb{display:block;width:100%;padding:0;margin:0;border:0;background:none;cursor:pointer;border-radius:12px;box-shadow:none;overflow:hidden}
-#tg .fb-cb img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:12px;background:var(--os)}
+#tg .fb-cb img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;background:var(--os)}
 #tg .fb-card h3{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:1.1rem;line-height:1.15;margin:2px 0 0}
 #tg .fb-card h3 button{background:none;border:0;padding:0;margin:0;font:inherit;color:var(--ink);text-align:left;cursor:pointer;box-shadow:none}
 </style>
@@ -875,7 +875,7 @@ function ttCar(){const t=app.querySelector('.tt-car');if(!t)return;const dots=ap
  if(ttCarI&&ttCarI<dots.length){t.scrollLeft=ttCarI*t.clientWidth}else ttCarI=0;mark(ttCarI);
  let raf;t.addEventListener('scroll',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const i=Math.round(t.scrollLeft/(t.clientWidth||1));ttCarI=i;mark(i)})})}
 const ttRefs=p=>{const r=String(p.refs||'').split(/\n/).map(x=>x.trim()).filter(Boolean);return r.length?`<section class="tt-refs" aria-label="References"><h4>References</h4><ol>${r.map(x=>`<li>${lkx(x)}</li>`).join('')}</ol></section>`:''};
-const ttArticle=p=>`<article class="tt-art"><button class="link" data-a="timestab" data-s="${p.sec}">← ${esc(ttLabel(p.sec))}</button>${p.img?`<img class="tt-img" style="margin-top:12px" src="/api?img=${p.img}" alt="">`:''}<span class="hint" style="display:block;margin-top:14px">${ttMeta(p)} · ${ttDate(p.ts)}${p.edited?' · edited':''}</span><h2 class="tt-h">${esc(p.title)}</h2>${ttCredits(p)}<div class="tt-text">${timesParas(p.text)}</div>${ttRefs(p)}${db.canTimes?`<div class="actions"><button class="btn ghost" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Unfeature':'☆ Feature'}</button><button class="btn ghost" data-a="ttedit" data-id="${p.id}">Edit</button><button class="btn ghost" data-a="ttdel" data-id="${p.id}">Delete</button></div>`:''}</article>`;
+const ttArticle=p=>`<article class="tt-art"><button class="link" data-a="timestab" data-s="${p.sec}">← ${esc(ttLabel(p.sec))}</button>${p.img?`<img class="tt-img" style="margin-top:12px" src="/api?img=${p.img}" alt="">`:''}<span class="hint" style="display:block;margin-top:14px">${ttMeta(p)} · ${ttDate(p.ts)}${p.edited?' · edited':''}</span><h2 class="tt-h">${esc(p.title)}</h2>${ttCredits(p)}<div class="tt-text">${timesParas(p.text)}</div>${ttRefs(p)}<div class="actions"><button type="button" class="btn ghost" data-a="ttshare" data-u="/times/p/${p.id}" data-t="${esc(p.title)}">Share</button></div>${db.canTimes?`<div class="actions"><button class="btn ghost" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Unfeature':'☆ Feature'}</button><button class="btn ghost" data-a="ttedit" data-id="${p.id}">Edit</button><button class="btn ghost" data-a="ttdel" data-id="${p.id}">Delete</button></div>`:''}</article>`;
 const ttPrevHtml=()=>{const w=timesWrite||{};return w.data?`<img class="tt-img" src="${w.data}" alt="Photo preview">`:w.img?`<img class="tt-img" src="/api?img=${esc(w.img)}" alt="Current photo">`:'<div class="tt-ph">No photo yet (16:9)</div>'};
 function ttPrev(){const e=$('tt-prev');if(e)e.innerHTML=ttPrevHtml()}
 function photoCrop(f,cb){if(!f)return;if(!/^image\//.test(f.type)){toast('Choose an image file');return}
@@ -898,7 +898,7 @@ function fpPickImg(f){if(!fpPh)return;photoCrop(f,d=>{if(fpPh){fpPh.img='';fpPh.
 app.addEventListener('change',e=>{if(e.target.id==='tt-file'){ttPickImg(e.target.files&&e.target.files[0]);e.target.value=''}else if(e.target.id==='fp-file'){fpPickImg(e.target.files&&e.target.files[0]);e.target.value=''}});
 
 /* ---------- Flipbook (Times): reader + page uploader ---------- */
-const FB_MAX=30,FB_W=1200,FB_H=1500,FB_CAP=680000; /* 4:5 pages, 1200 x 1500, JPEG under ~510 KB each */
+const FB_MAX=30,FB_W=1200,FB_H=1600,FB_CAP=680000; /* 3:4 pages, 1200 x 1600, JPEG under ~510 KB each */
 let fbWrite=null,fbS=null,fbMode='auto',fbBusy=false,fbLibP=null,fbDrag=null;
 const fbHtml=p=>`<div class="fb" id="fb" data-pid="${p.id}"><div class="fb-stage" id="fb-stage" aria-label="Flipbook: drag a page, tap the left or right side, or use the arrow keys"><div class="fb-book" id="fb-book"></div></div><div class="fb-nav"><button type="button" class="btn ghost" id="fb-prev" aria-label="Previous page">← Back</button><span class="fb-count" id="fb-count" aria-live="polite"></span><button type="button" class="btn ghost" id="fb-next" aria-label="Next page">Next →</button><button type="button" class="btn ghost" id="fb-mode">View: Auto</button><button type="button" class="btn ghost" id="fb-fs">Fullscreen</button></div></div>`;
 function fbInit(){const el=$('fb');if(!el){fbS=null;return}
@@ -929,7 +929,7 @@ function fbBuild(){const S=fbS;if(!S||!document.body.contains(S.el))return;
  S.spread=fbMode==='auto'?w>=560:fbMode==='spread';
  S.list=S.pages.slice();if(S.spread&&S.list.length%2)S.list.push('');
  const N=S.list.length,availH=fsOn?stage.clientHeight-12:innerHeight*.85;
- const H=Math.max(160,Math.min(availH,((S.spread?w/2:w)-8)/.8)),P=H*.8;S.P=P;S.H=H;S.n=S.spread?N/2:N;
+ const H=Math.max(160,Math.min(availH,((S.spread?w/2:w)-8)/.75)),P=H*.75;S.P=P;S.H=H;S.n=S.spread?N/2:N;
  S.cur=Math.min(S.cur,fbMax());
  stage.style.height=fsOn?'':(H+16)+'px';
  book.style.width=(S.spread?2*P:P)+'px';book.style.height=H+'px';book.innerHTML='';S.leaves=[];
@@ -956,7 +956,7 @@ document.addEventListener('fullscreenchange',()=>{if(fbS&&$('fb'))setTimeout(fbB
 
 /* --- composer: pick a PDF or images, turn them into 4:5 JPEG pages in the browser --- */
 const fbPost=async(a,d)=>{try{const r=await fetch('/api',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+TOKEN},body:JSON.stringify({a,d})});return await r.json()}catch(e){return{error:'Network problem, try again'}}};
-const fbForm=()=>`<label for="fb-file">Pages (a PDF or several images)</label><input type="file" id="fb-file" accept="application/pdf,image/*" multiple><p class="hint">Up to ${FB_MAX} pages. Best shape is 4:5 portrait (for example 1200 × 1500 px). Pages in another shape are fitted inside a 4:5 page with white edges. A PDF can be up to 50 MB and is read on your device, so the PDF itself is not uploaded. Text in a PDF becomes part of the picture, so readers cannot select it. Drag pages or use the arrows to reorder.</p><p class="hint" id="fb-status" aria-live="polite"></p><div class="fbg" id="fb-grid">${fbGridHtml()}</div>`;
+const fbForm=()=>`<label for="fb-file">Pages (a PDF or several images)</label><input type="file" id="fb-file" accept="application/pdf,image/*" multiple><p class="hint">Up to ${FB_MAX} pages. Best shape is 3:4 portrait (for example 1200 × 1600 px). Pages in another shape are fitted inside a 3:4 page with white edges. A PDF can be up to 50 MB and is read on your device, so the PDF itself is not uploaded. Text in a PDF becomes part of the picture, so readers cannot select it. Drag pages or use the arrows to reorder.</p><p class="hint" id="fb-status" aria-live="polite"></p><div class="fbg" id="fb-grid">${fbGridHtml()}</div>`;
 const fbGridHtml=()=>{const L=(fbWrite&&fbWrite.pages)||[];return L.length?L.map((x,i)=>`<div class="fbg-i" draggable="true" data-i="${i}"><img src="${x.data||'/api?img='+x.id}" alt="Page ${i+1}"><span class="fbg-n">${i+1}</span><div class="fbg-b"><button type="button" data-a="fbleft" data-i="${i}" aria-label="Move page ${i+1} earlier">←</button><button type="button" data-a="fbrm" data-i="${i}" aria-label="Remove page ${i+1}">✕</button><button type="button" data-a="fbright" data-i="${i}" aria-label="Move page ${i+1} later">→</button></div></div>`).join(''):'<p class="hint">No pages yet.</p>'};
 function fbGrid(){const e=$('fb-grid');if(e)e.innerHTML=fbGridHtml();const c=$('fb-status');if(c&&!fbBusy){const n=((fbWrite&&fbWrite.pages)||[]).length;c.textContent=n?n+' of '+FB_MAX+' pages':''}}
 function fbLib(){if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);if(fbLibP)return fbLibP;
@@ -999,16 +999,20 @@ app.addEventListener('dragend',()=>{fbDrag=null});
 
 app.addEventListener('change',e=>{if(e.target.id==='fb-file'){fbAdd([...e.target.files]);e.target.value=''}});
 const fbFind=()=>view.fid?(db.flipbooks||[]).find(x=>x.id===view.fid):null;
-const fbFormHtml=()=>{const w=fbWrite;return `<section class="panel"><h2>${w.id?'Edit flipbook':'New flipbook'}</h2>
+const fbFormHtml=()=>{const w=fbWrite,wr=tRole('writer'),ar=tRole('artist'),opt=(l,sel,none)=>`<option value="">${none}</option>`+l.map(u=>`<option value="${u.id}"${u.id===sel?' selected':''}>@${esc(u.handle)} · ${esc(u.name)}</option>`).join('');return `<section class="panel"><h2>${w.id?'Edit flipbook':'New flipbook'}</h2>
  <label for="fbk-title">Title</label><input id="fbk-title" maxlength="140" value="${esc(w.title||'')}">
  <label for="fbk-desc">Short description (optional)</label><textarea id="fbk-desc" maxlength="1000" style="min-height:90px">${esc(w.desc||'')}</textarea>
+ <p class="hint" style="margin-top:14px"><b>The team behind this zine</b> (optional). People show up here once an admin adds them under Times team.</p>
+ <label for="fbk-by">Written by</label><select id="fbk-by">${opt(wr,w.by,'No writer')}</select>
+ <label for="fbk-art">Art by</label><select id="fbk-art">${opt(ar,w.art,'No artist')}</select>
+ <label for="fbk-layout">Layout by</label><select id="fbk-layout">${opt(ar,w.layout,'No artist')}</select>
  ${fbForm()}
  <div class="actions"><button class="btn" data-a="fbsave">${w.id?'Save changes':'Publish flipbook'}</button><button class="btn ghost" data-a="fbcancel">Cancel</button></div></section>`};
-const fbCard=f=>`<article class="fb-card"><button type="button" class="fb-cb" data-a="fbopen" data-id="${f.id}" aria-label="Open ${esc(f.title)}"><img src="/api?img=${f.pages[0]}" alt="" loading="lazy"></button><h3><button type="button" data-a="fbopen" data-id="${f.id}">${esc(f.title)}</button></h3><span class="hint">${f.pages.length} pages · ${ttDate(f.ts)}</span></article>`;
+const fbCard=f=>`<article class="fb-card"><button type="button" class="fb-cb" data-a="fbopen" data-id="${f.id}" aria-label="Open ${esc(f.title)}"><img src="/api?img=${f.pages[0]}" alt="" loading="lazy"></button><h3><button type="button" data-a="fbopen" data-id="${f.id}">${esc(f.title)}</button></h3><span class="hint">${f.pages.length} pages · ${ttDate(f.ts)}</span>${ttCredits(f)}</article>`;
 /* inside the Zine section: the upload button and the flipbook shelf */
 const fbShelf=()=>{const L=db.flipbooks||[],can=!!db.canTimes;if(!can&&!L.length)return'';
- return `<section class="tt-featsec" style="margin-bottom:26px"><h2 class="tt-sh">Flipbooks</h2>${can?`<div class="actions" style="margin:0 0 14px"><button class="btn" data-a="fbnew">Upload a flipbook</button></div>`:''}${L.length?`<div class="fb-cards">${L.map(fbCard).join('')}</div>`:'<p class="hint">No flipbooks yet.</p>'}</section>`};
-const fbOpen=f=>`<article class="tt-art"><button class="link" data-a="timestab" data-s="magazine">← Zine</button><span class="hint" style="display:block;margin-top:14px">Flipbook · Zine · ${ttDate(f.ts)}${f.edited?' · edited':''}</span><h2 class="tt-h">${esc(f.title)}</h2>${f.desc?`<div class="tt-text">${timesParas(f.desc)}</div>`:''}${fbHtml(f)}${db.canTimes?`<div class="actions"><button class="btn ghost" data-a="fbedit" data-id="${f.id}">Edit</button><button class="btn ghost" data-a="fbdel" data-id="${f.id}">Delete</button></div>`:''}</article>`;
+ return `<section class="tt-featsec" style="margin-bottom:26px">${can?`<div class="actions" style="margin:0 0 14px"><button class="btn" data-a="fbnew">Upload a flipbook</button></div>`:''}${L.length?`<div class="fb-cards">${L.map(fbCard).join('')}</div>`:'<p class="hint">No flipbooks yet.</p>'}</section>`};
+const fbOpen=f=>`<article class="tt-art"><button class="link" data-a="timestab" data-s="magazine">← Zine</button><span class="hint" style="display:block;margin-top:14px">Flipbook · Zine · ${ttDate(f.ts)}${f.edited?' · edited':''}</span><h2 class="tt-h">${esc(f.title)}</h2>${ttCredits(f)}${f.desc?`<div class="tt-text">${timesParas(f.desc)}</div>`:''}${fbHtml(f)}<div class="actions"><button type="button" class="btn ghost" data-a="ttshare" data-u="/times/f/${f.id}" data-t="${esc(f.title)}">Share</button></div>${db.canTimes?`<div class="actions"><button class="btn ghost" data-a="fbedit" data-id="${f.id}">Edit</button><button class="btn ghost" data-a="fbdel" data-id="${f.id}">Delete</button></div>`:''}</article>`;
 
 const PT_SEC=TT_SEC;
 const ptStatus=p=>p.status==='returned'?'<span class="badge">↩ Sent back</span>':'<span class="badge">⏳ Waiting</span>';
@@ -1246,10 +1250,11 @@ app.addEventListener('click',async e=>{
  else if(a==='ttwrite'){if(!db.canTimes)return;timesEdit=false;timesWrite={id:'',sec:TT_SEC.some(x=>x[0]===view.s)?view.s:'movies',kind:'Article',refs:'',img:'',data:'',title:'',text:'',by:'',art:'',layout:''};render();window.scrollTo(0,0)}
  else if(a==='ttedit'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;timesEdit=false;timesWrite={id:q.id,sec:q.sec,kind:q.kind||'Article',refs:q.refs||'',img:q.img||'',data:'',title:q.title,text:q.text,by:q.by||'',art:q.art||'',layout:q.layout||''};render();window.scrollTo(0,0)}
  else if(a==='ttcancel'){timesWrite=null;render()}
- else if(a==='fbnew'){if(!db.canTimes)return;timesEdit=false;timesWrite=null;fbWrite={id:'',title:'',desc:'',pages:[]};render();window.scrollTo(0,0)}
- else if(a==='fbedit'){const q=(db.flipbooks||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;fbWrite={id:q.id,title:q.title,desc:q.desc||'',pages:q.pages.map(x=>({id:x}))};render();window.scrollTo(0,0)}
+ else if(a==='ttshare'){const url=location.origin+b.dataset.u;if(navigator.share){try{await navigator.share({title:b.dataset.t||'',url});return}catch(e){if(e&&e.name==='AbortError')return}}try{await navigator.clipboard.writeText(url);toast('Link copied')}catch(e){const i=document.createElement('textarea');i.value=url;document.body.appendChild(i);i.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}i.remove();if(ok)toast('Link copied');else prompt('Copy this link',url)}}
+ else if(a==='fbnew'){if(!db.canTimes)return;timesEdit=false;timesWrite=null;fbWrite={id:'',title:'',desc:'',by:'',art:'',layout:'',pages:[]};render();window.scrollTo(0,0)}
+ else if(a==='fbedit'){const q=(db.flipbooks||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;fbWrite={id:q.id,title:q.title,desc:q.desc||'',by:q.by||'',art:q.art||'',layout:q.layout||'',pages:q.pages.map(x=>({id:x}))};render();window.scrollTo(0,0)}
  else if(a==='fbcancel'){fbDropNew();fbWrite=null;render()}
- else if(a==='fbsave'){const w=fbWrite;if(!w)return;const L=w.pages;if(!g('fbk-title')){toast('Add a title first');return}if(L.length<2){toast('A flipbook needs at least 2 pages');return}if(L.length>FB_MAX){toast('A flipbook can have up to '+FB_MAX+' pages');return}if(fbBusy){toast('Wait until the pages finish preparing');return}if(!await fbUpload(b))return;const r=await api('fbsave',{id:w.id,title:g('fbk-title'),desc:$('fbk-desc').value,pages:L.map(x=>x.id)});if(r){fbWrite=null;toast(w.id?'Saved':'Published');ttDir=1;go({n:'times',s:'magazine',fid:r.fid})}}
+ else if(a==='fbsave'){const w=fbWrite;if(!w)return;const L=w.pages;if(!g('fbk-title')){toast('Add a title first');return}if(L.length<2){toast('A flipbook needs at least 2 pages');return}if(L.length>FB_MAX){toast('A flipbook can have up to '+FB_MAX+' pages');return}if(fbBusy){toast('Wait until the pages finish preparing');return}if(!await fbUpload(b))return;const r=await api('fbsave',{id:w.id,title:g('fbk-title'),desc:$('fbk-desc').value,by:$('fbk-by').value,art:$('fbk-art').value,layout:$('fbk-layout').value,pages:L.map(x=>x.id)});if(r){fbWrite=null;toast(w.id?'Saved':'Published');ttDir=1;go({n:'times',s:'magazine',fid:r.fid})}}
  else if(a==='fbopen'){fbWrite=null;timesEdit=false;timesWrite=null;ttDir=1;go({n:'times',s:'magazine',fid:id})}
  else if(a==='fbdel'){if(!confirm('Delete this flipbook for good?'))return;if(await api('fbdel',{id})){toast('Deleted');ttDir=-1;go({n:'times',s:'magazine'})}}
  else if(a==='fbleft'||a==='fbright'){const w=fbWrite;if(!w)return;const i=+b.dataset.i,j=a==='fbleft'?i-1:i+1;if(j<0||j>=w.pages.length)return;[w.pages[i],w.pages[j]]=[w.pages[j],w.pages[i]];fbGrid()}
