@@ -783,8 +783,8 @@ const timesBanner=()=>{const t=db.times||{},B=bnT(t),adm=isLead(),jl=/^https?:\/
  const apply=jl?`<a class="btn" href="${esc(jl)}" target="_blank" rel="noopener noreferrer">${esc(B.b3)}</a>`:`<a class="btn" href="mailto:${esc(je)}?subject=${encodeURIComponent('Joining the Tangerine Times')}">${esc(B.b3)}</a>`;
  return `<section class="hb" aria-label="The Tangerine Times"><span class="tt-fl f1" aria-hidden="true">🍊</span><span class="tt-fl f2" aria-hidden="true">🍊</span><span class="tt-fl f3" aria-hidden="true">🍊</span>`
  +`<div class="hb-v" tabindex="0" aria-label="Tangerine Times banner, swipe for the next ones"><div class="hb-t">`
- +sl(1,B.k2,B.h2,B.t2,`<button class="btn" data-a="ttabout">${esc(B.b2)}</button>`)
- +sl(0,B.k1,B.h1,B.t1,`<button class="btn" data-a="times">${esc(B.b1)}</button>`)
+ +sl(1,B.k1,B.h1,B.t1,`<button class="btn" data-a="times">${esc(B.b1)}</button>`)
+ +sl(0,B.k2,B.h2,B.t2,`<button class="btn" data-a="ttabout">${esc(B.b2)}</button>`)
  +sl(0,B.k3,jh,jb,apply)
  +`</div></div><div class="hb-bar"><button data-a="hbcar" data-d="-1" aria-label="Previous slide">←</button><span class="hb-dots"><button data-a="hbdot" data-i="0" aria-label="Show slide 1" aria-current="true"></button><button data-a="hbdot" data-i="1" aria-label="Show slide 2" aria-current="false"></button><button data-a="hbdot" data-i="2" aria-label="Show slide 3" aria-current="false"></button></span><button data-a="hbcar" data-d="1" aria-label="Next slide">→</button>${adm?`<button class="hb-ed" data-a="edbn">✏️ Edit banner</button>`:''}</div></section>`};
 let hbI=0,hbTm=0; /* banner only changes when someone taps an arrow/dot or swipes */
