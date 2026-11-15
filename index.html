@@ -740,7 +740,7 @@ function featForm(id){const f=id?feats().find(x=>x.id===id):null,adm=isAdmin(),e
  <div class="actions"><button class="btn" data-a="featsave" data-id="${id||''}">${ed?'Save':'Send to the editor'}</button><button class="btn ghost" data-a="features">Cancel</button></div></section>`}
 
 /* ---------- The Tangerine Times 📰 ---------- */
-const TT=[['latest','Latest'],['movies','Movies/TV'],['books','Books'],['games','Games'],['music','Music'],['culture','Culture'],['magazine','Magazine'],['about','About the Times']];
+const TT=[['latest','Latest'],['movies','Movies/TV'],['books','Books'],['games','Games'],['music','Music'],['culture','Culture'],['magazine','Zine'],['about','About the Times']];
 const TT_SEC=TT.filter(x=>x[0]!=='latest'&&x[0]!=='about');
 const TT_KINDS=['Article','Essay','Review','Recommendation'];
 const TT_DEF={head:'The first edition is on its way.',body:"The Tangerine Times is our own paper: features, essays and recommendations written by our team.\n\nWe are still warming up the presses. Check back soon.",about:"The Tangerine Times is the publishing side of Tangerine Takes. Tangerine Takes is where everyone posts their own slices. The Times is where our team writes and edits longer pieces, features and picks.\n\nEvery piece is read by an editor before it goes live.",joinHead:'Join the Tangerine Tree',joinBody:'We are looking for writers, editors and creatives. Fill out our form and tell us what you would like to do.',abHead:'Peeled, sliced and shared.',abBody:'Tangerine Takes is a space to review and talk about movies, shows, books, games, music and internet culture. Rate with tangerines, write reviews and join the conversation.'};
