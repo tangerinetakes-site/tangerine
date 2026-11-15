@@ -393,7 +393,11 @@ export default async function handler(req, res) {
         if (p.draft && !keepDraft && !(n.rating || p.rating)) bad("Pick a star rating first");
         Object.assign(p, { type: n.type, media: n.media, title: n.title, text: n.text, spoiler: n.spoiler, rating: n.rating || p.rating });
         /* Photo (16:9) only for posts that are in Feature Picks or have accepted the invite */
-        if (p.featured || (p.fInvite && p.fInvite.accepted)) p.img = await putImg(p.img, d);
+        if (p.featured || (p.fInvite && p.fInvite.accepted)) {
+          p.img = await putImg(p.img, d);
+          const ft = clip(d.ftag, 20);
+          p.ftag = ["Article", "Essay", "Review", "Post"].includes(ft) ? ft : "";
+        }
         if (p.draft && !keepDraft) { delete p.draft; p.ts = Date.now(); mentions(db, p.text, m.id, p.id); }
         else if (!p.draft && !editorOnFeatured && !p.featured) p.edited = true;
         if (editorOnFeatured) note(db, p.by, "featedit", m.id, p.id);
