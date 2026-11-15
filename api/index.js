@@ -898,6 +898,8 @@ export default async function handler(req, res) {
         if (p.fInvite) bad("You already invited this author");
         p.fInvite = { by: m.id, ts: Date.now() };
         note(db, p.by, "featinvite", m.id, p.id);
+        /* Also send them a message so they know who invited them */
+        if (!blockedSet(db, m.id).has(p.by)) db.msgs.push({ id: id8(), from: m.id, to: p.by, t: clip(`🍊 Hi! I invited your post "${p.title}" to Feature Picks. Open your notifications to accept or decline. If you accept, I can send you notes or edit it before it goes in.`, 1000), ts: Date.now(), read: false });
         const au = U(db, p.by);
         /* Email goes out only for: invitation, acceptance, rejection. Everything after that happens on the site. */
         if (au && au.email) mails.push(() => sendMail(au.email, "You are invited to Feature Picks",
