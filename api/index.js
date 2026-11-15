@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from "node:crypto";
 
 const redis = Redis.fromEnv({ automaticDeserialization: false });
-const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts", "pitches"];
+const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts", "pitches", "flipbooks"];
 const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff"];
 const pack = v => gzipSync(JSON.stringify(v)).toString("base64");
 const unpack = s => JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString());
@@ -28,6 +28,7 @@ async function load() {
   if (!db.tstaff || typeof db.tstaff !== "object" || Array.isArray(db.tstaff)) db.tstaff = {};
   if (!Array.isArray(db.tposts)) db.tposts = [];
   if (!Array.isArray(db.pitches)) db.pitches = [];
+  if (!Array.isArray(db.flipbooks)) db.flipbooks = [];
   db.pitchOpen = !!db.pitchOpen;
   db.joinOff = { home: !!(db.joinOff && db.joinOff.home), times: !!(db.joinOff && db.joinOff.times) };
   if (!Array.isArray(db.mods)) db.mods = [];
@@ -49,7 +50,7 @@ const TOPK = ["movies","albums","books","shows","games","other"];
 const CREW_TEAMS = ["Editorial", "Team"];
 const TSEC = ["movies", "books", "games", "music", "culture", "magazine"];
 const TROLES = ["publisher", "writer", "artist"];
-const TKINDS = ["Article", "Essay", "Review", "Recommendation", "Flipbook"];
+const TKINDS = ["Article", "Essay", "Review", "Recommendation"];
 const DAY = 864e5;
 const REASONS = ["Spoiler", "Copying", "Not kind", "Crime"];
 /* Report reasons shown to members. "Others" needs a short written detail. REASONS above is still used by the admin warning. */
@@ -74,7 +75,7 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], pitchOpen: false, joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 
 /* Photos (16:9 jpeg) for Feature Picks pieces and featured posts.
@@ -231,6 +232,7 @@ function out(db, uid, extra) {
       })),
       tstaff: admin || canTimes ? db.tstaff : {},
       canTimes,
+      flipbooks: db.flipbooks.slice().sort((x, y) => y.ts - x.ts),
       /* Pitch box */
       canPitch: !!(me && canPitch(db, me.id)),
       canReviewPitch: !!(me && canReviewPitch(db, me.id)),
@@ -683,6 +685,7 @@ export default async function handler(req, res) {
         delete db.crew[id];
         delete db.tstaff[id];
         db.pitches = db.pitches.filter(x => x.by !== id);
+        db.flipbooks.forEach(x => { if (x.by === id) x.by = ""; });
         db.tposts.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; });
         db.tposts.forEach(x => {
           x.comments = (x.comments || []).filter(c => c.by !== id);
@@ -764,15 +767,46 @@ export default async function handler(req, res) {
         break;
       }
 
+      /* ---- Flipbooks (their own section in the Times, separate from posts) ---- */
+      case "fbsave": {
+        const m = me();
+        if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post flipbooks");
+        const title = clip(d.title, 140), desc = clip(d.desc, 1000);
+        if (!title) bad("Add a title first");
+        const old = d.id ? (db.flipbooks.find(x => x.id === d.id) || bad("Flipbook not found")) : null;
+        if (!old && db.flipbooks.length >= 100) bad("Delete some old flipbooks first");
+        let pages = old ? old.pages : [];
+        const want = (Array.isArray(d.pages) ? d.pages : []).map(x => String(x).replace(/[^a-z0-9]/gi, "").slice(0, 20));
+        if (want.length < 2 || want.length > 30) bad("A flipbook needs 2 to 30 pages");
+        if (new Set(want).size !== want.length) bad("The same page is in the flipbook twice");
+        for (const pid of want) {
+          if (pages.includes(pid)) continue;
+          if ((await redis.get("tg:pend:" + pid)) !== m.id) bad("A page upload expired. Add the pages again.");
+        }
+        for (const pid of want) if (!pages.includes(pid)) await redis.del("tg:pend:" + pid);
+        for (const pid of pages) if (!want.includes(pid)) await redis.del("tg:img:" + pid);
+        pages = want;
+        if (old) { Object.assign(old, { title, desc, pages, edited: true }); extra.fid = old.id; }
+        else { const nf = { id: id8(), title, desc, pages, ts: Date.now(), by: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
+        break;
+      }
+      case "fbdel": {
+        const m = me();
+        if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Not allowed");
+        const f = db.flipbooks.find(x => x.id === d.id) || bad("Flipbook not found");
+        for (const pg of f.pages) { try { await redis.del("tg:img:" + pg); } catch (e) { console.error(e.message); } }
+        db.flipbooks = db.flipbooks.filter(x => x !== f);
+        break;
+      }
+
       case "tpost": {
         const m = me();
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post in the Times");
         const sec = TSEC.includes(d.sec) ? d.sec : bad("Pick a section");
         const title = clip(d.title, 140), text = clip(d.text, 20000), refs = clip(d.refs, 3000);
-        const kind = TKINDS.includes(d.kind) ? d.kind : bad("Pick a type: Article, Essay, Review, Recommendation or Flipbook");
+        const kind = TKINDS.includes(d.kind) ? d.kind : bad("Pick a type: Article, Essay, Review or Recommendation");
         if (!title) bad("Add a headline first");
-        const fb = kind === "Flipbook";
-        if (!text && !fb) bad("Add the content first");
+        if (!text) bad("Add the content first");
         const credit = (v, role, what) => {
           v = clip(v, 20);
           if (!v) return "";
@@ -793,27 +827,9 @@ export default async function handler(req, res) {
           await redis.del("tg:img:" + img);
           img = "";
         }
-        /* Flipbook pages: new pages must have been uploaded by this person (tpage). Removed pages are deleted. */
-        if (!old && db.tposts.length >= 500) bad("Delete some old Times pieces first");
-        let pages = old ? (old.pages || []) : [];
-        if (fb) {
-          const want = (Array.isArray(d.pages) ? d.pages : []).map(x => String(x).replace(/[^a-z0-9]/gi, "").slice(0, 20));
-          if (want.length < 2 || want.length > 30) bad("A flipbook needs 2 to 30 pages");
-          if (new Set(want).size !== want.length) bad("The same page is in the flipbook twice");
-          for (const pid of want) {
-            if (pages.includes(pid)) continue;
-            if ((await redis.get("tg:pend:" + pid)) !== m.id) bad("A page upload expired. Add the pages again.");
-          }
-          for (const pid of want) if (!pages.includes(pid)) await redis.del("tg:pend:" + pid);
-          for (const pid of pages) if (!want.includes(pid)) await redis.del("tg:img:" + pid);
-          pages = want;
-        } else {
-          for (const pid of pages) await redis.del("tg:img:" + pid);
-          pages = [];
-        }
-        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, img, pages, edited: true }); extra.tid = old.id; }
+        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, img, edited: true }); extra.tid = old.id; }
         else {
-          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, img, pages, comments: [], ts: Date.now(), pub: m.id };
+          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, img, comments: [], ts: Date.now(), pub: m.id };
           db.tposts.push(np); extra.tid = np.id;
         }
         break;
@@ -875,7 +891,6 @@ export default async function handler(req, res) {
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Not allowed");
         const tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found");
         if (tp.img) { try { await redis.del("tg:img:" + tp.img); } catch (e) { console.error(e.message); } }
-        for (const pg of (tp.pages || [])) { try { await redis.del("tg:img:" + pg); } catch (e) { console.error(e.message); } }
         db.tposts = db.tposts.filter(x => x !== tp);
         db.reports = db.reports.filter(r => r.pid !== tp.id);
         break;
