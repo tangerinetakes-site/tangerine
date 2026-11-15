@@ -181,9 +181,9 @@ body{margin:0;background:var(--bg)}
 #tg .tt-slide{animation:ttslide .34s cubic-bezier(.2,.7,.2,1)}
 @keyframes ttslide{from{opacity:0;transform:translateX(var(--dx,28px))}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){#tg .tt-slide{animation:none}#tg .tt-ind{transition:none}}
-#tg .post.fp{border:2px solid rgba(217,95,0,.35);box-shadow:0 0 0 4px rgba(217,95,0,.07)}
-#tg .fpb{display:flex;align-items:center;gap:6px;margin:-18px -18px 12px;padding:8px 18px;background:#D95F00;color:#fff;font-weight:800;letter-spacing:.04em;font-size:.9rem}
-#tg .tag.fptag{background:#D95F00;color:#fff;border-color:#D95F00;font-weight:800}
+#tg .post.fp{border:2px solid #F3C99F;box-shadow:0 0 0 4px rgba(217,95,0,.07);position:relative;overflow:hidden}
+#tg .fpb{display:flex;align-items:center;gap:6px;margin:-18px -18px 12px;padding:8px 18px;background:#FFE3C7;color:#B34700;font-weight:800;letter-spacing:.04em;font-size:.9rem}
+#tg .tag.fptag{background:#FFE3C7;color:#B34700;border-color:#F3C99F;font-weight:800}
 #tg .tt-soon{padding:4px 0 24px}
 #tg .tt-soon h2{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:clamp(1.9rem,6vw,2.9rem);letter-spacing:-.01em;line-height:1.05;color:var(--ink);margin:0 0 16px;max-width:20ch}
 #tg .tt-soon p{max-width:58ch;font-size:1.05rem}
@@ -489,14 +489,14 @@ function addLink(r){if(!r)return;const sl=getSelection();const rg=sl.rangeCount?
 const bodyHtml=(p,full)=>p.spoiler&&!rev.has(p.id)?`<div class="body"><button class="btn ghost" data-a="reveal" data-id="${p.id}">⚠️ Contains spoilers. Tap to show</button></div>`:`<div class="body">${lkx(full?p.text:excerpt(plainLk(p.text)))}</div>`;
 const byLine=(u,bold)=>`<button class="link" data-a="profile" data-id="${u.id}">${av(u,'sm')}<span class="${bold?'nm':'nm0'}">${esc(u.name)}</span> <span class="hd">@${esc(u.handle||'')}</span></button>${badgeHtml(u)}`;
 const fAcc=p=>!!(p.fInvite&&p.fInvite.accepted),fWork=p=>!!p.featured||fAcc(p);
-const FTAG='',FBAN='';
+const FTAG='<span class="tag fptag">🍊 #featuredpicks</span>',FBAN='<div class="fpb">🍊 #featuredpicks</div>';
 const meta=(p,big)=>{const u=user(p.by),
  time=`<span>${ago(p._ots||p.ts)}${p.edited&&!p.featured?' <span style="opacity:.6;font-size:.82em">(edited)</span>':''}</span>`,
  rate=`<span class="rate" aria-label="${p.rating} out of 5">${stars(p.rating)}</span>`,
  pr=p.prompt&&promptOf(p.prompt)?`<button class="link" data-a="prompt" data-id="${p.prompt}">💭 ${esc(promptOf(p.prompt).title)}</button>`:'',
  dr=p.draft?'<span class="tag">Draft</span>':'';
- if(big)return `<div class="meta bigtags"><span class="tag">${esc(p.type)}${p.media?' - '+esc(p.media):''}</span>${p.featured?FTAG:''}</div><div class="meta">${byLine(u,1)}${dr}${pr}${rate}${time}</div>`;
- return `<div class="meta">${byLine(u,0)}<span class="tag">${esc(p.type)}</span>${dr}${pr}</div><div class="meta" style="margin-top:0">${p.media?`<span>${esc(p.media)} -</span>`:''}${rate}${time}</div>`};
+ if(big)return `<div class="meta bigtags"><span class="tag">${esc(p.type)}${p.media?' - '+esc(p.media):''}</span>${p.featured&&p.ftag?`<span class="tag">${esc(p.ftag)}</span>`:''}${p.featured?FTAG:''}</div><div class="meta">${byLine(u,1)}${dr}${pr}${rate}${time}</div>`;
+ return `<div class="meta">${byLine(u,0)}<span class="tag">${esc(p.type)}</span>${p.featured&&p.ftag?`<span class="tag">${esc(p.ftag)}</span>`:''}${dr}${pr}</div><div class="meta" style="margin-top:0">${p.media?`<span class="tag">${esc(p.media)}</span>`:''}${rate}${time}</div>`};
 const featFeedCard=f=>`<article class="post fp">${FBAN}<button class="open" data-a="feat" data-id="${f.id}">${esc(f.title)}</button><div class="meta">${userLink(user(f.by))}${fMedia(f)}${f.tag?`<span class="tag">${esc(f.tag)}</span>`:''}<span>${ago(f.publishedAt||f.ts)}</span></div>${f.dek?`<div class="body">${esc(f.dek)}</div>`:`<div class="body">${esc(excerpt(f.text))}</div>`}<div class="actions"><button class="btn ghost" data-a="feat" data-id="${f.id}">Read</button></div></article>`;
 const card=(p,plain)=>p.isFeat?featFeedCard(p):`<article class="post${p.featured&&!plain?' fp':''}">${p.featured?FBAN:''}${postMenu(p)}<button class="open" data-a="open" data-id="${p.id}">${esc(p.title)}</button>${meta(p)}
  ${bodyHtml(p)}<div class="actions"><button class="btn ghost" data-a="open" data-id="${p.id}">Read post</button></div>${actions(p)}</article>`;
@@ -533,7 +533,7 @@ function editForm(p){return `<section class="panel"><h2>Edit your post</h2>${p.p
  <label for="f-title">Headline</label><input id="f-title" maxlength="100" placeholder="Give your post a headline (optional)" value="${p.title!==p.media?esc(p.title):''}">
  <label for="f-text">Your review or blog</label>${fmtBar('f-text')}<textarea class="write" data-lk id="f-text" maxlength="10000">${esc(p.text)}</textarea><p class="hint" id="f-count">0 words</p>
  <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="f-spoil" style="width:auto"${p.spoiler?' checked':''}>This post contains spoilers</label>
- ${p.featured||fAcc(p)?fpPhotoBox('p:'+p.id,p.img):''}
+ ${p.featured||fAcc(p)?(fpState('p:'+p.id,p.img,p.ftag),ftagBox()+fpPhotoBox('p:'+p.id,p.img)):''}
  <div class="actions">${p.draft?`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Publish</button><button class="btn ghost" data-a="savepost" data-id="${p.id}" data-draft="1">Save draft</button>`:`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Save changes</button>`}<button class="btn ghost" data-a="open" data-id="${p.id}">Cancel</button></div></section>`}
 function postView(p){const u=me();if(view.edit&&u&&(u.id===p.by||(isEd()&&fWork(p))))return editForm(p);
  return `<button class="btn ghost" style="margin-bottom:14px" data-a="feed">Back to all posts</button>
@@ -699,7 +699,7 @@ const fCard=(f,showStatus)=>`<article class="tt-card">${fnImg(f,'feat')}<div><sp
  <div class="meta">${userLink(user(f.by))}${showStatus?`<span class="tag">${FSTAT[f.status]||''}</span>`:''}${f.via==='email'?'<span class="tag">via email</span>':''}</div>
  <p class="tt-ex">${esc(f.dek||excerpt(f.text))}</p>${showStatus&&f.status==='rejected'&&f.note?`<p class="hint">Editor's note: ${esc(f.note)}</p>`:''}
  <div class="actions"><button class="btn ghost" data-a="feat" data-id="${f.id}">Read</button>${featTools(f)}</div></div></article>`;
-const fpPost=p=>`<article class="tt-card">${fnImg(p,'open')}<div><span class="hint">${esc(p.type)}${p.media?' - '+esc(p.media):''} · ${ago(p.featuredAt||p.ts)}</span><h3><button data-a="open" data-id="${p.id}">${esc(p.title)}</button></h3>
+const fpPost=p=>`<article class="tt-card">${fnImg(p,'open')}<div><span class="hint">${esc(p.ftag||p.type)}${p.media?' - '+esc(p.media):''} · ${ago(p.featuredAt||p.ts)}</span><h3><button data-a="open" data-id="${p.id}">${esc(p.title)}</button></h3>
  <div class="meta">${userLink(user(p.by))}<span class="rate" aria-label="${p.rating} out of 5">${stars(p.rating)}</span></div>
  <p class="tt-ex">${p.spoiler?'⚠️ Contains spoilers':esc(excerpt(p.text))}</p><div class="actions"><button class="btn ghost" data-a="open" data-id="${p.id}">Read post</button></div></div></article>`;
 let fpEdit=false;
@@ -861,7 +861,8 @@ function photoCrop(f,cb){if(!f)return;if(!/^image\//.test(f.type)){toast('Choose
 function ttPickImg(f){if(!timesWrite)return;photoCrop(f,d=>{if(timesWrite){timesWrite.img='';timesWrite.data=d;ttPrev()}})}
 /* Feature Picks photo (16:9): pieces and featured posts */
 let fpPh=null;
-const fpState=(k,img)=>{if(!fpPh||fpPh.key!==k)fpPh={key:k,img:img||'',data:''};return fpPh};
+const fpState=(k,img,tag)=>{if(!fpPh||fpPh.key!==k)fpPh={key:k,img:img||'',data:'',tag:tag||''};return fpPh};
+const ftagBox=()=>`<label>Feature tag (optional)</label><div class="filters" id="f-ftag">${['Article','Essay','Review','Post'].map(t=>`<button type="button" class="chip" data-a="ftagpick" data-t="${t}" aria-pressed="${fpPh.tag===t}">${t}</button>`).join('')}</div>`;
 const fpPrevHtml=()=>{const w=fpPh||{};return w.data?`<img class="tt-img" src="${w.data}" alt="Photo preview">`:w.img?`<img class="tt-img" src="/api?img=${esc(w.img)}" alt="Current photo">`:'<div class="tt-ph">No photo yet (16:9)</div>'};
 const fpPhotoBox=(k,img)=>{fpState(k,img);return `<label for="fp-file">Photo (16:9, optional)</label><div id="fp-prev">${fpPrevHtml()}</div><div class="actions"><input type="file" id="fp-file" accept="image/*"><button type="button" class="link" data-a="fpnophoto">Remove photo</button></div>`};
 function fpPickImg(f){if(!fpPh)return;photoCrop(f,d=>{if(fpPh){fpPh.img='';fpPh.data=d;const e=$('fp-prev');if(e)e.innerHTML=fpPrevHtml()}})}
@@ -1100,6 +1101,7 @@ app.addEventListener('click',async e=>{
  else if(a==='ttwrite'){if(!db.canTimes)return;timesEdit=false;timesWrite={id:'',sec:TT_SEC.some(x=>x[0]===view.s)?view.s:'movies',kind:'Article',refs:'',img:'',data:'',title:'',text:'',by:'',art:'',layout:''};render();window.scrollTo(0,0)}
  else if(a==='ttedit'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;timesEdit=false;timesWrite={id:q.id,sec:q.sec,kind:q.kind||'Article',refs:q.refs||'',img:q.img||'',data:'',title:q.title,text:q.text,by:q.by||'',art:q.art||'',layout:q.layout||''};render();window.scrollTo(0,0)}
  else if(a==='ttcancel'){timesWrite=null;render()}
+ else if(a==='ftagpick'){if(fpPh){fpPh.tag=fpPh.tag===b.dataset.t?'':b.dataset.t;app.querySelectorAll('#f-ftag .chip').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.t===fpPh.tag)))}}
  else if(a==='fpnophoto'){if(fpPh){fpPh.img='';fpPh.data='';const e=$('fp-prev');if(e)e.innerHTML=fpPrevHtml()}}
  else if(a==='ttnophoto'){if(timesWrite){timesWrite.img='';timesWrite.data='';ttPrev()}}
  else if(a==='ttsave'){const w=timesWrite;if(!w)return;const sec=$('tt-sec').value,r=await api('tpost',{id:w.id,sec,kind:$('tt-kind').value,refs:$('tt-refs').value,title:g('tt-title'),by:$('tt-by').value,art:$('tt-art').value,layout:$('tt-layout').value,text:$('tt-text').value,keepImg:!!w.img,data:w.data});if(r){timesWrite=null;toast(w.id?'Saved':'Published');ttDir=1;go({n:'times',s:sec,pid:r.tid})}}
@@ -1218,7 +1220,7 @@ app.addEventListener('click',async e=>{
  else if(a==='savec'){const t=g('ce-t');if(!t){toast('Comment cannot be empty');return}if(await api('editcomment',{id,i:+b.dataset.i,t,spoiler:!!($('ce-spoil')&&$('ce-spoil').checked)})){go({n:'post',id},true);toast('Comment updated')}}
  else if(a==='savepost'){const dr=b.dataset.draft==='1',d={id,type:g('f-type'),media:g('f-media'),rating,text:g('f-text'),spoiler:$('f-spoil').checked,draft:dr};
   d.title=g('f-title')||d.media;
-  if($('fp-file')){d.keepImg=!!(fpPh&&fpPh.img);if(fpPh&&fpPh.data)d.data=fpPh.data}
+  if($('fp-file')){d.ftag=(fpPh&&fpPh.tag)||'';d.keepImg=!!(fpPh&&fpPh.img);if(fpPh&&fpPh.data)d.data=fpPh.data}
   if(dr?!d.media:(!d.media||!d.text)){toast(dr?'Add a title first':'Add a title and your review first');return}
   if(p&&p.draft&&!dr&&!rating){toast('Pick a star rating first');return}
   const was=p&&p.draft;
