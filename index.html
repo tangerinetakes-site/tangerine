@@ -290,6 +290,29 @@ body{margin:0;background:var(--bg)}
 #tg .tt-row .tt-cred{margin:0 0 6px}
 #tg .tt-row .tt-ex{font-size:.98rem;line-height:1.5}
 @media(max-width:520px){#tg .tt-row{grid-template-columns:112px minmax(0,1fr);gap:12px}#tg .tt-row.tt-noimg{grid-template-columns:minmax(0,1fr)}#tg .tt-row .tt-ex{font-size:.92rem}}
+/* Flipbook (Times) */
+#tg .fb{margin:18px 0 22px}
+#tg .fb-stage{position:relative;display:flex;align-items:center;justify-content:center;perspective:2400px;touch-action:pan-y;user-select:none;-webkit-user-select:none;cursor:grab;overflow:hidden;border-radius:14px;background:var(--os)}
+#tg .fb-book{position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.5,.1,.2,1)}
+#tg .fb-leaf{position:absolute;top:0;transform-origin:left center;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.5,.1,.2,1)}
+#tg .fb-leaf.drag{transition:none}
+#tg .fb-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:#fff;box-shadow:0 6px 18px rgba(60,30,5,.22)}
+#tg .fb-face.back{transform:rotateY(180deg)}
+#tg .fb-face.blank{background:#efe3d2}
+#tg .fb-face img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+#tg .fb-face::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(to right,rgba(0,0,0,.2),transparent 9%)}
+#tg .fb-face.back::after{background:linear-gradient(to left,rgba(0,0,0,.2),transparent 9%)}
+#tg .fb-nav{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 0 0;flex-wrap:wrap}
+#tg .fb-count{min-width:96px;text-align:center;font-weight:700;font-size:.9rem}
+#tg .fb:fullscreen{display:flex;flex-direction:column;background:var(--bg);margin:0;padding:10px}
+#tg .fb:fullscreen .fb-stage{flex:1;min-height:0;border-radius:0}
+@media(prefers-reduced-motion:reduce){#tg .fb-book,#tg .fb-leaf{transition:none!important}}
+#tg .fbg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin:10px 0}
+#tg .fbg-i{position:relative;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:var(--os);cursor:grab}
+#tg .fbg-i img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;pointer-events:none}
+#tg .fbg-n{position:absolute;top:4px;left:4px;background:var(--od);color:#fff;border-radius:999px;font-size:.75rem;font-weight:800;padding:1px 7px}
+#tg .fbg-b{display:flex;justify-content:space-between;gap:2px;padding:3px;background:var(--bg)}
+#tg .fbg-b button{flex:1;padding:4px 0;font-size:.85rem;border:1px solid var(--line);border-radius:8px;background:var(--os);color:var(--od);cursor:pointer;box-shadow:none}
 </style>
 </head>
 <body>
@@ -537,7 +560,7 @@ function editForm(p){return `<section class="panel"><h2>Edit your post</h2>${p.p
  <div class="actions">${p.draft?`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Publish</button><button class="btn ghost" data-a="savepost" data-id="${p.id}" data-draft="1">Save draft</button>`:`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Save changes</button>`}<button class="btn ghost" data-a="open" data-id="${p.id}">Cancel</button></div></section>`}
 function postView(p){const u=me();if(view.edit&&u&&(u.id===p.by||(isEd()&&fWork(p))))return editForm(p);
  return `<button class="btn ghost" style="margin-bottom:14px" data-a="feed">Back to all posts</button>
- <article class="post${p.featured?' fp':''}">${p.featured?FBAN:''}${postMenu(p)}${p.featured&&p.img?`<img class="tt-img" style="margin-bottom:12px" src="/api?img=${p.img}" alt="">`:''}<h3>${esc(p.title)}</h3>${meta(p,1)}${u&&u.id===p.by&&fAcc(p)?'<p class="hint">🍊 You accepted the Feature Picks invite. An editor will send you notes or edit the post first, then add it to Feature Picks.</p>':''}${u&&u.id===p.by&&p.featured?'<p class="hint">🍊 This post is in Feature Picks.</p>':''}${bodyHtml(p,1)}${p.draft?'<p class="hint">'+(p.prompt&&promptOf(p.prompt)?'💭 Answering the weekly prompt: <b>'+esc(promptOf(p.prompt).title)+'</b>. ':'')+'Draft: only you can see this. Edit it to publish.</p>':actions(p,1)}
+ <article class="post${p.featured?' fp':''}">${p.featured?FBAN:''}${postMenu(p)}${p.featured&&p.img?`<img class="tt-img" style="margin-bottom:12px" src="${ttSrc(p)}" alt="">`:''}<h3>${esc(p.title)}</h3>${meta(p,1)}${u&&u.id===p.by&&fAcc(p)?'<p class="hint">🍊 You accepted the Feature Picks invite. An editor will send you notes or edit the post first, then add it to Feature Picks.</p>':''}${u&&u.id===p.by&&p.featured?'<p class="hint">🍊 This post is in Feature Picks.</p>':''}${bodyHtml(p,1)}${p.draft?'<p class="hint">'+(p.prompt&&promptOf(p.prompt)?'💭 Answering the weekly prompt: <b>'+esc(promptOf(p.prompt).title)+'</b>. ':'')+'Draft: only you can see this. Edit it to publish.</p>':actions(p,1)}
  <div class="comments"${p.draft?' hidden':''}><h3 style="font-size:1.1rem;margin-bottom:6px">Comments (${p.comments.length})</h3>
  ${p.comments.map((c,i)=>commentHtml(p,c,i)).join('')||'<p class="empty" style="padding:6px 0">No comments yet. Be the first to squeeze one in.</p>'}
  ${u?`<div class="cform"><input id="c-t" maxlength="300" placeholder="Comment as ${esc(u.name)}"><button class="btn" data-a="send" data-id="${p.id}">Comment</button><label class="cspoil"><input type="checkbox" id="c-spoil">This comment contains spoilers</label></div>`
@@ -742,7 +765,7 @@ function featForm(id){const f=id?feats().find(x=>x.id===id):null,adm=isAdmin(),e
 /* ---------- The Tangerine Times 📰 ---------- */
 const TT=[['latest','Latest'],['movies','Movies/TV'],['books','Books'],['games','Games'],['music','Music'],['culture','Culture'],['magazine','Zine'],['about','About the Times']];
 const TT_SEC=TT.filter(x=>x[0]!=='latest'&&x[0]!=='about');
-const TT_KINDS=['Article','Essay','Review','Recommendation'];
+const TT_KINDS=['Article','Essay','Review','Recommendation','Flipbook'];
 const TT_DEF={head:'The first edition is on its way.',body:"The Tangerine Times is our own paper: features, essays and recommendations written by our team.\n\nWe are still warming up the presses. Check back soon.",about:"The Tangerine Times is the publishing side of Tangerine Takes. Tangerine Takes is where everyone posts their own slices. The Times is where our team writes and edits longer pieces, features and picks.\n\nEvery piece is read by an editor before it goes live.",joinHead:'Join the Tangerine Tree',joinBody:'We are looking for writers, editors and creatives. Fill out our form and tell us what you would like to do.',abHead:'Peeled, sliced and shared.',abBody:'Tangerine Takes is a space to review and talk about movies, shows, books, games, music and internet culture. Rate with tangerines, write reviews and join the conversation.'};
 let timesPitch=null,timesBox=false,timesEdit=false,timesWrite=null,ttDir=1,ttLast=null;
 function ttPath(v){return v.pid?'/times/p/'+v.pid:'/times'+(v.s&&v.s!=='latest'?'/'+v.s:'')}
@@ -831,13 +854,14 @@ function hbInit(){const m=app.querySelector('.hb'),t=app.querySelector('.hb-t');
  t.style.transition='none';hbGo(hbI);void t.offsetWidth;t.style.transition='';
   let x0=null;t.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
  t.addEventListener('touchend',e=>{if(x0!==null){const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)hbGo(hbI+(dx<0?1:-1));x0=null}})}
+const ttSrc=p=>p.img?'/api?img='+p.img:(p.pages&&p.pages[0]?'/api?img='+p.pages[0]:'');
 const ttCredits=p=>{const b=[];if(p.by)b.push(['By',p.by]);if(p.art)b.push(['Art by',p.art]);if(p.layout)b.push(['Layout by',p.layout]);return b.length?`<p class="tt-cred">${b.map(x=>x[0]+' <b>'+esc(user(x[1]).name)+'</b>').join(' · ')}</p>`:''};
-const ttCard=p=>`<article class="tt-card">${p.img?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="/api?img=${p.img}" alt="" loading="lazy"></button>`:''}<div><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(excerpt(p.text))}</p>${db.canTimes?`<button class="link" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Featured · remove':'☆ Feature this'}</button>`:''}</div></article>`;
+const ttCard=p=>`<article class="tt-card">${ttSrc(p)?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="${ttSrc(p)}" alt="" loading="lazy"></button>`:''}<div><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(excerpt(p.text))}</p>${db.canTimes?`<button class="link" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Featured · remove':'☆ Feature this'}</button>`:''}</div></article>`;
 const ttTwo=t=>{t=plainLk(t).replace(/\s+/g,' ').trim();const m=t.match(/[^.!?]+[.!?]+(?=\s|$)/g);let r=m?m.slice(0,2).join(' ').trim():t;if(r.length>230)r=r.slice(0,230).replace(/\s+\S*$/,'')+'...';return r||excerpt(t)};
-const ttRow=p=>`<article class="tt-row${p.img?'':' tt-noimg'}">${p.img?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="/api?img=${p.img}" alt="" loading="lazy"></button>`:''}<div><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(ttTwo(p.text))}</p>${db.canTimes?`<button class="link" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Featured · remove':'☆ Feature this'}</button>`:''}</div></article>`;
+const ttRow=p=>`<article class="tt-row${ttSrc(p)?'':' tt-noimg'}">${ttSrc(p)?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="${ttSrc(p)}" alt="" loading="lazy"></button>`:''}<div><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(ttTwo(p.text))}</p>${db.canTimes?`<button class="link" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Featured · remove':'☆ Feature this'}</button>`:''}</div></article>`;
 let ttCarI=0;
 const ttMotion=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
-const ttSlide=p=>`<div class="tt-sl">${p.img?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="/api?img=${p.img}" alt=""></button>`:''}<div class="tt-sl-b"><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3 class="tt-sl-h"><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(excerpt(p.text))}</p></div></div>`;
+const ttSlide=p=>`<div class="tt-sl">${ttSrc(p)?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="${ttSrc(p)}" alt=""></button>`:''}<div class="tt-sl-b"><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3 class="tt-sl-h"><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(excerpt(p.text))}</p></div></div>`;
 const ttHero=list=>{const l=list.slice(0,5);return `<section class="tt-hero" aria-label="Latest pieces"><div class="tt-car" tabindex="0" aria-label="Latest pieces${l.length>1?', swipe for the next ones':''}">${l.map(ttSlide).join('')}</div>${l.length>1?`<div class="tt-cbar"><button class="link" data-a="ttcar" data-d="-1" aria-label="Previous piece">←</button><span class="tt-dots">${l.map((_,i)=>`<button data-a="ttdot" data-i="${i}" aria-label="Show piece ${i+1}" aria-current="${i===0}"></button>`).join('')}</span><button class="link" data-a="ttcar" data-d="1" aria-label="Next piece">→</button></div>`:''}</section>`};
 const ttFeatured=(tp,can)=>{const fl=tp.filter(x=>x.feat).sort((x,y)=>y.feat-x.feat).slice(0,6);
  if(fl.length)return `<section class="tt-featsec"><h2 class="tt-sh">Featured</h2><div class="tt-feat">${fl.map(ttCard).join('')}</div></section>`;
@@ -846,7 +870,7 @@ function ttCar(){const t=app.querySelector('.tt-car');if(!t)return;const dots=ap
  if(ttCarI&&ttCarI<dots.length){t.scrollLeft=ttCarI*t.clientWidth}else ttCarI=0;mark(ttCarI);
  let raf;t.addEventListener('scroll',()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const i=Math.round(t.scrollLeft/(t.clientWidth||1));ttCarI=i;mark(i)})})}
 const ttRefs=p=>{const r=String(p.refs||'').split(/\n/).map(x=>x.trim()).filter(Boolean);return r.length?`<section class="tt-refs" aria-label="References"><h4>References</h4><ol>${r.map(x=>`<li>${lkx(x)}</li>`).join('')}</ol></section>`:''};
-const ttArticle=p=>`<article class="tt-art"><button class="link" data-a="timestab" data-s="${p.sec}">← ${esc(ttLabel(p.sec))}</button>${p.img?`<img class="tt-img" style="margin-top:12px" src="/api?img=${p.img}" alt="">`:''}<span class="hint" style="display:block;margin-top:14px">${ttMeta(p)} · ${ttDate(p.ts)}${p.edited?' · edited':''}</span><h2 class="tt-h">${esc(p.title)}</h2>${ttCredits(p)}<div class="tt-text">${timesParas(p.text)}</div>${ttRefs(p)}${db.canTimes?`<div class="actions"><button class="btn ghost" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Unfeature':'☆ Feature'}</button><button class="btn ghost" data-a="ttedit" data-id="${p.id}">Edit</button><button class="btn ghost" data-a="ttdel" data-id="${p.id}">Delete</button></div>`:''}</article>`;
+const ttArticle=p=>`<article class="tt-art"><button class="link" data-a="timestab" data-s="${p.sec}">← ${esc(ttLabel(p.sec))}</button>${p.img&&p.kind!=='Flipbook'?`<img class="tt-img" style="margin-top:12px" src="${ttSrc(p)}" alt="">`:''}<span class="hint" style="display:block;margin-top:14px">${ttMeta(p)} · ${ttDate(p.ts)}${p.edited?' · edited':''}</span><h2 class="tt-h">${esc(p.title)}</h2>${ttCredits(p)}${p.kind==='Flipbook'&&(p.pages||[]).length?fbHtml(p):''}<div class="tt-text">${timesParas(p.text)}</div>${ttRefs(p)}${db.canTimes?`<div class="actions"><button class="btn ghost" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Unfeature':'☆ Feature'}</button><button class="btn ghost" data-a="ttedit" data-id="${p.id}">Edit</button><button class="btn ghost" data-a="ttdel" data-id="${p.id}">Delete</button></div>`:''}</article>`;
 const ttPrevHtml=()=>{const w=timesWrite||{};return w.data?`<img class="tt-img" src="${w.data}" alt="Photo preview">`:w.img?`<img class="tt-img" src="/api?img=${esc(w.img)}" alt="Current photo">`:'<div class="tt-ph">No photo yet (16:9)</div>'};
 function ttPrev(){const e=$('tt-prev');if(e)e.innerHTML=ttPrevHtml()}
 function photoCrop(f,cb){if(!f)return;if(!/^image\//.test(f.type)){toast('Choose an image file');return}
@@ -866,7 +890,108 @@ const ftagBox=()=>`<label>Feature tag (optional)</label><div class="filters" id=
 const fpPrevHtml=()=>{const w=fpPh||{};return w.data?`<img class="tt-img" src="${w.data}" alt="Photo preview">`:w.img?`<img class="tt-img" src="/api?img=${esc(w.img)}" alt="Current photo">`:'<div class="tt-ph">No photo yet (16:9)</div>'};
 const fpPhotoBox=(k,img)=>{fpState(k,img);return `<label for="fp-file">Photo (16:9, optional)</label><div id="fp-prev">${fpPrevHtml()}</div><div class="actions"><input type="file" id="fp-file" accept="image/*"><button type="button" class="link" data-a="fpnophoto">Remove photo</button></div>`};
 function fpPickImg(f){if(!fpPh)return;photoCrop(f,d=>{if(fpPh){fpPh.img='';fpPh.data=d;const e=$('fp-prev');if(e)e.innerHTML=fpPrevHtml()}})}
-app.addEventListener('change',e=>{if(e.target.id==='tt-file'){ttPickImg(e.target.files&&e.target.files[0]);e.target.value=''}else if(e.target.id==='fp-file'){fpPickImg(e.target.files&&e.target.files[0]);e.target.value=''}});
+app.addEventListener('change',e=>{if(e.target.id==='fb-file'){fbAdd([...e.target.files]);e.target.value=''}else if(e.target.id==='tt-kind'){fbKind()}else if(e.target.id==='tt-file'){ttPickImg(e.target.files&&e.target.files[0]);e.target.value=''}else if(e.target.id==='fp-file'){fpPickImg(e.target.files&&e.target.files[0]);e.target.value=''}});
+
+/* ---------- Flipbook (Times): reader + page uploader ---------- */
+const FB_MAX=30,FB_W=1200,FB_H=1500,FB_CAP=680000; /* 4:5 pages, 1200 x 1500, JPEG under ~510 KB each */
+let fbS=null,fbMode='auto',fbBusy=false,fbLibP=null,fbDrag=null;
+const fbHtml=p=>`<div class="fb" id="fb" data-pid="${p.id}"><div class="fb-stage" id="fb-stage" aria-label="Flipbook: drag a page, tap the left or right side, or use the arrow keys"><div class="fb-book" id="fb-book"></div></div><div class="fb-nav"><button type="button" class="btn ghost" id="fb-prev" aria-label="Previous page">← Back</button><span class="fb-count" id="fb-count" aria-live="polite"></span><button type="button" class="btn ghost" id="fb-next" aria-label="Next page">Next →</button><button type="button" class="btn ghost" id="fb-mode">View: Auto</button><button type="button" class="btn ghost" id="fb-fs">Fullscreen</button></div></div>`;
+function fbInit(){const el=$('fb');if(!el){fbS=null;return}
+ const pid=el.dataset.pid,p=(db.tposts||[]).find(x=>x.id===pid);if(!p||!(p.pages||[]).length)return;
+ fbS={pid,pages:p.pages.slice(),cur:fbS&&fbS.pid===pid?fbS.cur:0,leaves:[],spread:true,P:0,H:0,n:0,el,dr:null};
+ $('fb-prev').onclick=()=>fbGo(-1);$('fb-next').onclick=()=>fbGo(1);
+ $('fb-mode').textContent='View: '+(fbMode==='auto'?'Auto':fbMode==='spread'?'Spread':'Single page');
+ $('fb-mode').onclick=()=>{const S=fbS,was=S.spread;fbMode=fbMode==='auto'?(was?'single':'spread'):fbMode==='spread'?'single':'spread';
+  $('fb-mode').textContent='View: '+(fbMode==='spread'?'Spread':'Single page');
+  const now=fbMode==='spread';S.cur=was?(now?S.cur:(S.cur===0?0:Math.min(S.pages.length-1,2*S.cur-1))):(now?Math.floor((S.cur+1)/2):S.cur);fbBuild()};
+ const fs=$('fb-fs');if(!el.requestFullscreen)fs.style.display='none';
+ else fs.onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():el.requestFullscreen()}catch(e){}};
+ const st=$('fb-stage');
+ st.addEventListener('pointerdown',e=>{const S=fbS;if(!S)return;const r=$('fb-book').getBoundingClientRect();S.dr={x:e.clientX,right:e.clientX>r.left+r.width*(S.spread?.5:.4),leaf:null,p:0};try{st.setPointerCapture(e.pointerId)}catch(_){}});
+ st.addEventListener('pointermove',e=>{const S=fbS,d=S&&S.dr;if(!d)return;const dx=e.clientX-d.x;
+  if(!d.leaf&&Math.abs(dx)>6){const k=d.right&&dx<0?S.cur:!d.right&&dx>0?S.cur-1:-1;
+   if(k>=0&&k<S.n&&(d.right?S.cur<fbMax():S.cur>0)){d.leaf=S.leaves[k];d.leaf.classList.add('drag');d.leaf.style.zIndex=200;fbLoad(k)}}
+  if(d.leaf){d.p=Math.max(0,Math.min(1,Math.abs(dx)/S.P));d.leaf.style.transform='rotateY('+(d.right?-180*d.p:-180*(1-d.p))+'deg)'}});
+ const end=e=>{const S=fbS,d=S&&S.dr;if(!d)return;S.dr=null;const dx=e.clientX-d.x;
+  if(d.leaf){d.leaf.classList.remove('drag');if(d.p>.25)S.cur+=d.right?1:-1;fbRender(true);return}
+  if(Math.abs(dx)<6)fbGo(d.right?1:-1)};
+ st.addEventListener('pointerup',end);st.addEventListener('pointercancel',end);
+ fbBuild()}
+const fbMax=()=>fbS.spread?fbS.n:fbS.list.length-1;
+function fbBuild(){const S=fbS;if(!S||!document.body.contains(S.el))return;
+ const stage=$('fb-stage'),book=$('fb-book'),fsOn=document.fullscreenElement===S.el;
+ const w=stage.clientWidth||S.el.clientWidth||320;
+ S.spread=fbMode==='auto'?w>=560:fbMode==='spread';
+ S.list=S.pages.slice();if(S.spread&&S.list.length%2)S.list.push('');
+ const N=S.list.length,availH=fsOn?stage.clientHeight-12:innerHeight*.85;
+ const H=Math.max(160,Math.min(availH,((S.spread?w/2:w)-8)/.8)),P=H*.8;S.P=P;S.H=H;S.n=S.spread?N/2:N;
+ S.cur=Math.min(S.cur,fbMax());
+ stage.style.height=fsOn?'':(H+16)+'px';
+ book.style.width=(S.spread?2*P:P)+'px';book.style.height=H+'px';book.innerHTML='';S.leaves=[];
+ const face=(cls,id,k)=>{const d=document.createElement('div');d.className='fb-face '+cls+(id?'':' blank');if(id){const im=document.createElement('img');im.alt='Page '+(k+1);im.draggable=false;im.decoding='async';im.dataset.src='/api?img='+id;d.appendChild(im)}return d};
+ for(let k=0;k<S.n;k++){const l=document.createElement('div');l.className='fb-leaf';l.style.cssText='width:'+P+'px;height:'+H+'px;left:'+(S.spread?P:0)+'px';
+  l.appendChild(face('front',S.list[S.spread?2*k:k],S.spread?2*k:k));
+  l.appendChild(face('back',S.spread?S.list[2*k+1]:'',2*k+1));
+  book.appendChild(l);S.leaves.push(l)}
+ fbRender(false)}
+function fbLoad(k){const S=fbS;for(let i=k-2;i<=k+3;i++){const l=S.leaves[i];if(l)l.querySelectorAll('img[data-src]').forEach(im=>{if(!im.src)im.src=im.dataset.src})}}
+function fbRender(anim){const S=fbS;if(!S)return;const n=S.n;
+ S.leaves.forEach((l,k)=>{const f=k<S.cur,changed=l._f!==undefined&&l._f!==f;l._f=f;l.classList.remove('drag');
+  l.style.transition=anim?'':'none';l.style.transform='rotateY('+(f?-180:0)+'deg)';
+  if(changed&&anim){l.style.zIndex=200;setTimeout(()=>{l.style.zIndex=l._f?k:n-k},950)}else l.style.zIndex=f?k:n-k});
+ const book=$('fb-book'),x=S.spread?(S.cur===0?-S.P/2:S.cur===n?S.P/2:0):0,T=S.pages.length;
+ book.style.transition=anim?'':'none';book.style.transform='translateX('+x+'px)';
+ fbLoad(S.cur);
+ $('fb-count').textContent=S.spread?(S.cur===0?'Cover':S.cur===n?'Back cover':(2*S.cur)+(2*S.cur+1<=T?' – '+(2*S.cur+1):'')+' / '+T):(S.cur+1)+' / '+T;
+ $('fb-prev').disabled=S.cur<=0;$('fb-next').disabled=S.cur>=fbMax()}
+function fbGo(d){const S=fbS;if(!S)return;const c=S.cur+d;if(c<0||c>fbMax())return;S.cur=c;fbRender(true)}
+document.addEventListener('keydown',e=>{if(!fbS||!$('fb'))return;if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||''))return;if(e.key==='ArrowRight')fbGo(1);else if(e.key==='ArrowLeft')fbGo(-1)});
+let fbRt;addEventListener('resize',()=>{clearTimeout(fbRt);fbRt=setTimeout(()=>{if(fbS&&$('fb'))fbBuild()},150)});
+document.addEventListener('fullscreenchange',()=>{if(fbS&&$('fb'))setTimeout(fbBuild,60)});
+
+/* --- composer: pick a PDF or images, turn them into 4:5 JPEG pages in the browser --- */
+const fbPost=async(a,d)=>{try{const r=await fetch('/api',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+TOKEN},body:JSON.stringify({a,d})});return await r.json()}catch(e){return{error:'Network problem, try again'}}};
+const fbForm=()=>`<label for="fb-file">Pages (a PDF or several images)</label><input type="file" id="fb-file" accept="application/pdf,image/*" multiple><p class="hint">Up to ${FB_MAX} pages. Best shape is 4:5 portrait (for example 1200 × 1500 px). Pages in another shape are fitted inside a 4:5 page with white edges. A PDF can be up to 50 MB and is read on your device, so the PDF itself is not uploaded. Text in a PDF becomes part of the picture, so readers cannot select it. Drag pages or use the arrows to reorder.</p><p class="hint" id="fb-status" aria-live="polite"></p><div class="fbg" id="fb-grid">${fbGridHtml()}</div>`;
+const fbGridHtml=()=>{const L=(timesWrite&&timesWrite.pages)||[];return L.length?L.map((x,i)=>`<div class="fbg-i" draggable="true" data-i="${i}"><img src="${x.data||'/api?img='+x.id}" alt="Page ${i+1}"><span class="fbg-n">${i+1}</span><div class="fbg-b"><button type="button" data-a="fbleft" data-i="${i}" aria-label="Move page ${i+1} earlier">←</button><button type="button" data-a="fbrm" data-i="${i}" aria-label="Remove page ${i+1}">✕</button><button type="button" data-a="fbright" data-i="${i}" aria-label="Move page ${i+1} later">→</button></div></div>`).join(''):'<p class="hint">No pages yet.</p>'};
+function fbGrid(){const e=$('fb-grid');if(e)e.innerHTML=fbGridHtml();const c=$('fb-status');if(c&&!fbBusy){const n=((timesWrite&&timesWrite.pages)||[]).length;c.textContent=n?n+' of '+FB_MAX+' pages':''}}
+function fbKind(){const k=$('tt-kind').value==='Flipbook',b=$('tt-fbbox'),l=$('tt-textlabel');if(b)b.hidden=!k;if(l)l.textContent=k?'Short description (optional)':'Content';if(timesWrite)timesWrite.kind=$('tt-kind').value}
+function fbLib(){if(window.pdfjsLib)return Promise.resolve(window.pdfjsLib);if(fbLibP)return fbLibP;
+ return fbLibP=new Promise((ok,no)=>{const V='3.11.174',s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/'+V+'/pdf.min.js';
+  s.onload=()=>{pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/'+V+'/pdf.worker.min.js';ok(pdfjsLib)};
+  s.onerror=()=>{fbLibP=null;no(new Error('lib'))};document.head.appendChild(s)})}
+function fbJpeg(c){let q=.85,d=c.toDataURL('image/jpeg',q);while(d.length>FB_CAP&&q>.5){q-=.07;d=c.toDataURL('image/jpeg',q)}return d.length>FB_CAP?'':d}
+function fbBlank(){const c=document.createElement('canvas');c.width=FB_W;c.height=FB_H;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,FB_W,FB_H);return c}
+function fbImg(f){return new Promise((ok,no)=>{const u=URL.createObjectURL(f),im=new Image();
+ im.onload=()=>{const c=fbBlank(),x=c.getContext('2d'),sc=Math.min(FB_W/im.width,FB_H/im.height),w=im.width*sc,h=im.height*sc;x.imageSmoothingQuality='high';x.drawImage(im,(FB_W-w)/2,(FB_H-h)/2,w,h);URL.revokeObjectURL(u);ok(c)};
+ im.onerror=()=>{URL.revokeObjectURL(u);no(new Error('img'))};im.src=u})}
+async function fbPdfPage(pg){const v1=pg.getViewport({scale:1}),sc=Math.min(FB_W/v1.width,FB_H/v1.height),v=pg.getViewport({scale:sc}),c=fbBlank(),x=c.getContext('2d');
+ await pg.render({canvasContext:x,viewport:v,transform:[1,0,0,1,(FB_W-v.width)/2,(FB_H-v.height)/2]}).promise;pg.cleanup();return c}
+async function fbAdd(files){const w=timesWrite;if(!w||!files.length||fbBusy)return;fbBusy=true;
+ const say=m=>{const e=$('fb-status');if(e)e.textContent=m};
+ files.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+ try{for(const f of files){
+  if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+   if(f.size>50*1048576){toast('That PDF is over 50 MB');continue}
+   say('Opening the PDF...');const lib=await fbLib(),pdf=await lib.getDocument({data:await f.arrayBuffer()}).promise;
+   if(pdf.numPages>FB_MAX){toast('That PDF has '+pdf.numPages+' pages. The limit is '+FB_MAX+'.');pdf.destroy();continue}
+   if(w.pages.length+pdf.numPages>FB_MAX){toast('A flipbook can have up to '+FB_MAX+' pages');pdf.destroy();continue}
+   for(let i=1;i<=pdf.numPages;i++){say('Preparing page '+i+' of '+pdf.numPages+'...');const d=fbJpeg(await fbPdfPage(await pdf.getPage(i)));
+    if(!d){toast('Page '+i+' is too detailed to fit. Try exporting the PDF at a lower quality.');continue}w.pages.push({id:'',data:d});fbGrid()}
+   pdf.destroy()}
+  else if(/^image\//.test(f.type)){if(w.pages.length>=FB_MAX){toast('A flipbook can have up to '+FB_MAX+' pages');break}
+   say('Preparing '+f.name+'...');const d=fbJpeg(await fbImg(f));if(!d){toast(f.name+' is too detailed to fit');continue}w.pages.push({id:'',data:d});fbGrid()}
+  else toast('Skipped '+f.name+'. Choose a PDF or images.')}}
+ catch(e){toast('Could not read that file')}
+ fbBusy=false;say('');fbGrid()}
+async function fbUpload(btn){const todo=timesWrite.pages.filter(x=>!x.id),old=btn.textContent;let n=0;btn.disabled=true;
+ for(const it of todo){n++;btn.textContent='Uploading page '+n+' of '+todo.length+'...';let j=await fbPost('tpage',{data:it.data});if(j.error)j=await fbPost('tpage',{data:it.data});
+  if(j.error||!j.pid){toast(j.error||'Upload failed');btn.textContent=old;btn.disabled=false;return false}it.id=j.pid;it.up=true;it.data=''}
+ btn.textContent=old;btn.disabled=false;return true}
+function fbDropNew(){const ids=((timesWrite&&timesWrite.pages)||[]).filter(x=>x.up&&x.id).map(x=>x.id);if(ids.length)fbPost('tpagedrop',{ids})}
+app.addEventListener('dragstart',e=>{const i=e.target.closest&&e.target.closest('.fbg-i');if(!i)return;fbDrag=+i.dataset.i;try{e.dataTransfer.setData('text/plain','p');e.dataTransfer.effectAllowed='move'}catch(_){}});
+app.addEventListener('dragover',e=>{if(fbDrag!==null&&e.target.closest&&e.target.closest('.fbg-i'))e.preventDefault()});
+app.addEventListener('drop',e=>{const i=e.target.closest&&e.target.closest('.fbg-i');if(fbDrag===null||!i||!timesWrite)return;e.preventDefault();const to=+i.dataset.i,L=timesWrite.pages,it=L.splice(fbDrag,1)[0];L.splice(to,0,it);fbDrag=null;fbGrid()});
+app.addEventListener('dragend',()=>{fbDrag=null});
 
 const PT_SEC=TT_SEC;
 const ptStatus=p=>p.status==='returned'?'<span class="badge">↩ Sent back</span>':'<span class="badge">⏳ Waiting</span>';
@@ -889,7 +1014,7 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist');
  return `<section class="panel"><h2>${w.id?'Edit piece':'New piece for the Times'}</h2>
  <label for="tt-sec">Section</label><select id="tt-sec">${TT_SEC.map(x=>`<option value="${x[0]}"${x[0]===w.sec?' selected':''}>${x[1]}</option>`).join('')}</select>
  <label for="tt-kind">Type</label><select id="tt-kind">${TT_KINDS.map(k=>`<option${k===(w.kind||'Article')?' selected':''}>${k}</option>`).join('')}</select>
- <label for="tt-file">Photo (16:9, optional)</label><div id="tt-prev">${ttPrevHtml()}</div>
+ <label for="tt-file">${w.kind==='Flipbook'?'Cover photo for the feed (16:9, optional. Without it the first page is used)':'Photo (16:9, optional)'}</label><div id="tt-prev">${ttPrevHtml()}</div>
  <div class="actions"><input type="file" id="tt-file" accept="image/*"><button class="link" data-a="ttnophoto">Remove photo</button></div>
  <p class="hint">Any photo works. It is cropped to 16:9 from the center.</p>
  <label for="tt-title">Headline</label><input id="tt-title" maxlength="140" value="${esc(w.title||'')}">
@@ -897,7 +1022,8 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist');
  <label for="tt-art">Art by</label><select id="tt-art">${opt(ar,w.art,'No artist')}</select>
  <label for="tt-layout">Layout by</label><select id="tt-layout">${opt(ar,w.layout,'No artist')}</select>
  ${!wr.length||!ar.length?'<p class="hint">Writers and artists show up in these lists once an admin adds them under Times team (bottom of the Latest page).</p>':''}
- <label for="tt-text">Content</label>${fmtBar('tt-text')}<textarea id="tt-text" data-lk maxlength="20000" style="min-height:340px">${esc(w.text||'')}</textarea>
+ <div id="tt-fbbox"${w.kind==='Flipbook'?'':' hidden'}>${fbForm()}</div>
+ <label for="tt-text" id="tt-textlabel">${w.kind==='Flipbook'?'Short description (optional)':'Content'}</label>${fmtBar('tt-text')}<textarea id="tt-text" data-lk maxlength="20000" style="min-height:340px">${esc(w.text||'')}</textarea>
  <label for="tt-refs">References (optional)</label>${fmtBar('tt-refs')}<textarea id="tt-refs" data-lk maxlength="3000" style="min-height:110px" placeholder="One source per line. For example: Author, Title, Year, or a link.">${esc(w.refs||'')}</textarea><p class="hint">Shows in small text at the end of the piece, as a numbered list. One reference per line.</p>
  <div class="actions"><button class="btn" data-a="ttsave">${w.id?'Save changes':'Publish'}</button><button class="btn ghost" data-a="ttcancel">Cancel</button></div></section>`}
 const crewBox=()=>{const cr=db.profiles.filter(u=>u.crew);
@@ -1036,7 +1162,7 @@ function render(){
  else if(view.n==='post'){const p=postById(view.id);body=p?postView(p):feedView()}
  else if(view.n==='profile')body=profileView(user(view.id));
  else body=feedView();
- const tt=view.n==='times';$('tg').classList.toggle('intimes',tt);document.title=tt?'The Tangerine Times':'Tangerine Takes';app.innerHTML=(tt?'':bar())+body;{const s2=$('tg-s2');if(s2)s2.style.display=me()?'none':'block';fitTitle()}if(tt){ttInd();ttCar()}else ttLast=null;hbInit();
+ const tt=view.n==='times';$('tg').classList.toggle('intimes',tt);document.title=tt?'The Tangerine Times':'Tangerine Takes';app.innerHTML=(tt?'':bar())+body;{const s2=$('tg-s2');if(s2)s2.style.display=me()?'none':'block';fitTitle()}if(tt){ttInd();ttCar();fbInit()}else{ttLast=null;fbS=null}hbInit();
  if(obs){obs.disconnect();obs=null}
  const mo=$('more');if(mo){obs=new IntersectionObserver(es=>{if(es[0].isIntersecting)loadMore()},{rootMargin:'500px'});obs.observe(mo)}
  initRte();const ft=$('f-text');if(ft)grow(ft);
@@ -1098,13 +1224,15 @@ app.addEventListener('click',async e=>{
  else if(a==='ptback'){if(await api('pitchback',{id,note:g('ptn-'+id)})){toast('Sent back');render()}}
  else if(a==='ptdel'){if(!confirm('Delete this pitch?'))return;if(await api('pitchdel',{id})){toast('Deleted');render()}}
  else if(a==='ptopen'){if(await api('setpitchopen',{on:!db.pitchOpen})){toast(db.pitchOpen?'Open for everyone':'Team only');render()}}
- else if(a==='ttwrite'){if(!db.canTimes)return;timesEdit=false;timesWrite={id:'',sec:TT_SEC.some(x=>x[0]===view.s)?view.s:'movies',kind:'Article',refs:'',img:'',data:'',title:'',text:'',by:'',art:'',layout:''};render();window.scrollTo(0,0)}
- else if(a==='ttedit'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;timesEdit=false;timesWrite={id:q.id,sec:q.sec,kind:q.kind||'Article',refs:q.refs||'',img:q.img||'',data:'',title:q.title,text:q.text,by:q.by||'',art:q.art||'',layout:q.layout||''};render();window.scrollTo(0,0)}
- else if(a==='ttcancel'){timesWrite=null;render()}
+ else if(a==='ttwrite'){if(!db.canTimes)return;timesEdit=false;timesWrite={id:'',sec:TT_SEC.some(x=>x[0]===view.s)?view.s:'movies',kind:'Article',refs:'',img:'',data:'',title:'',text:'',by:'',art:'',layout:'',pages:[]};render();window.scrollTo(0,0)}
+ else if(a==='ttedit'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;timesEdit=false;timesWrite={id:q.id,sec:q.sec,kind:q.kind||'Article',refs:q.refs||'',img:q.img||'',data:'',title:q.title,text:q.text,by:q.by||'',art:q.art||'',layout:q.layout||'',pages:(q.pages||[]).map(x=>({id:x}))};render();window.scrollTo(0,0)}
+ else if(a==='ttcancel'){fbDropNew();timesWrite=null;render()}
  else if(a==='ftagpick'){if(fpPh){fpPh.tag=fpPh.tag===b.dataset.t?'':b.dataset.t;app.querySelectorAll('#f-ftag .chip').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.t===fpPh.tag)))}}
  else if(a==='fpnophoto'){if(fpPh){fpPh.img='';fpPh.data='';const e=$('fp-prev');if(e)e.innerHTML=fpPrevHtml()}}
  else if(a==='ttnophoto'){if(timesWrite){timesWrite.img='';timesWrite.data='';ttPrev()}}
- else if(a==='ttsave'){const w=timesWrite;if(!w)return;const sec=$('tt-sec').value,r=await api('tpost',{id:w.id,sec,kind:$('tt-kind').value,refs:$('tt-refs').value,title:g('tt-title'),by:$('tt-by').value,art:$('tt-art').value,layout:$('tt-layout').value,text:$('tt-text').value,keepImg:!!w.img,data:w.data});if(r){timesWrite=null;toast(w.id?'Saved':'Published');ttDir=1;go({n:'times',s:sec,pid:r.tid})}}
+ else if(a==='fbleft'||a==='fbright'){const w=timesWrite;if(!w)return;const i=+b.dataset.i,j=a==='fbleft'?i-1:i+1;if(j<0||j>=w.pages.length)return;[w.pages[i],w.pages[j]]=[w.pages[j],w.pages[i]];fbGrid()}
+ else if(a==='fbrm'){const w=timesWrite;if(!w)return;const it=w.pages.splice(+b.dataset.i,1)[0];if(it&&it.up&&it.id)fbPost('tpagedrop',{ids:[it.id]});fbGrid()}
+ else if(a==='ttsave'){const w=timesWrite;if(!w)return;const sec=$('tt-sec').value,kind=$('tt-kind').value;let pages=[];if(kind==='Flipbook'){const L=w.pages||[];if(L.length<2){toast('A flipbook needs at least 2 pages');return}if(L.length>30){toast('A flipbook can have up to 30 pages');return}if(fbBusy){toast('Wait until the pages finish preparing');return}if(!await fbUpload(b))return;pages=L.map(x=>x.id)}const r=await api('tpost',{id:w.id,sec,kind,pages,refs:$('tt-refs').value,title:g('tt-title'),by:$('tt-by').value,art:$('tt-art').value,layout:$('tt-layout').value,text:$('tt-text').value,keepImg:!!w.img,data:w.data});if(r){timesWrite=null;toast(w.id?'Saved':'Published');ttDir=1;go({n:'times',s:sec,pid:r.tid})}}
  else if(a==='tpost'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q)return;timesEdit=false;timesWrite=null;timesPitch=null;timesBox=false;ttDir=1;go({n:'times',s:q.sec,pid:q.id})}
  else if(a==='ttcar'){const t=app.querySelector('.tt-car');if(t)t.scrollBy({left:(+b.dataset.d)*t.clientWidth,behavior:ttMotion()})}
  else if(a==='hbcar'){hbGo(hbI+(+b.dataset.d))}
