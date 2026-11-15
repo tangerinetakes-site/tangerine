@@ -5,7 +5,7 @@ import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from
 
 const redis = Redis.fromEnv({ automaticDeserialization: false });
 const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts", "pitches"];
-const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen"];
+const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff"];
 const pack = v => gzipSync(JSON.stringify(v)).toString("base64");
 const unpack = s => JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString());
 async function load() {
@@ -29,6 +29,7 @@ async function load() {
   if (!Array.isArray(db.tposts)) db.tposts = [];
   if (!Array.isArray(db.pitches)) db.pitches = [];
   db.pitchOpen = !!db.pitchOpen;
+  db.joinOff = { home: !!(db.joinOff && db.joinOff.home), times: !!(db.joinOff && db.joinOff.times) };
   if (!Array.isArray(db.mods)) db.mods = [];
   db.polls.forEach(l => { if (l.kind === "thisthat" && !l.pairs) { l.pairs = [l.options]; Object.keys(l.votes).forEach(u => { l.votes[u] = { 0: l.votes[u] }; }); l.options = []; } });
   return { db, raw };
@@ -73,7 +74,7 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], pitchOpen: false, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], pitchOpen: false, joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 
 /* Pitch box: reviewers (admins, Times publishers, Editorial editors) can see, edit, send back and delete.
@@ -219,6 +220,7 @@ function out(db, uid, extra) {
       canPitch: !!(me && canPitch(db, me.id)),
       canReviewPitch: !!(me && canReviewPitch(db, me.id)),
       pitchOpen: !!db.pitchOpen,
+      joinOff: db.joinOff,
       pitches: !me ? [] : db.pitches.filter(p => canReviewPitch(db, me.id) || p.by === me.id).sort((a, b) => b.ts - a.ts),
       bingos: db.bingos.slice().sort((a, b) => b.ts - a.ts).map(l => ({ id: l.id, title: l.title, cells: l.cells, ts: l.ts, marks: uid && l.marks[uid] ? l.marks[uid] : [] })),
       prompts: db.prompts.slice().sort((a, b) => b.ts - a.ts),
@@ -369,13 +371,15 @@ export default async function handler(req, res) {
       }
       case "editpost": {
         const m = me(), p = P(d.id);
-        if (p.by !== m.id) bad("You can only edit your own posts");
+        const editorOnFeatured = p.by !== m.id && (!!p.featured || !!(p.fInvite && p.fInvite.accepted)) && isEditor();
+        if (p.by !== m.id && !editorOnFeatured) bad("You can only edit your own posts");
         const keepDraft = !!p.draft && !!d.draft;
         const n = cleanPost(d, keepDraft);
         if (p.draft && !keepDraft && !(n.rating || p.rating)) bad("Pick a star rating first");
         Object.assign(p, { type: n.type, media: n.media, title: n.title, text: n.text, spoiler: n.spoiler, rating: n.rating || p.rating });
         if (p.draft && !keepDraft) { delete p.draft; p.ts = Date.now(); mentions(db, p.text, m.id, p.id); }
-        else if (!p.draft) p.edited = true;
+        else if (!p.draft && !editorOnFeatured && !p.featured) p.edited = true;
+        if (editorOnFeatured) note(db, p.by, "featedit", m.id, p.id);
         break;
       }
       case "delete": {
@@ -871,9 +875,50 @@ export default async function handler(req, res) {
         db.pitches = db.pitches.filter(x => x !== p);
         break;
       }
+      case "setjoinoff": {
+        if (!isOwner()) bad("Lead admin only");
+        if (d.where !== "home" && d.where !== "times") bad("Unknown place");
+        db.joinOff[d.where] = !!d.off;
+        break;
+      }
       case "setpitchopen": {
         if (!isOwner()) bad("Lead admin only");
         db.pitchOpen = !!d.on;
+        break;
+      }
+
+      /* ---- Feature Picks: editors invite a member's post, the author accepts ---- */
+      case "featinvite": {
+        const m = me();
+        if (!isEditor()) bad("Editors only");
+        const p = P(d.id);
+        if (p.draft) bad("Drafts cannot be featured");
+        if (p.featured) bad("This post is already in Feature Picks");
+        if (p.by === m.id) { p.featured = true; p.featuredAt = Date.now(); delete p.fInvite; break; }
+        if (p.fInvite) bad("You already invited this author");
+        p.fInvite = { by: m.id, ts: Date.now() };
+        note(db, p.by, "featinvite", m.id, p.id);
+        break;
+      }
+      case "featreply": {
+        const m = me(), p = P(d.id);
+        if (p.by !== m.id) bad("Only the author can answer this");
+        if (!p.fInvite) bad("There is no invite for this post");
+        if (d.ok) { p.fInvite.accepted = true; note(db, p.fInvite.by, "featyes", m.id, p.id); }  /* not featured yet: the editor sends notes / edits first, then adds it */
+        else delete p.fInvite;
+        break;
+      }
+      case "featpublish": {
+        if (!isEditor()) bad("Editors only");
+        const p = P(d.id);
+        if (!(p.fInvite && p.fInvite.accepted)) bad("The author has not accepted yet");
+        p.featured = true; p.featuredAt = Date.now(); delete p.fInvite;
+        break;
+      }
+      case "featunpost": {
+        if (!isEditor()) bad("Editors only");
+        const p = P(d.id);
+        delete p.featured; delete p.featuredAt; delete p.fInvite;
         break;
       }
 
