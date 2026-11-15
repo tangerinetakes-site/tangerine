@@ -77,6 +77,21 @@ const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], pitchOpen: false, joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 
+/* Photos (16:9 jpeg) for Feature Picks pieces and featured posts.
+   New photo (d.data) replaces the old one. No d.keepImg means "remove the photo". */
+async function putImg(old, d) {
+  if (typeof d.data === "string" && d.data) {
+    const mm = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(d.data);
+    if (!mm || d.data.length > 700000) bad("That photo could not be used. Try another one.");
+    const nid = id8() + id8();
+    await redis.set("tg:img:" + nid, mm[1]);
+    if (old) await redis.del("tg:img:" + old);
+    return nid;
+  }
+  if (!d.keepImg && old) { await redis.del("tg:img:" + old); return ""; }
+  return old || "";
+}
+
 /* Pitch box: reviewers (admins, Times publishers, Editorial editors) can see, edit, send back and delete.
    Pitchers are reviewers, Times writers, Editorial/Team badge holders, or every member when the lead admin opens it. */
 const canReviewPitch = (db, id) => !!id && (isAdminU(db, U(db, id)) || tRolesOf(db, id).includes("publisher") || rolesOf(db, id).includes("editor"));
@@ -377,6 +392,8 @@ export default async function handler(req, res) {
         const n = cleanPost(d, keepDraft);
         if (p.draft && !keepDraft && !(n.rating || p.rating)) bad("Pick a star rating first");
         Object.assign(p, { type: n.type, media: n.media, title: n.title, text: n.text, spoiler: n.spoiler, rating: n.rating || p.rating });
+        /* Photo (16:9) only for posts that are in Feature Picks or have accepted the invite */
+        if (p.featured || (p.fInvite && p.fInvite.accepted)) p.img = await putImg(p.img, d);
         if (p.draft && !keepDraft) { delete p.draft; p.ts = Date.now(); mentions(db, p.text, m.id, p.id); }
         else if (!p.draft && !editorOnFeatured && !p.featured) p.edited = true;
         if (editorOnFeatured) note(db, p.by, "featedit", m.id, p.id);
@@ -385,6 +402,7 @@ export default async function handler(req, res) {
       case "delete": {
         const m = me(), p = P(d.id);
         if (p.by !== m.id && !isAdmin()) bad("Not allowed");
+        if (p.img) { try { await redis.del("tg:img:" + p.img); } catch (e) { console.error(e.message); } }
         db.posts = db.posts.filter(x => x.id !== p.id);
         db.reports = db.reports.filter(r => r.pid !== p.id);
         db.reposts = db.reposts.filter(r => r.pid !== p.id);
@@ -637,6 +655,10 @@ export default async function handler(req, res) {
         const m = me();
         if (!checkPw(d.pw, m.pw)) bad("Wrong password");
         const id = m.id;
+        /* remove Feature Picks photos of this member's posts and pieces */
+        for (const x of [...db.posts.filter(p => p.by === id && p.img), ...db.features.filter(f => f.by === id && f.img)]) {
+          try { await redis.del("tg:img:" + x.img); } catch (e) { console.error(e.message); }
+        }
         db.users = db.users.filter(u => u.id !== id);
         db.users.forEach(u => { u.following = u.following.filter(x => x !== id); u.blocked = u.blocked.filter(x => x !== id); u.notes = u.notes.filter(n => n.from !== id); });
         db.posts = db.posts.filter(p => p.by !== id);
@@ -969,9 +991,11 @@ export default async function handler(req, res) {
           if (f.by !== m.id && !ed) bad("You can only edit your own pieces");
           if (f.status === "published" && !ed) bad("Published pieces can only be changed by an editor");
           Object.assign(f, n, { edited: true });
+          f.img = await putImg(f.img, d);
           if (!ed && f.status !== "pending") { f.status = "pending"; f.note = ""; }
         } else {
-          f = { id: id8(), by: author.id, ...n, status: "pending", via: d.as ? "email" : "site", ts: Date.now(), publishedAt: 0, note: "" };
+          f = { id: id8(), by: author.id, ...n, img: "", status: "pending", via: d.as ? "email" : "site", ts: Date.now(), publishedAt: 0, note: "" };
+          f.img = await putImg("", d);
           db.features.push(f);
         }
         if (ed && d.publish) { f.status = "published"; f.publishedAt = Date.now(); f.note = ""; }
@@ -999,6 +1023,7 @@ export default async function handler(req, res) {
       case "fdelete": {
         const m = me(), f = F(d.id);
         if (!isEditor() && !(f.by === m.id && f.status !== "published")) bad("Not allowed");
+        if (f.img) { try { await redis.del("tg:img:" + f.img); } catch (e) { console.error(e.message); } }
         db.features = db.features.filter(x => x.id !== f.id);
         break;
       }
