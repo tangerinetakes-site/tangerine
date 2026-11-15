@@ -4,8 +4,8 @@ import nodemailer from "nodemailer";
 import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from "node:crypto";
 
 const redis = Redis.fromEnv({ automaticDeserialization: false });
-const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts"];
-const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff"];
+const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts", "pitches"];
+const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen"];
 const pack = v => gzipSync(JSON.stringify(v)).toString("base64");
 const unpack = s => JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString());
 async function load() {
@@ -27,6 +27,8 @@ async function load() {
   if (!db.crew || typeof db.crew !== "object" || Array.isArray(db.crew)) db.crew = {};
   if (!db.tstaff || typeof db.tstaff !== "object" || Array.isArray(db.tstaff)) db.tstaff = {};
   if (!Array.isArray(db.tposts)) db.tposts = [];
+  if (!Array.isArray(db.pitches)) db.pitches = [];
+  db.pitchOpen = !!db.pitchOpen;
   if (!Array.isArray(db.mods)) db.mods = [];
   db.polls.forEach(l => { if (l.kind === "thisthat" && !l.pairs) { l.pairs = [l.options]; Object.keys(l.votes).forEach(u => { l.votes[u] = { 0: l.votes[u] }; }); l.options = []; } });
   return { db, raw };
@@ -71,8 +73,13 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], pitchOpen: false, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
+
+/* Pitch box: reviewers (admins, Times publishers, Editorial editors) can see, edit, send back and delete.
+   Pitchers are reviewers, Times writers, Editorial/Team badge holders, or every member when the lead admin opens it. */
+const canReviewPitch = (db, id) => !!id && (isAdminU(db, U(db, id)) || tRolesOf(db, id).includes("publisher") || rolesOf(db, id).includes("editor"));
+const canPitch = (db, id) => !!id && (canReviewPitch(db, id) || db.pitchOpen || tRolesOf(db, id).includes("writer") || !!db.crew[id]);
 
 function cleanTop(t) {
   const o = {};
@@ -208,6 +215,11 @@ function out(db, uid, extra) {
       })),
       tstaff: admin || canTimes ? db.tstaff : {},
       canTimes,
+      /* Pitch box */
+      canPitch: !!(me && canPitch(db, me.id)),
+      canReviewPitch: !!(me && canReviewPitch(db, me.id)),
+      pitchOpen: !!db.pitchOpen,
+      pitches: !me ? [] : db.pitches.filter(p => canReviewPitch(db, me.id) || p.by === me.id).sort((a, b) => b.ts - a.ts),
       bingos: db.bingos.slice().sort((a, b) => b.ts - a.ts).map(l => ({ id: l.id, title: l.title, cells: l.cells, ts: l.ts, marks: uid && l.marks[uid] ? l.marks[uid] : [] })),
       prompts: db.prompts.slice().sort((a, b) => b.ts - a.ts),
       polls: db.polls.slice().sort((a, b) => b.ts - a.ts).map(l => {
@@ -640,6 +652,7 @@ export default async function handler(req, res) {
         delete db.core[id];
         delete db.crew[id];
         delete db.tstaff[id];
+        db.pitches = db.pitches.filter(x => x.by !== id);
         db.tposts.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; });
         db.tposts.forEach(x => {
           x.comments = (x.comments || []).filter(c => c.by !== id);
@@ -815,6 +828,55 @@ export default async function handler(req, res) {
         if (cur.length) db.tstaff[t.id] = TROLES.filter(r => cur.includes(r)); else delete db.tstaff[t.id];
         break;
       }
+
+      /* ---- Pitch box (Times) ---- */
+      case "pitch": {
+        const m = me();
+        if (!canPitch(db, m.id)) bad("Pitching is not open to you yet");
+        const sec = TSEC.includes(d.sec) ? d.sec : bad("Pick a section");
+        const kind = TKINDS.includes(d.kind) ? d.kind : bad("Pick a type");
+        const title = clip(d.title, 140), text = clip(d.text, 3000);
+        if (!title) bad("Add a headline first");
+        if (!text) bad("Write your pitch first");
+        const reviewer = canReviewPitch(db, m.id);
+        if (d.id) {
+          const p = db.pitches.find(x => x.id === d.id) || bad("Pitch not found");
+          if (p.by !== m.id && !reviewer) bad("You can only edit your own pitches");
+          Object.assign(p, { sec, kind, title, text, edited: true });
+          if (p.by === m.id && p.status === "returned") { p.status = "pending"; p.note = ""; } /* writer fixed it and sends it again */
+        } else {
+          if (db.pitches.length >= 300) bad("The pitch box is full. Ask a publisher to clear old ones.");
+          if (db.pitches.filter(x => x.by === m.id).length >= 20) bad("You have 20 pitches waiting. Wait for a reply first.");
+          db.pitches.push({ id: id8(), by: m.id, sec, kind, title, text, status: "pending", note: "", ts: Date.now() });
+          db.users.filter(u => canReviewPitch(db, u.id) && u.id !== m.id && u.email).forEach(rv => mails.push(() => sendMail(rv.email, "Times: new pitch",
+            `${m.name} (@${m.handle}) sent a pitch: "${title}".\n\nOpen the Tangerine Times and tap Pitch box.`,
+            `<p><b>${esc(m.name)}</b> (@${esc(m.handle)}) sent a pitch: <b>${esc(title)}</b>.</p><p>Open the Tangerine Times and tap Pitch box.</p>`)));
+        }
+        break;
+      }
+      case "pitchback": {
+        const m = me();
+        if (!canReviewPitch(db, m.id)) bad("Only publishers and editors can send a pitch back");
+        const p = db.pitches.find(x => x.id === d.id) || bad("Pitch not found");
+        p.status = "returned"; p.note = clip(d.note, 500);
+        const au = U(db, p.by);
+        if (au && au.email) mails.push(() => sendMail(au.email, "Your Times pitch was sent back",
+          `"${p.title}" was sent back to you.${p.note ? "\n\nNote: " + p.note : ""}\n\nOpen the Tangerine Times, tap Pitch box, edit it and send it again.`,
+          "<p>" + esc(`"${p.title}" was sent back to you.` + (p.note ? "\n\nNote: " + p.note : "")).replace(/\n/g, "<br>") + "</p>"));
+        break;
+      }
+      case "pitchdel": {
+        const m = me(), p = db.pitches.find(x => x.id === d.id) || bad("Pitch not found");
+        if (p.by !== m.id && !canReviewPitch(db, m.id)) bad("Not allowed");
+        db.pitches = db.pitches.filter(x => x !== p);
+        break;
+      }
+      case "setpitchopen": {
+        if (!isOwner()) bad("Lead admin only");
+        db.pitchOpen = !!d.on;
+        break;
+      }
+
       case "mailtest": {
         if (!isOwner()) bad("Lead admin only");
         const m = me();
