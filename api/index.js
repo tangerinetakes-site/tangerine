@@ -685,7 +685,7 @@ export default async function handler(req, res) {
         delete db.crew[id];
         delete db.tstaff[id];
         db.pitches = db.pitches.filter(x => x.by !== id);
-        db.flipbooks.forEach(x => { if (x.by === id) x.by = ""; });
+        db.flipbooks.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; });
         db.tposts.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; });
         db.tposts.forEach(x => {
           x.comments = (x.comments || []).filter(c => c.by !== id);
@@ -745,7 +745,7 @@ export default async function handler(req, res) {
         break;
       }
 
-      /* ---- Flipbook page uploads (one 4:5 page per request) ---- */
+      /* ---- Flipbook page uploads (one 3:4 page per request) ---- */
       case "tpage": {
         const m = me();
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post in the Times");
@@ -773,6 +773,13 @@ export default async function handler(req, res) {
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post flipbooks");
         const title = clip(d.title, 140), desc = clip(d.desc, 1000);
         if (!title) bad("Add a title first");
+        const credit = (v, role, what) => {
+          v = clip(v, 20);
+          if (!v) return "";
+          if (!U(db, v) || !tRolesOf(db, v).includes(role)) bad(what + " must be someone on the Times team");
+          return v;
+        };
+        const by = credit(d.by, "writer", "The writer"), art = credit(d.art, "artist", "The artist"), layout = credit(d.layout, "artist", "The layout artist");
         const old = d.id ? (db.flipbooks.find(x => x.id === d.id) || bad("Flipbook not found")) : null;
         if (!old && db.flipbooks.length >= 100) bad("Delete some old flipbooks first");
         let pages = old ? old.pages : [];
@@ -786,8 +793,8 @@ export default async function handler(req, res) {
         for (const pid of want) if (!pages.includes(pid)) await redis.del("tg:pend:" + pid);
         for (const pid of pages) if (!want.includes(pid)) await redis.del("tg:img:" + pid);
         pages = want;
-        if (old) { Object.assign(old, { title, desc, pages, edited: true }); extra.fid = old.id; }
-        else { const nf = { id: id8(), title, desc, pages, ts: Date.now(), by: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
+        if (old) { Object.assign(old, { title, desc, by, art, layout, pages, edited: true }); extra.fid = old.id; }
+        else { const nf = { id: id8(), title, desc, by, art, layout, pages, ts: Date.now(), pub: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
         break;
       }
       case "fbdel": {
