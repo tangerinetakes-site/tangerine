@@ -862,7 +862,7 @@ function ttPickImg(f){if(!timesWrite)return;photoCrop(f,d=>{if(timesWrite){times
 /* Feature Picks photo (16:9): pieces and featured posts */
 let fpPh=null;
 const fpState=(k,img,tag)=>{if(!fpPh||fpPh.key!==k)fpPh={key:k,img:img||'',data:'',tag:tag||''};return fpPh};
-const ftagBox=()=>`<label>Feature tag (optional)</label><div class="filters" id="f-ftag">${['Article','Essay','Review','Post'].map(t=>`<button type="button" class="chip" data-a="ftagpick" data-t="${t}" aria-pressed="${fpPh.tag===t}">${t}</button>`).join('')}</div>`;
+const ftagBox=()=>`<label>Feature tag (optional)</label><div class="filters" id="f-ftag">${['Article','Essay','Review','Recommendation','Post'].map(t=>`<button type="button" class="chip" data-a="ftagpick" data-t="${t}" aria-pressed="${fpPh.tag===t}">${t}</button>`).join('')}</div>`;
 const fpPrevHtml=()=>{const w=fpPh||{};return w.data?`<img class="tt-img" src="${w.data}" alt="Photo preview">`:w.img?`<img class="tt-img" src="/api?img=${esc(w.img)}" alt="Current photo">`:'<div class="tt-ph">No photo yet (16:9)</div>'};
 const fpPhotoBox=(k,img)=>{fpState(k,img);return `<label for="fp-file">Photo (16:9, optional)</label><div id="fp-prev">${fpPrevHtml()}</div><div class="actions"><input type="file" id="fp-file" accept="image/*"><button type="button" class="link" data-a="fpnophoto">Remove photo</button></div>`};
 function fpPickImg(f){if(!fpPh)return;photoCrop(f,d=>{if(fpPh){fpPh.img='';fpPh.data=d;const e=$('fp-prev');if(e)e.innerHTML=fpPrevHtml()}})}
