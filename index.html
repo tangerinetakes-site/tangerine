@@ -181,6 +181,9 @@ body{margin:0;background:var(--bg)}
 #tg .tt-slide{animation:ttslide .34s cubic-bezier(.2,.7,.2,1)}
 @keyframes ttslide{from{opacity:0;transform:translateX(var(--dx,28px))}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){#tg .tt-slide{animation:none}#tg .tt-ind{transition:none}}
+#tg .post.fp{border:2px solid #D95F00;box-shadow:0 0 0 4px rgba(217,95,0,.14);position:relative;overflow:hidden}
+#tg .fpb{display:flex;align-items:center;gap:6px;margin:-18px -18px 12px;padding:8px 18px;background:#D95F00;color:#fff;font-weight:800;letter-spacing:.04em;font-size:.9rem}
+#tg .tag.fptag{background:#D95F00;color:#fff;border-color:#D95F00;font-weight:800}
 #tg .tt-soon{padding:4px 0 24px}
 #tg .tt-soon h2{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:clamp(1.9rem,6vw,2.9rem);letter-spacing:-.01em;line-height:1.05;color:var(--ink);margin:0 0 16px;max-width:20ch}
 #tg .tt-soon p{max-width:58ch;font-size:1.05rem}
@@ -470,19 +473,19 @@ function addLink(r){if(!r)return;const sl=getSelection();const rg=sl.rangeCount?
  r.focus();sl.removeAllRanges();sl.addRange(rg);
  if(sel)document.execCommand('createLink',false,u);else document.execCommand('insertHTML',false,'<a href="'+esc(u)+'">'+esc(txt)+'</a>&#8203;');
  rteSync(r)}
-const bodyHtml=(p,full)=>p.spoiler&&!rev.has(p.id)?`<div class="body"><button class="btn ghost" data-a="reveal" data-id="${p.id}">⚠️ Contains spoilers. Tap to show</button></div>`:`<div class="body">${lkx(full?p.text:excerpt(plainLk(p.text)))}</div>`;
+const bodyHtml=(p,full)=>p.spoiler&&!rev.has(p.id)?`<div class="body"><button class="btn ghost" data-a="reveal" data-id="${p.id}">⚠️ Contains spoilers. Tap to show</button></div>`:`<div class="body">${lkx(full?p.text:excerpt(plainLk(p.text)))}${p.spoiler&&rev.has(p.id)?` <button class="link" data-a="unreveal" data-id="${p.id}">Hide spoiler</button>`:''}</div>`;
 const byLine=(u,bold)=>`<button class="link" data-a="profile" data-id="${u.id}">${av(u,'sm')}<span class="${bold?'nm':'nm0'}">${esc(u.name)}</span> <span class="hd">@${esc(u.handle||'')}</span></button>${badgeHtml(u)}`;
 const fAcc=p=>!!(p.fInvite&&p.fInvite.accepted),fWork=p=>!!p.featured||fAcc(p);
-const FTAG='<span class="tag">🍊 #featuredpicks</span>';
+const FTAG='<span class="tag fptag">🍊 #featuredpicks</span>',FBAN='<div class="fpb">🍊 #featuredpicks</div>';
 const meta=(p,big)=>{const u=user(p.by),
  time=`<span>${ago(p._ots||p.ts)}${p.edited&&!p.featured?' <span style="opacity:.6;font-size:.82em">(edited)</span>':''}</span>`,
  rate=`<span class="rate" aria-label="${p.rating} out of 5">${stars(p.rating)}</span>`,
  pr=p.prompt&&promptOf(p.prompt)?`<button class="link" data-a="prompt" data-id="${p.prompt}">💭 ${esc(promptOf(p.prompt).title)}</button>`:'',
  dr=p.draft?'<span class="tag">Draft</span>':'';
  if(big)return `<div class="meta bigtags"><span class="tag">${esc(p.type)}${p.media?' - '+esc(p.media):''}</span>${p.featured?FTAG:''}</div><div class="meta">${byLine(u,1)}${dr}${pr}${rate}${time}</div>`;
- return `<div class="meta">${byLine(u,0)}<span class="tag">${esc(p.type)}</span>${p.featured?FTAG:''}${dr}${pr}</div><div class="meta" style="margin-top:0">${p.media?`<span>${esc(p.media)} -</span>`:''}${rate}${time}</div>`};
-const featFeedCard=f=>`<article class="post"><button class="open" data-a="feat" data-id="${f.id}">${esc(f.title)}</button><div class="meta">${userLink(user(f.by))}${FTAG}${fMedia(f)}${f.tag?`<span class="tag">${esc(f.tag)}</span>`:''}<span>${ago(f.publishedAt||f.ts)}</span></div>${f.dek?`<div class="body">${esc(f.dek)}</div>`:`<div class="body">${esc(excerpt(f.text))}</div>`}<div class="actions"><button class="btn ghost" data-a="feat" data-id="${f.id}">Read</button></div></article>`;
-const card=p=>p.isFeat?featFeedCard(p):`<article class="post">${postMenu(p)}<button class="open" data-a="open" data-id="${p.id}">${esc(p.title)}</button>${meta(p)}
+ return `<div class="meta">${byLine(u,0)}<span class="tag">${esc(p.type)}</span>${dr}${pr}</div><div class="meta" style="margin-top:0">${p.media?`<span>${esc(p.media)} -</span>`:''}${rate}${time}</div>`};
+const featFeedCard=f=>`<article class="post fp">${FBAN}<button class="open" data-a="feat" data-id="${f.id}">${esc(f.title)}</button><div class="meta">${userLink(user(f.by))}${fMedia(f)}${f.tag?`<span class="tag">${esc(f.tag)}</span>`:''}<span>${ago(f.publishedAt||f.ts)}</span></div>${f.dek?`<div class="body">${esc(f.dek)}</div>`:`<div class="body">${esc(excerpt(f.text))}</div>`}<div class="actions"><button class="btn ghost" data-a="feat" data-id="${f.id}">Read</button></div></article>`;
+const card=p=>p.isFeat?featFeedCard(p):`<article class="post${p.featured?' fp':''}">${p.featured?FBAN:''}${postMenu(p)}<button class="open" data-a="open" data-id="${p.id}">${esc(p.title)}</button>${meta(p)}
  ${bodyHtml(p)}<div class="actions"><button class="btn ghost" data-a="open" data-id="${p.id}">Read post</button></div>${actions(p)}</article>`;
 
 const newTip=()=>{const u=me();return u&&!db.posts.some(p=>p.by===u.id)?'<div class="panel" style="background:var(--os);margin-bottom:12px"><p style="margin:0">🍊 <b>New?</b> Tap <button class="link" data-a="gocompose"><b>Share your take</b></button> to post your first review.</p></div>':''};
@@ -501,7 +504,7 @@ const postMenu=p=>{const u=me();if(!u)return'';const own=u.id===p.by,adm=isAdmin
 function commentHtml(p,c,i){const u=me();
  if(c.hidden)return `<div class="cm"><span class="hint">Comment hidden (blocked user).</span></div>`;
  const own=u&&u.id===c.by, mod=u&&(own||u.id===p.by||isAdmin()), cu=user(c.by), lk2=c.likedBy||[], nl=lk2.length, liked=!!u&&lk2.includes(u.id), showL=rev.has('lk'+p.id+'-'+i);
- const hid=!!c.spoiler&&!own&&!rev.has('c'+p.id+'-'+i), cbody=hid?`<button class="link" data-a="reveal" data-id="c${p.id}-${i}">⚠️ Contains spoilers. Tap to show</button>`:lk(c.t)+(c.spoiler?' <span class="hint">(spoiler)</span>':'');
+ const hid=!!c.spoiler&&!own&&!rev.has('c'+p.id+'-'+i), cbody=hid?`<button class="link" data-a="reveal" data-id="c${p.id}-${i}">⚠️ Contains spoilers. Tap to show</button>`:lk(c.t)+(c.spoiler?' <span class="hint">(spoiler)</span>'+(!own&&rev.has('c'+p.id+'-'+i)?` <button class="link" data-a="unreveal" data-id="c${p.id}-${i}">Hide</button>`:''):'');
  const main=view.ec===i&&own?`<div class="cm">${av(u,'sm')}<div class="cform" style="flex:1;margin:0"><input id="ce-t" maxlength="300" value="${esc(c.t)}"><button class="btn" data-a="savec" data-id="${p.id}" data-i="${i}">Save</button><button class="btn ghost" data-a="open" data-id="${p.id}">Cancel</button><label class="cspoil"><input type="checkbox" id="ce-spoil"${c.spoiler?' checked':''}>This comment contains spoilers</label></div></div>`
  :`<div class="cm">${av(cu,'sm')}<div style="flex:1;min-width:0"><div class="cmh"><button class="link" data-a="profile" data-id="${c.by}"><span class="nm">${esc(cu.name)}</span> <span class="hd">@${esc(cu.handle||'')}</span></button>${u&&!own?`<button class="link pale" data-a="report" data-k="comment" data-id="${p.id}" data-i="${i}">Report</button>`:''}</div>
  <div style="margin:2px 0">${cbody}${c.edited?' <span class="hint">(edited)</span>':''}</div>
@@ -520,7 +523,7 @@ function editForm(p){return `<section class="panel"><h2>Edit your post</h2>${p.p
  <div class="actions">${p.draft?`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Publish</button><button class="btn ghost" data-a="savepost" data-id="${p.id}" data-draft="1">Save draft</button>`:`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Save changes</button>`}<button class="btn ghost" data-a="open" data-id="${p.id}">Cancel</button></div></section>`}
 function postView(p){const u=me();if(view.edit&&u&&(u.id===p.by||(isEd()&&fWork(p))))return editForm(p);
  return `<button class="btn ghost" style="margin-bottom:14px" data-a="feed">Back to all posts</button>
- <article class="post">${postMenu(p)}<h3>${esc(p.title)}</h3>${meta(p,1)}${u&&u.id===p.by&&fAcc(p)?'<p class="hint">🍊 You accepted the Feature Picks invite. An editor will send you notes or edit the post first, then add it to Feature Picks.</p>':''}${u&&u.id===p.by&&p.featured?'<p class="hint">🍊 This post is in Feature Picks.</p>':''}${bodyHtml(p,1)}${p.draft?'<p class="hint">'+(p.prompt&&promptOf(p.prompt)?'💭 Answering the weekly prompt: <b>'+esc(promptOf(p.prompt).title)+'</b>. ':'')+'Draft: only you can see this. Edit it to publish.</p>':actions(p,1)}
+ <article class="post${p.featured?' fp':''}">${p.featured?FBAN:''}${postMenu(p)}<h3>${esc(p.title)}</h3>${meta(p,1)}${u&&u.id===p.by&&fAcc(p)?'<p class="hint">🍊 You accepted the Feature Picks invite. An editor will send you notes or edit the post first, then add it to Feature Picks.</p>':''}${u&&u.id===p.by&&p.featured?'<p class="hint">🍊 This post is in Feature Picks.</p>':''}${bodyHtml(p,1)}${p.draft?'<p class="hint">'+(p.prompt&&promptOf(p.prompt)?'💭 Answering the weekly prompt: <b>'+esc(promptOf(p.prompt).title)+'</b>. ':'')+'Draft: only you can see this. Edit it to publish.</p>':actions(p,1)}
  <div class="comments"${p.draft?' hidden':''}><h3 style="font-size:1.1rem;margin-bottom:6px">Comments (${p.comments.length})</h3>
  ${p.comments.map((c,i)=>commentHtml(p,c,i)).join('')||'<p class="empty" style="padding:6px 0">No comments yet. Be the first to squeeze one in.</p>'}
  ${u?`<div class="cform"><input id="c-t" maxlength="300" placeholder="Comment as ${esc(u.name)}"><button class="btn" data-a="send" data-id="${p.id}">Comment</button><label class="cspoil"><input type="checkbox" id="c-spoil">This comment contains spoilers</label></div>`
@@ -677,7 +680,7 @@ const featTools=f=>{const m=me();if(!m)return'';const adm=isEd(),own=f.by===m.id
   if(f.status==='published')h+=`<button class="btn ghost" data-a="featdecide" data-id="${f.id}" data-to="pending">Unpublish</button>`}
  if(adm||(own&&f.status!=='published'))h+=`<button class="btn ghost" data-a="featedit" data-id="${f.id}">Edit</button><button class="btn danger" data-a="featdel" data-id="${f.id}">Delete</button>`;
  return h};
-const fCard=(f,showStatus)=>`<article class="post"><button class="open" data-a="feat" data-id="${f.id}">${esc(f.title)}</button>
+const fCard=(f,showStatus)=>`<article class="post${f.status==='published'?' fp':''}">${f.status==='published'?FBAN:''}<button class="open" data-a="feat" data-id="${f.id}">${esc(f.title)}</button>
  <div class="meta">${userLink(user(f.by))}${fMedia(f)}${f.tag?`<span class="tag">${esc(f.tag)}</span>`:''}<span>${ago(f.publishedAt||f.ts)}</span>${showStatus?`<span class="tag">${FSTAT[f.status]||''}</span>`:''}${f.via==='email'?'<span class="tag">via email</span>':''}</div>
  ${f.dek?`<div class="body">${esc(f.dek)}</div>`:''}
  ${showStatus&&f.status==='rejected'&&f.note?`<p class="hint">Editor's note: ${esc(f.note)}</p>`:''}
@@ -1169,6 +1172,7 @@ app.addEventListener('click',async e=>{
  else if(a==='settings')go({n:'settings'});
  else if(a==='clike'){if(!needUser())return;const y=window.scrollY;if(await api('clike',{id,i:+b.dataset.i})){render();window.scrollTo(0,y)}}
  else if(a==='clikers'){const k='lk'+id+'-'+b.dataset.i;if(rev.has(k))rev.delete(k);else rev.add(k);const y=window.scrollY;render();window.scrollTo(0,y)}
+ else if(a==='unreveal'){rev.delete(id);const y=window.scrollY;render();window.scrollTo(0,y)}
  else if(a==='reveal'){rev.add(id);const y=window.scrollY;render();window.scrollTo(0,y)}
  else if(a==='replyto')go({n:'post',id:view.id,rp:+b.dataset.i},true);
  else if(a==='sendr'){const t=g('r-t');if(!t){toast('Write a reply first');return}if(await api('reply',{id,i:+b.dataset.i,t})){go({n:'post',id},true);toast('Reply posted')}}
