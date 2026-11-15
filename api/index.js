@@ -5,7 +5,7 @@ import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from
 
 const redis = Redis.fromEnv({ automaticDeserialization: false });
 const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts"];
-const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "sugg", "suggOn", "owners"];
+const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff"];
 const pack = v => gzipSync(JSON.stringify(v)).toString("base64");
 const unpack = s => JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString());
 async function load() {
@@ -28,10 +28,6 @@ async function load() {
   if (!db.tstaff || typeof db.tstaff !== "object" || Array.isArray(db.tstaff)) db.tstaff = {};
   if (!Array.isArray(db.tposts)) db.tposts = [];
   if (!Array.isArray(db.mods)) db.mods = [];
-  /* lead admins assigned from Settings (people in ADMIN_HANDLE are always lead admins too) */
-  if (!Array.isArray(db.owners)) db.owners = [];
-  if (!Array.isArray(db.sugg)) db.sugg = [];
-  db.suggOn = !!db.suggOn;
   db.polls.forEach(l => { if (l.kind === "thisthat" && !l.pairs) { l.pairs = [l.options]; Object.keys(l.votes).forEach(u => { l.votes[u] = { 0: l.votes[u] }; }); l.options = []; } });
   return { db, raw };
 }
@@ -57,17 +53,10 @@ const REASONS = ["Spoiler", "Copying", "Not kind", "Crime"];
 const REPORT_REASONS = ["Spoiler", "Plagiarism", "Bullying or harassment", "Others"];
 const ADMINS = (process.env.ADMIN_HANDLE || "").split(/[,\s]+/).map(x => x.trim().toLowerCase().replace(/^@/, "")).filter(Boolean);
 const isAdminHandle = h => ADMINS.includes(h);
-/* a lead admin is someone in ADMIN_HANDLE or someone assigned in Settings (db.owners) */
-const isOwnerU = (db, u) => !!(u && (isAdminHandle(u.handle) || (db.owners || []).includes(u.id)));
-const isAdminU = (db, u) => !!(u && (isOwnerU(db, u) || db.admins.includes(u.id)));
+const isAdminU = (db, u) => !!(u && (isAdminHandle(u.handle) || db.admins.includes(u.id)));
 const isModU = (db, u) => !!(u && db.mods.includes(u.id));
 const rolesOf = (db, id) => (id && Array.isArray(db.core[id]) ? db.core[id] : []);
 const tRolesOf = (db, id) => (id && Array.isArray(db.tstaff[id]) ? db.tstaff[id] : []);
-/* NEW: number of warnings a member has (old accounts warned once count as 1). Deleted posts or comments are NOT warnings. */
-const warnCount = u => (u && (u.warns || (u.warned ? 1 : 0))) || 0;
-const MAXWARN = 3;
-/* NEW: random order helper for the Search page */
-const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 class E extends Error {}
 const bad = m => { throw new E(m); };
@@ -82,7 +71,7 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], admins: [], mods: [], owners: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {}, sugg: [], suggOn: false });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 
 function cleanTop(t) {
@@ -99,8 +88,7 @@ function cleanIg(d) {
   return { insta: i, igPrivate: !!d.igPrivate, links };
 }
 function cleanPost(d, draft) {
-  /* headline limit is 200 characters */
-  let type = clip(d.type, 20), media = clip(d.media, 80), title = clip(d.title, 200), text = clip(d.text, 10000);
+  let type = clip(d.type, 20), media = clip(d.media, 80), title = clip(d.title, 100), text = clip(d.text, 10000);
   if (draft) {
     if (!TYPES.includes(type)) type = "Other";
     if (!title) bad("Add a headline to save a draft");
@@ -185,12 +173,11 @@ function statsOf(db) {
 
 function out(db, uid, extra) {
   const me = uid ? U(db, uid) : null, bs = blockedSet(db, uid);
-  const admin = isAdminU(db, me), owner = isOwnerU(db, me), mod = isModU(db, me);
+  const admin = isAdminU(db, me), owner = !!(me && isAdminHandle(me.handle)), mod = isModU(db, me);
   const canTimes = !!(me && (admin || tRolesOf(db, me.id).includes("publisher")));
   const posts = db.posts.filter(p => !bs.has(p.by) && (!p.draft || p.by === uid)).sort((a, b) => b.ts - a.ts).map(p => ({
     ...p,
     likedBy: p.likedBy.filter(x => !bs.has(x)),
-    /* comments carry likedBy (blocked people removed) */
     comments: p.comments.map(c => bs.has(c.by) ? { hidden: true, replies: [] }
       : { ...c, likedBy: (c.likedBy || []).filter(x => !bs.has(x)), replies: (c.replies || []).map(r => bs.has(r.by) ? { hidden: true } : r) })
   }));
@@ -200,39 +187,17 @@ function out(db, uid, extra) {
   const canWrite = !!(me && (admin || myRoles.includes("writer")));
   const seeF = f => isEditor || (me && f.by === me.id) || (f.status === "published" && !bs.has(f.by));
   const features = db.features.filter(seeF).sort((a, b) => (b.publishedAt || b.ts) - (a.publishedAt || a.ts));
-
-  /* NEW: Search page picks.
-     people = up to 5 random members (not you, not blocked, not suspended).
-     posts = 5 posts: the 3 top performing (likes + comments + replies), then 2 posts this member viewed before.
-     If they have not viewed 2 posts yet, the next best posts fill the gap. */
-  const live = posts.filter(p => !p.draft);
-  const score = p => p.likedBy.length + p.comments.reduce((s, c) => s + (c.hidden ? 0 : 1) + (c.replies || []).length, 0);
-  const ranked = live.slice().sort((a, b) => score(b) - score(a) || b.ts - a.ts).map(p => p.id);
-  const topIds = ranked.slice(0, 3);
-  const seenIds = me ? (me.viewed || []).filter(x => !topIds.includes(x) && live.some(p => p.id === x)).slice(0, 2) : [];
-  const fillIds = ranked.filter(x => !topIds.includes(x) && !seenIds.includes(x)).slice(0, 2 - seenIds.length);
-  const discover = {
-    people: shuffle(db.users.filter(u => u.id !== uid && !bs.has(u.id) && !db.suspended.includes(u.id)).map(u => u.id)).slice(0, 5),
-    posts: [...topIds, ...seenIds, ...fillIds]
-  };
-
   const r = {
     features, isCore, isEditor, canWrite, core: admin ? db.core : {}, owner, mod, admins: owner ? db.admins : [], mods: owner ? db.mods : [],
-    /* lead admins assigned in Settings, and the permanent ones from ADMIN_HANDLE */
-    owners: owner ? db.owners : [], ownerHandles: owner ? ADMINS : [],
-    discover,
     db: {
-      /* warned is now the NUMBER of warnings (0 to 3), only visible to lead admin and mods */
-      profiles: db.users.map(u => ({ ...pub(u, uid), warned: (owner || mod) ? warnCount(u) : 0, crew: db.crew[u.id] ? (db.crew[u.id] === "Editorial" ? "Editorial" : "Team") : "" })), posts,
+      profiles: db.users.map(u => ({ ...pub(u, uid), warned: admin && u.warned ? u.warned : 0, crew: db.crew[u.id] ? (db.crew[u.id] === "Editorial" ? "Editorial" : "Team") : "" })), posts,
       reposts: db.reposts.filter(r => !bs.has(r.by) && posts.some(p => p.id === r.pid && !p.draft)),
       lists: db.lists.filter(l => !bs.has(l.by)).sort((a, b) => b.ts - a.ts).map(l => ({
         ...l,
         comments: (l.comments || []).map((c, i) => ({ ...c, i })).filter(c => !bs.has(c.by))
       })),
       pick: db.pick || null,
-      /* suggestion box switch (members only see on/off, admins also get the list below) */
-      suggOn: !!db.suggOn,
-      /* an announcement can be hidden from visitors who are not logged in (pub === false) */
+      /* CHANGED: an announcement can be hidden from visitors who are not logged in (pub === false) */
       banner: db.banner && (uid || db.banner.pub !== false) ? db.banner : null,
       about: db.about || null,
       times: db.times || null,
@@ -271,8 +236,7 @@ function out(db, uid, extra) {
     r.notes = me.notes.filter(n => !bs.has(n.from));
     r.blocked = me.blocked.map(x => U(db, x)).filter(Boolean).map(u => pub(u, uid));
     r.email = me.email;
-    if (admin) r.sugg = db.sugg;
-    if (owner || mod) r.reports = db.reports;
+    if (admin) r.reports = db.reports;
     if (admin || mod) r.stats = statsOf(db);
     if (owner || mod) r.suspended = db.suspended;
     if (owner) {
@@ -334,8 +298,7 @@ export default async function handler(req, res) {
   const me = () => (uid && U(db, uid)) || bad("Log in first");
   const P = id => db.posts.find(p => p.id === id) || bad("Post not found");
   const isAdmin = () => isAdminU(db, uid && U(db, uid));
-  const isOwner = () => isOwnerU(db, uid && U(db, uid));
-  const isMod = () => isModU(db, uid && U(db, uid));
+  const isOwner = () => { const m = uid && U(db, uid); return !!(m && isAdminHandle(m.handle)); };
   const isEditor = () => isAdmin() || rolesOf(db, uid).includes("editor");
 
   try {
@@ -353,7 +316,7 @@ export default async function handler(req, res) {
         if (db.users.some(u => u.email === email)) bad("That email already has an account");
         const u = {
           id: id8(), name, handle, email, pw: hashPw(pw), bio: clip(d.bio, 160), avatar: clip(d.avatar, 8) || "🍊",
-          joined: Date.now(), following: [], top: cleanTop(d.top), pronouns: cleanPron(d), ...cleanIg(d), watch: [], blocked: [], notes: [], viewed: []
+          joined: Date.now(), following: [], top: cleanTop(d.top), pronouns: cleanPron(d), ...cleanIg(d), watch: [], blocked: [], notes: []
         };
         db.users.push(u);
         uid = u.id; extra.token = newSession(db, u.id);
@@ -411,25 +374,13 @@ export default async function handler(req, res) {
         db.reposts = db.reposts.filter(r => r.pid !== p.id);
         break;
       }
-      /* NEW: remember that this member opened a post (used for the Search page: "previously viewed") */
-      case "viewpost": {
-        const m = me(), p = db.posts.find(x => x.id === d.id);
-        if (!p || p.draft) break;
-        m.viewed = [p.id, ...(m.viewed || []).filter(x => x !== p.id)].slice(0, 30);
-        break;
-      }
       case "repost": {
         const m = me(), p = P(d.id);
         if (p.draft) bad("Drafts cannot be reposted");
         if (p.by === m.id) bad("You cannot repost your own post");
         if (blockedSet(db, m.id).has(p.by)) bad("Not allowed");
         const i = db.reposts.findIndex(r => r.pid === p.id && r.by === m.id);
-        /* a repost can carry a short comment (repost with comment). With no comment it toggles on/off as before. */
-        const t = clip(d.t, 300);
-        if (t) {
-          if (i >= 0) { db.reposts[i].t = t; db.reposts[i].ts = Date.now(); }
-          else { db.reposts.push({ id: id8(), pid: p.id, by: m.id, t, ts: Date.now() }); note(db, p.by, "repost", m.id, p.id); }
-        } else if (i >= 0) db.reposts.splice(i, 1);
+        if (i >= 0) db.reposts.splice(i, 1);
         else { db.reposts.push({ id: id8(), pid: p.id, by: m.id, ts: Date.now() }); note(db, p.by, "repost", m.id, p.id); }
         break;
       }
@@ -441,14 +392,14 @@ export default async function handler(req, res) {
       case "comment": {
         const m = me(), p = P(d.id), t = clip(d.t, 300);
         if (!t) bad("Write a comment first");
-        /* a comment can be marked as containing spoilers */
-        p.comments.push({ by: m.id, t, ts: Date.now(), replies: [], likedBy: [], ...(d.spoiler ? { spoiler: true } : {}) });
+        /* CHANGED: a comment can be marked as containing spoilers */
+        p.comments.push({ by: m.id, t, ts: Date.now(), replies: [], ...(d.spoiler ? { spoiler: true } : {}) });
         note(db, p.by, "comment", m.id, p.id); mentions(db, t, m.id, p.id);
         break;
       }
-      /* like or unlike a comment on a post */
+      /* CHANGED: like / unlike a comment (the list of who liked is shown when the count is tapped) */
       case "clike": {
-        const m = me(), p = P(d.id), c = p.comments[parseInt(d.i, 10)];
+        const m = me(), p = P(d.id), c = p.comments[+d.i];
         if (!c) bad("Comment not found");
         if (blockedSet(db, m.id).has(c.by)) bad("Not allowed");
         c.likedBy = c.likedBy || [];
@@ -461,7 +412,7 @@ export default async function handler(req, res) {
         if (!c || c.by !== m.id) bad("You can only edit your own comments");
         if (!t) bad("Comment cannot be empty");
         c.t = t; c.edited = true;
-        /* spoiler checkbox can be changed when editing */
+        /* CHANGED: spoiler checkbox can be changed when editing */
         if (d.spoiler) c.spoiler = true; else delete c.spoiler;
         break;
       }
@@ -676,9 +627,7 @@ export default async function handler(req, res) {
         db.posts.forEach(p => {
           p.likedBy = p.likedBy.filter(x => x !== id);
           p.comments = p.comments.filter(c => c.by !== id);
-          /* also remove this person's likes from comments */
-          p.comments.forEach(c => { c.likedBy = (c.likedBy || []).filter(x => x !== id); });
-          p.comments.forEach(c => { c.replies = (c.replies || []).filter(r => r.by !== id); });
+          p.comments.forEach(c => { c.replies = (c.replies || []).filter(r => r.by !== id); c.likedBy = (c.likedBy || []).filter(x => x !== id); });
         });
         db.reposts = db.reposts.filter(r => r.by !== id && db.posts.some(p => p.id === r.pid));
         db.lists = db.lists.filter(l => l.by !== id);
@@ -696,10 +645,8 @@ export default async function handler(req, res) {
           x.comments = (x.comments || []).filter(c => c.by !== id);
           x.comments.forEach(c => { c.replies = (c.replies || []).filter(r => r.by !== id); });
         });
-        db.sugg = db.sugg.filter(x => x.by !== id);
         db.admins = db.admins.filter(x => x !== id);
         db.mods = db.mods.filter(x => x !== id);
-        db.owners = db.owners.filter(x => x !== id);
         db.polls.forEach(l => { delete l.votes[id]; });
         db.bingos.forEach(l => { delete l.marks[id]; });
         db.msgs = db.msgs.filter(x => x.from !== id && x.to !== id);
@@ -744,7 +691,7 @@ export default async function handler(req, res) {
         break;
       }
       case "setcrew": {
-        if (!isOwner() && !isMod()) bad("Lead admin and mods only");
+        if (!isAdmin()) bad("Admins only");
         const t = U(db, d.id);
         if (!t) bad("Member not found");
         const team = CREW_TEAMS.includes(d.team) ? d.team : "";
@@ -831,7 +778,7 @@ export default async function handler(req, res) {
       case "treport": {
         const m = me(), tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found"), i = parseInt(d.i, 10);
         if (!(tp.comments || [])[i]) bad("Comment not found");
-        /* uses the report reasons (Spoiler, Plagiarism, Bullying or harassment, Others) */
+        /* CHANGED: uses the new report reasons (Spoiler, Plagiarism, Bullying or harassment, Others) */
         const reason = REPORT_REASONS.includes(d.reason) ? d.reason : bad("Pick a reason");
         if (db.reports.some(r => r.by === m.id && r.pid === tp.id && r.i === i && r.tt)) break;
         db.reports.push({ id: id8(), kind: "comment", tt: true, by: m.id, pid: tp.id, i, reason, detail: reason === "Others" ? clip(d.detail, 200) : "", ts: Date.now() });
@@ -939,29 +886,10 @@ export default async function handler(req, res) {
         if (!isOwner()) bad("Only the owner can change the admin list");
         const t = U(db, d.id);
         if (!t) bad("Member not found");
-        if (isOwnerU(db, t)) bad("That person is already a lead admin");
+        if (isAdminHandle(t.handle)) bad("That person is already an owner");
         const i = db.admins.indexOf(t.id);
         if (d.on && i < 0) db.admins.push(t.id);
         if (!d.on && i >= 0) db.admins.splice(i, 1);
-        break;
-      }
-      /* assign or remove a lead admin from Settings. People in ADMIN_HANDLE are permanent. */
-      case "setowner": {
-        if (!isOwner()) bad("Lead admin only");
-        const m = me(), t = U(db, d.id);
-        if (!t) bad("Member not found");
-        if (isAdminHandle(t.handle)) bad("That person is a permanent lead admin");
-        const i = db.owners.indexOf(t.id);
-        if (d.on) {
-          if (i < 0) {
-            db.owners.push(t.id);
-            db.admins = db.admins.filter(x => x !== t.id);
-            db.mods = db.mods.filter(x => x !== t.id);
-          }
-        } else {
-          if (t.id === m.id) bad("You cannot remove yourself");
-          if (i >= 0) db.owners.splice(i, 1);
-        }
         break;
       }
       case "setmod": {
@@ -978,26 +906,6 @@ export default async function handler(req, res) {
         const title = clip(d.title, 100), text = clip(d.text, 1000);
         if (!title && text) bad("Add a headline for the announcement");
         db.banner = title ? { title, text, pub: d.pub !== false, ts: Date.now() } : null;
-        break;
-      }
-      /* suggestion box */
-      case "suggest": {
-        const m = me(), t = clip(d.t, 500);
-        if (!db.suggOn) bad("The suggestion box is closed right now");
-        if (!t) bad("Write your suggestion first");
-        if (db.sugg.filter(x => x.by === m.id && Date.now() - x.ts < DAY).length >= 5) bad("You have sent a few suggestions today. Try again tomorrow.");
-        if (db.sugg.length >= 300) bad("The suggestion box is full right now");
-        db.sugg.push({ id: id8(), by: m.id, t, ts: Date.now() });
-        break;
-      }
-      case "setsuggest": {
-        if (!isOwner()) bad("Lead admin only");
-        db.suggOn = !!d.on;
-        break;
-      }
-      case "delsugg": {
-        if (!isAdmin()) bad("Admins only");
-        db.sugg = db.sugg.filter(x => x.id !== d.id);
         break;
       }
       case "saveprompt": {
@@ -1106,7 +1014,7 @@ export default async function handler(req, res) {
       case "report": {
         const m = me(), kind = d.k === "comment" ? "comment" : "post", p = P(d.id);
         const i = kind === "comment" ? +d.i : undefined;
-        /* reasons are Spoiler, Plagiarism, Bullying or harassment, Others (Others needs a short written detail) */
+        /* CHANGED: reasons are Spoiler, Plagiarism, Bullying or harassment, Others (Others needs a short written detail) */
         const reason = REPORT_REASONS.includes(d.reason) ? d.reason : bad("Pick a reason");
         const target = kind === "comment" ? p.comments[i] : p;
         if (!target) bad("Comment not found");
@@ -1118,7 +1026,7 @@ export default async function handler(req, res) {
         if (db.reports.length > 200) db.reports.shift();
         break;
       }
-      case "dismissreport": if (!isOwner() && !isMod()) bad("Lead admin and mods only"); db.reports = db.reports.filter(r => r.id !== d.id); break;
+      case "dismissreport": if (!isAdmin()) bad("Admins only"); db.reports = db.reports.filter(r => r.id !== d.id); break;
       case "block": {
         const m = me(), t = U(db, d.id);
         if (!t || t.id === m.id) bad("Cannot block that account");
@@ -1127,54 +1035,23 @@ export default async function handler(req, res) {
         else { m.blocked.push(t.id); m.following = m.following.filter(x => x !== t.id); t.following = t.following.filter(x => x !== m.id); }
         break;
       }
-      /* CHANGED: warnings are counted. Each warning adds 1 (up to 3) and tells the member which warning it is.
-         Deleting a post or comment (modremove) is NOT a warning. */
       case "warn": {
-        if (!isOwner() && !isMod()) bad("Lead admin and mods only");
+        if (!isAdmin()) bad("Admins only");
         const m = me(), t = U(db, d.id);
         if (!t || t.id === m.id) bad("Cannot warn that account");
-        if (isAdminU(db, t) || isModU(db, t)) bad("You cannot warn an admin or mod");
-        if (warnCount(t) >= MAXWARN) bad("This person already has 3 warnings.");
-        t.warns = warnCount(t) + 1;
-        t.warned = Date.now();
-        t.notes.unshift({ id: id8(), kind: "warn", n: t.warns, from: m.id, ts: Date.now(), read: false });
+        if (isAdminU(db, t)) bad("You cannot warn an admin");
+        const reason = REASONS.includes(d.reason) ? d.reason : bad("Pick a reason");
+        t.warned = Date.now(); t.warnReason = reason;
+        t.notes.unshift({ id: id8(), kind: "warn", from: m.id, text: reason, ts: Date.now(), read: false });
         if (t.notes.length > 100) t.notes.length = 100;
         break;
       }
-      /* lead admin or mod deletes a reported post or comment and tells the author. Does not add a warning. */
-      case "modremove": {
-        if (!isOwner() && !isMod()) bad("Lead admin and mods only");
-        const m = me(), kind = d.k === "comment" ? "comment" : "post", p = P(d.id);
-        let by;
-        if (kind === "comment") {
-          const i = parseInt(d.i, 10), c = p.comments[i];
-          if (!c) bad("Comment not found");
-          by = c.by;
-          if (isAdminU(db, U(db, by)) && !isOwner()) bad("Not allowed");
-          p.comments.splice(i, 1);
-          db.reports = db.reports.filter(r => !(r.kind === "comment" && !r.tt && r.pid === p.id && r.i === i));
-          db.reports.forEach(r => { if (r.kind === "comment" && !r.tt && r.pid === p.id && r.i > i) r.i--; });
-        } else {
-          by = p.by;
-          if (isAdminU(db, U(db, by)) && !isOwner()) bad("Not allowed");
-          db.posts = db.posts.filter(x => x.id !== p.id);
-          db.reports = db.reports.filter(r => r.pid !== p.id);
-          db.reposts = db.reposts.filter(r => r.pid !== p.id);
-        }
-        const t = U(db, by);
-        if (t && t.id !== m.id) {
-          t.notes.unshift({ id: id8(), kind: "removed", from: m.id, text: kind, ts: Date.now(), read: false });
-          if (t.notes.length > 100) t.notes.length = 100;
-        }
-        break;
-      }
-      /* CHANGED: the lead admin can suspend at any time, no warnings needed */
       case "suspend": {
         const m = me(), t = U(db, d.id);
         if (!isOwner()) bad("Lead admin only");
         if (!t || t.id === m.id) bad("Cannot suspend that account");
         const i = db.suspended.indexOf(t.id);
-        if (i >= 0) db.suspended.splice(i, 1); else { db.suspended.push(t.id); t.everSuspended = true; dropSessions(db, t.id); }
+        if (i >= 0) db.suspended.splice(i, 1); else { if (!t.warned) bad("Warn this person first. Everyone gets one chance."); db.suspended.push(t.id); t.everSuspended = true; dropSessions(db, t.id); }
         break;
       }
       default: bad("Unknown action");
