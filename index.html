@@ -67,8 +67,6 @@ body{margin:0;background:var(--bg)}
 #tg .pmw.inl{position:relative;top:auto;right:auto;display:inline-block;vertical-align:middle}
 #tg .pdots{width:38px;height:38px;min-width:0;padding:0 0 4px;border:2px solid var(--line);border-radius:999px;background:var(--os);color:var(--od);font-size:24px;font-weight:800;line-height:1;cursor:pointer;display:grid;place-items:center}
 #tg .pdots:hover,#tg .pdots[aria-expanded="true"]{background:var(--o);border-color:var(--o);color:#fff}
-#tg .pmw:not(.inl) .pdots{width:36px;height:36px;font-size:22px;background:transparent}
-#tg .pmw:not(.inl) .pdots:hover,#tg .pmw:not(.inl) .pdots[aria-expanded="true"]{background:var(--o);border-color:var(--o);color:#fff}
 #tg .pmw.inl .pdots{width:28px;height:28px;font-size:18px;padding-bottom:3px}
 #tg .pmenu button.dng{color:#B3261E}
 #tg .pmenu{position:absolute;top:100%;right:0;margin-top:4px;min-width:150px;background:var(--bg);border:2px solid var(--line);border-radius:12px;box-shadow:0 6px 18px rgba(217,95,0,.18);padding:4px;z-index:6;display:flex;flex-direction:column}
@@ -86,40 +84,20 @@ body{margin:0;background:var(--bg)}
 #tg .post h3{font-size:20px}
 #tg .open{background:none;border:0;padding:0;text-align:left;cursor:pointer;font-family:"Bricolage Grotesque","DM Sans",sans-serif;font-size:20px;font-weight:800;line-height:1.15;color:var(--ink);-webkit-tap-highlight-color:rgba(217,95,0,.25)}
 #tg .open:hover,#tg .open:active,#tg .open:focus-visible{color:var(--od);text-decoration:underline}
-#tg .post>.open{display:block;width:100%;box-sizing:border-box;overflow-wrap:anywhere}
 #tg .post .meta .tag,#tg .post .meta.bigtags .tag{font-size:14px;padding:2px 10px}
 #tg .post .meta.bigtags{margin:8px 0 0}
 #tg .meta{color:var(--mut);font-size:.9rem;margin:8px 0 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 #tg .link{background:none;border:0;padding:0;cursor:pointer;font-weight:700;color:var(--od);display:inline-flex;align-items:center;gap:6px}
 #tg .link:hover{text-decoration:underline}
+#tg .nm{font-weight:600}
+#tg .nm0{font-weight:400}
+#tg .hd{font-weight:400;color:var(--mut)}
+#tg .link.pale{color:var(--mut);font-weight:500}
+#tg .cmh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#tg .cmact{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:4px}
 #tg .post .meta .link{font-size:15px}
 #tg .tag{background:var(--os);border-radius:999px;padding:1px 10px;font-weight:700;color:var(--od);font-size:.82rem}
 #tg .rate{color:var(--o);letter-spacing:2px}
-#tg .pwho{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
-#tg .nm{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--od);cursor:pointer;background:none;border:0;padding:0;box-shadow:none;-webkit-tap-highlight-color:transparent}
-#tg .nm:hover>span:last-child{text-decoration:underline}
-#tg .un{font-weight:500;color:var(--od);opacity:.85}
-#tg .post .meta .un,#tg .post .meta .nm{font-size:15px}
-#tg .pcat{margin:8px 0 0;font-size:14px;font-weight:700;color:var(--od)}
-#tg .pcat span{font-weight:400;color:var(--mut)}
-#tg .post .meta.m1{margin-bottom:4px}
-#tg .post .meta .rate{font-size:calc(.9rem + 2px)}
-#tg .post .meta .ptype{font-size:14px;font-weight:500;color:var(--od)}
-#tg .link.pale.sm{font-size:calc(1em - 2px)}
-#tg .actions .pmw.inl{display:flex;align-self:stretch}
-#tg .actions .pmw.inl>.act{display:flex;align-items:center;justify-content:center}
-#tg{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-#tg input,#tg textarea,#tg select,#tg .rte,#tg [contenteditable="true"]{-webkit-user-select:text;user-select:text}
-@media print{#tg .post,#tg .cm{display:none!important}}
-#tg .rpbar{font-size:.85rem;color:var(--mut);margin:0 0 6px}
-#tg .rpstrip{font-size:.85rem;color:var(--mut);margin:0 0 8px;padding-right:52px}
-#tg .sugg-row{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
-#tg .sugg-row textarea{flex:1 1 220px;min-height:46px}
-#tg .post .meta.m2{margin-top:0}
-#tg .chead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-#tg .cacts{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:4px}
-#tg .link.pale{color:var(--mut);font-weight:500}
-#tg .link.pale.on{color:var(--od);font-weight:700}
 #tg .body{white-space:pre-wrap;max-width:68ch}
 #tg .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 #tg .act{background:var(--os);border:0;border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:700;color:var(--od)}
@@ -133,32 +111,6 @@ body{margin:0;background:var(--bg)}
 #tg .empty{text-align:center;color:var(--mut);padding:24px 0}
 #tg .phead{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 #tg .phead h2{font-size:1.8rem;color:var(--od);margin:0}
-#tg .st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin:12px 0 4px}
-#tg .st-k{background:var(--os);border:2px solid var(--line);border-radius:14px;padding:12px}
-#tg .st-k b{display:block;font-family:"Bricolage Grotesque","DM Sans",sans-serif;font-size:1.65rem;line-height:1.1;color:var(--od)}
-#tg .st-k>span{display:block;font-size:.82rem;color:var(--mut);margin-top:2px}
-#tg .st-d{display:block;font-size:.76rem;font-weight:700;color:var(--mut);margin-top:4px}
-#tg .st-d.up{color:#2E8B57}#tg .st-d.dn{color:#C0392B}
-#tg .st-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 22px;margin-top:6px}
-#tg .st-c h3{margin:14px 0 6px;font-size:1rem}
-#tg .st-ch{display:flex;align-items:flex-end;gap:6px;height:92px}
-#tg .st-ch>div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
-#tg .st-ch em{font-style:normal;font-size:.72rem;color:var(--mut);margin-bottom:2px}
-#tg .st-ch i{display:block;width:100%;background:var(--o);opacity:.55;border-radius:6px 6px 2px 2px}
-#tg .st-ch .cur i{opacity:1;background:var(--od)}
-#tg .st-ch .cur em{color:var(--od);font-weight:800}
-#tg .st-lb{display:flex;gap:6px;margin-top:4px}
-#tg .st-lb span{flex:1;text-align:center;font-size:.68rem;color:var(--mut)}
-#tg .st-hb{display:grid;grid-template-columns:24px 84px 1fr;gap:2px 10px;align-items:center;margin:10px 0;font-size:.9rem}
-#tg .st-tr{display:block;background:var(--os);border-radius:99px;height:12px;overflow:hidden}
-#tg .st-tr i{display:block;height:100%;background:var(--o);border-radius:99px}
-#tg .st-hb small{grid-column:2/-1;color:var(--mut);font-size:.78rem}
-#tg .st-rank{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
-#tg .st-rank:first-of-type{border-top:0}
-#tg .st-n{width:24px;height:24px;border-radius:50%;background:var(--os);color:var(--od);font-weight:800;font-size:.8rem;display:grid;place-items:center;flex:none}
-#tg .st-rank>div{flex:1;min-width:0;overflow-wrap:anywhere;text-align:left}#tg .st-rank .link{text-align:left}
-#tg details.st-more{margin-top:16px}
-#tg details.st-more summary{cursor:pointer;font-weight:700;color:var(--od)}
 #tg .stats{display:flex;gap:18px;margin-top:8px;color:var(--mut);flex-wrap:wrap}
 #tg .stats b{color:var(--od);font-size:1.15rem}
 #tg .stats button{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer}
@@ -266,10 +218,6 @@ body{margin:0;background:var(--bg)}
 #tg .tt-card h3 button:hover{text-decoration:underline;text-decoration-color:var(--o);text-decoration-thickness:3px;text-underline-offset:4px}
 #tg .tt-cred{margin:0 0 8px;color:var(--mut);font-size:.92rem}
 #tg .tt-cred b{color:var(--ink)}
-#tg .tt-cred .link{font-size:inherit;font-weight:700;color:var(--ink);text-decoration:underline;text-decoration-color:var(--o);text-decoration-thickness:2px;text-underline-offset:3px}
-#tg .tt-cred .link:hover{color:var(--od)}
-#tg .tt-behind{margin:34px 0 8px}
-#tg .tt-writer p{margin:8px 0}
 #tg .tt-ex{margin:0}
 #tg .tt-text p{font-size:1.08rem;line-height:1.7;max-width:64ch}
 #tg .fmt{display:flex;gap:6px;margin:6px 0 12px}
@@ -282,12 +230,6 @@ body{margin:0;background:var(--bg)}
 #tg .rte.big{min-height:260px;font-size:1.05rem;line-height:1.7;padding:14px 16px}
 #tg .rte.is-empty::before{content:attr(data-ph);color:var(--mut);position:absolute;pointer-events:none}
 #tg .rte a{color:var(--o);text-decoration:underline}
-#tg .rte .hd{background:var(--os);border-bottom:2px dashed var(--o);border-radius:3px}
-#tg .hide{background:var(--ink);color:transparent;border-radius:4px;padding:0 3px;cursor:pointer;-webkit-user-select:none;user-select:none;box-decoration-break:clone;-webkit-box-decoration-break:clone}
-#tg .hide *{color:transparent}
-#tg .hide.on{background:var(--os);color:inherit;-webkit-user-select:text;user-select:text}
-#tg .hide.on *{color:inherit}
-#tg .hide:focus-visible{outline:2px solid var(--o);outline-offset:2px}
 #tg .crew-h{font-size:1.5rem;font-weight:800;line-height:1.2;color:var(--od);margin:0 0 12px}
 #tg .crew-h.ln{padding-bottom:8px;border-bottom:2px solid var(--line);margin-bottom:14px}
 #tg .crew{display:flex;flex-wrap:wrap;gap:16px 44px;margin:0;padding:0;list-style:none}
@@ -379,10 +321,10 @@ async function api(a,d){
  try{const r=await fetch('/api',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+TOKEN},body:JSON.stringify({a,d})});
   const j=await r.json();if(j.error){toast(j.error);return null}
   if(j.token!==undefined){TOKEN=j.token;try{localStorage.setItem('tg-token',TOKEN)}catch(e){}}
-  db=j.db;db.me=j.me;db.msgs=j.msgs||[];db.notes=j.notes||[];db.blocked=j.blocked||[];db.admin=!!j.admin;db.reports=j.reports||[];db.email=j.email||'';db.suspended=j.suspended||[];db.clubs=j.clubs||[];db.features=j.features||[];db.owner=!!j.owner;db.owners=j.owners||[];db.stats=j.stats||null;db.discover=j.discover||null;db.ownerHandles=j.ownerHandles||[];db.admins=j.admins||[];db.mod=!!j.mod;db.mods=j.mods||[];db.members=j.members||[];db.drafts=(db.posts||[]).filter(p=>p.draft);db.posts=(db.posts||[]).filter(p=>!p.draft);db.sugg=j.sugg||[];db.isCore=!!j.isCore;db.isEditor=!!j.isEditor;db.canWrite=!!j.canWrite;db.core=j.core||{};if(j.cmsgs)clubMsgs=j.cmsgs;return j}
+  db=j.db;db.me=j.me;db.msgs=j.msgs||[];db.notes=j.notes||[];db.blocked=j.blocked||[];db.admin=!!j.admin;db.reports=j.reports||[];db.email=j.email||'';db.suspended=j.suspended||[];db.clubs=j.clubs||[];db.features=j.features||[];db.owner=!!j.owner;db.admins=j.admins||[];db.mod=!!j.mod;db.mods=j.mods||[];db.members=j.members||[];db.drafts=(db.posts||[]).filter(p=>p.draft);db.posts=(db.posts||[]).filter(p=>!p.draft);db.isCore=!!j.isCore;db.isEditor=!!j.isEditor;db.canWrite=!!j.canWrite;db.core=j.core||{};if(j.cmsgs)clubMsgs=j.cmsgs;return j}
  catch(e){toast('Network problem, try again');return null}}
 function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' h ago';return Math.round(h/24)+' d ago'}
-const excerpt=t=>{t=plainLk(hideCut(t)).replace(/\s+/g,' ');return t.length>150?t.slice(0,150).trim()+'...':t};
+const excerpt=t=>{t=plainLk(t).replace(/\s+/g,' ');return t.length>150?t.slice(0,150).trim()+'...':t};
 const stars=n=>'🍊'.repeat(n)+'<span style="filter:grayscale(1);opacity:.3">'+'🍊'.repeat(5-n)+'</span>';
 const av=(u,c='')=>`<span class="av ${c}" aria-hidden="true">${esc(u.avatar)}</span>`;
 const CREW=['Editorial','Team'];
@@ -393,12 +335,10 @@ const unreadN=()=>(db.notes||[]).filter(n=>!n.read).length;
 const isAdmin=()=>!!db.admin;
 const isLead=()=>!!db.owner;
 const isMod=()=>!!db.mod;
-const canMod=()=>!!(db.owner||db.mod);
 const isEd=()=>!!db.isEditor;
 const followers=u=>db.profiles.filter(x=>(x.following||[]).includes(u.id)).length;
 const fbtn=u=>{const m=me();if(!m||m.id===u.id)return'';const f=(m.following||[]).includes(u.id);return `<button class="btn ${f?'ghost':''}" data-a="follow" data-id="${u.id}">${f?'Unfollow':'Follow'}</button>`};
-let prevN=null;
-function go(v,keep){if(!keep){try{history.replaceState(Object.assign({},history.state||{},{y:window.scrollY}),'')}catch(e){}prevN=view.n}view=v;menuOpen='';try{const u=pathOf(v);if(keep){u?history.replaceState({v},'',u):history.replaceState({v},'')}else{u?history.pushState({v},'',u):history.pushState({v},'')}}catch(e){}if(!keep&&v.n!=='times'){app.classList.remove('vin');void app.offsetWidth;app.classList.add('vin');clearTimeout(go.t);go.t=setTimeout(()=>app.classList.remove('vin'),650)}render();if(!keep){const t=document.getElementById('tg');t.scrollIntoView&&t.scrollIntoView()}}
+function go(v,keep){view=v;menuOpen='';try{const u=pathOf(v);if(keep){u?history.replaceState({v},'',u):history.replaceState({v},'')}else{u?history.pushState({v},'',u):history.pushState({v},'')}}catch(e){}if(!keep&&v.n!=='times'){app.classList.remove('vin');void app.offsetWidth;app.classList.add('vin');clearTimeout(go.t);go.t=setTimeout(()=>app.classList.remove('vin'),650)}render();if(!keep){const t=document.getElementById('tg');t.scrollIntoView&&t.scrollIntoView()}}
 
 function bar(){const u=me();
   const nav=`<button class="btn ghost" data-a="feed">Home</button>`;
@@ -442,40 +382,13 @@ function joinView(){return `<section class="panel"><h2>Log in</h2>
  <div class="actions"><button class="btn" data-a="create">Create profile</button></div>
  <p class="hint">Your profile is saved online, so you can log in from any device.</p></section>`}
 
-/* Copy protection: posts and comments cannot be selected, copied, dragged or saved with long-press. Typing boxes still work. */
-const editableEl=t=>{const n=t&&t.nodeType===3?t.parentElement:t;return !!(n&&n.closest&&n.closest('input,textarea,select,[contenteditable="true"],.rte'))};
-['copy','cut','dragstart','selectstart'].forEach(ev=>document.addEventListener(ev,e=>{if(editableEl(e.target))return;e.preventDefault()}));
-document.addEventListener('contextmenu',e=>{if(!editableEl(e.target))e.preventDefault()});
-document.addEventListener('keydown',e=>{const k=(e.key||'').toLowerCase(),ed=editableEl(e.target);
- if((e.ctrlKey||e.metaKey)&&['s','p','u'].includes(k)){e.preventDefault();return}
- if((e.ctrlKey||e.metaKey)&&!ed&&['a','c','x'].includes(k)){e.preventDefault();return}
- if(e.key==='F12'||((e.ctrlKey||e.metaKey)&&e.shiftKey&&['i','j','c'].includes(k)))e.preventDefault()});
-document.addEventListener('keyup',e=>{if(e.key==='PrintScreen'){try{navigator.clipboard.writeText(' ')}catch(x){}}});
-/* The repeating @username watermark was removed. This just clears any old one. */
-function setMark(){const m=$('tg-mark');if(m)m.remove()}
-const ckey=()=>'tg-compose-'+(db.me||'');
-const cv=id=>$(id)?$(id).value:'';
-function saveCompose(){try{if(!$('compose-box')||!db.me)return;const r=app.querySelector('.rte[data-for="f-text"]');
- const o={type:cv('f-type'),media:cv('f-media'),title:cv('f-title'),text:r?rteToMd(r):cv('f-text'),spoil:!!($('f-spoil')&&$('f-spoil').checked),rating};
- if(o.media||o.title||o.text||o.rating)localStorage.setItem(ckey(),JSON.stringify(o));else localStorage.removeItem(ckey())}catch(e){}}
-function restoreCompose(){try{if(!$('compose-box')||!db.me)return;const s=localStorage.getItem(ckey());if(!s)return;const o=JSON.parse(s);
- if(!(pre&&pre.type)&&o.type&&$('f-type'))$('f-type').value=o.type;
- if(!(pre&&pre.media)&&$('f-media'))$('f-media').value=o.media||'';
- if($('f-title'))$('f-title').value=o.title||'';
- if($('f-text'))$('f-text').value=o.text||'';
- if($('f-spoil'))$('f-spoil').checked=!!o.spoil;
- if(!rating&&o.rating){rating=o.rating;app.querySelectorAll('#f-stars button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=rating))}}catch(e){}}
-const clearCompose=()=>{try{localStorage.removeItem(ckey())}catch(e){}};
-['input','change'].forEach(t=>document.addEventListener(t,e=>{if(e.target.closest&&e.target.closest('#compose-box'))saveCompose()}));
-document.addEventListener('visibilitychange',()=>{if(document.hidden)saveCompose()});
-window.addEventListener('pagehide',saveCompose);
 function composeView(){const u=me();
  if(!u)return `<section class="panel"><h2>Write a post</h2><p>Create a profile to publish reviews and blogs.</p><button class="btn" data-a="join">Create a profile</button></section>`;
  return `<section class="panel" id="compose-box"><h2>Share your take as ${esc(u.name)}</h2>${pre&&pre.prompt?`<p style="margin:0 0 6px;padding:8px 12px;background:var(--os);border-radius:10px">💭 You are answering the weekly prompt: <b>${esc(pre.ptitle)}</b></p>`:''}${pre&&pre.pick?`<p style="margin:0 0 6px;padding:8px 12px;background:var(--os);border-radius:10px">🍊 Reviewing the Fresh pick of the week. It shows in the feed, on your profile and in your diary.</p>`:''}
  <div class="row"><div><label for="f-type">Category</label><select id="f-type">${TYPES.slice(1).map(t=>`<option${pre&&pre.type===t?' selected':''}>${t}</option>`).join('')}</select></div>
  <div><label for="f-media">Title</label><input id="f-media" maxlength="80"${pre?` value="${esc(pre.media)}"`:''}></div></div>
  <label>Your rating</label><div class="stars" id="f-stars">${[1,2,3,4,5].map(n=>`<button type="button" class="${n<=rating?'on':''}" data-n="${n}" aria-label="${n} stars">🍊</button>`).join('')}</div>
- <label for="f-title">Headline</label><p class="hint" style="margin:0 0 4px">* 200 characters limit</p><input id="f-title" maxlength="200" placeholder="Give your post a headline (optional)">
+ <label for="f-title">Headline</label><input id="f-title" maxlength="100" placeholder="Give your post a headline (optional)">
  <label for="f-text">Your review or blog</label>${fmtBar('f-text')}<textarea class="write" data-lk id="f-text" maxlength="10000" placeholder="What did you think? Write as much as you like, the box grows with you."></textarea><p class="hint" id="f-count">0 words</p>
  <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="f-spoil" style="width:auto">This post contains spoilers</label>
  <div class="actions"><button class="btn" data-a="publish">Post</button><button class="btn ghost" data-a="savedraft">Save as draft</button></div></section>`}
@@ -484,12 +397,6 @@ const likersAll=new Set();
 let menuOpen='';
 const REPORT_REASONS=['Spoiler','Plagiarism','Bullying or harassment','Others'];
 const pmenu=(key,items,inl)=>{const o=menuOpen===key;return `<div class="pmw${inl?' inl':''}"><button type="button" class="pdots" data-a="dots" data-id="${key}" aria-label="More options" aria-haspopup="menu" aria-expanded="${o}">\u22ef</button>${o?`<div class="pmenu" role="menu">${items}</div>`:''}</div>`};
-function repsDialog(pid){closeReport();closeReport.f=document.activeElement;
- const L=(db.reposts||[]).filter(r=>r.pid===pid&&user(r.by)).sort((a,b)=>b.ts-a.ts);
- const w=document.createElement('div');w.id='tg-rep';w.className='rep-bg';
- w.innerHTML=`<div class="rep" role="dialog" aria-modal="true" aria-labelledby="rb-h"><h3 id="rb-h">Reposted by (${L.length})</h3>${L.map(r=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0">${av(user(r.by),'sm')}<div style="flex:1;min-width:0;overflow-wrap:anywhere"><button class="link" data-pf="${r.by}">${esc(user(r.by).name)}</button> <span class="hint">@${esc(user(r.by).handle)}</span>${r.t?`<div>${lk(r.t)}</div>`:''}</div></div>`).join('')}<div class="actions"><button class="btn ghost" id="rb-x">Close</button></div></div>`;
- $('tg').appendChild(w);
- w.addEventListener('click',e=>{const b=e.target.closest('[data-pf]');if(b){const id=b.dataset.pf,u=user(id);closeReport();if(u){pickAv=u.avatar;psort='new';ptab='all';go({n:'profile',id})}return}if(e.target===w||e.target.id==='rb-x')closeReport()})}
 function closeReport(){const w=$('tg-rep');if(w){w.remove();const f=closeReport.f;if(f&&document.contains(f))f.focus()}}
 function reportDialog(k,id,i){closeReport();closeReport.f=document.activeElement;
  const w=document.createElement('div');w.id='tg-rep';w.className='rep-bg';
@@ -505,41 +412,25 @@ function reportDialog(k,id,i){closeReport();closeReport.f=document.activeElement
  w.addEventListener('input',e=>{if(e.target.id==='rep-d')sync()});
  const f=w.querySelector('input[name="rep-r"]');if(f)f.focus()}
 document.addEventListener('click',e=>{if(!menuOpen)return;const t=e.target;if(t.closest&&(t.closest('.pmw')||t.closest('[data-a="dots"]')))return;menuOpen='';const y=window.scrollY;render();window.scrollTo(0,y)});
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('nm')&&e.target.dataset.a){e.target.click();return}if(e.key==='Escape'){closeReport();if(menuOpen){menuOpen='';render()}}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeReport();if(menuOpen){menuOpen='';render()}}});
 const likersPanel=p=>{if(!p.likedBy.length)return'';const us=p.likedBy.map(id=>user(id)),all=likersAll.has(p.id),sh=all?us:us.slice(0,2),rest=us.length-sh.length;
  const st='font-size:.85rem;color:inherit;font-weight:700';
  const nm=x=>`<button class="link" data-a="profile" data-id="${x.id}" style="${st}">${esc(x.handle)}</button>`;
  return `<div class="hint" style="margin:8px 0 0;display:flex;flex-wrap:wrap;gap:0 4px;align-items:center">Liked by ${sh.map(nm).join(', ')}${rest>0?` and <button class="link" data-a="likers" data-id="${p.id}" style="${st}">${rest} other${rest===1?'':'s'}</button>`:(all&&us.length>2?` <button class="link" data-a="likers" data-id="${p.id}" style="${st}">Show less</button>`:'')}</div>`};
-const repostBtn=p=>{const u=me(),mine=!!(u&&(db.reposts||[]).some(r=>r.pid===p.id&&r.by===u.id)),key='r'+p.id,o=menuOpen===key;
- return `<span class="pmw inl"><button class="act" data-a="dots" data-id="${key}" aria-pressed="${mine}" aria-haspopup="menu" aria-expanded="${o}" aria-label="${mine?'Reposted':'Repost'}" title="${mine?'Reposted':'Repost'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></button>${o?`<div class="pmenu" role="menu"><button role="menuitem" data-a="repost" data-id="${p.id}">${mine?'Undo repost':'Repost'}</button><button role="menuitem" data-a="quote" data-id="${p.id}">Repost with comment</button></div>`:''}</span>`};
-const repStrip=p=>{const all=(db.reposts||[]).filter(r=>r.pid===p.id&&user(r.by)).sort((a,b)=>b.ts-a.ts);if(!all.length)return'';
- const u=me(),fo=(u&&u.following)||[],ord=all.slice().sort((a,b)=>(fo.includes(b.by)-fo.includes(a.by))||(b.ts-a.ts)),nm=ord.slice(0,2).map(r=>`<b>${esc(user(r.by).name)}</b>`),rest=all.length-nm.length;
- const line=rest>0?`${nm.join(', ')}, and <button class="link" data-a="repsby" data-id="${p.id}">${rest} other${rest===1?'':'s'}</button>`:nm.join(' and ');
- const qs=all.filter(r=>r.t).slice(0,3).map(r=>`<div style="margin-top:2px"><b>${esc(user(r.by).name)}</b>: ${lk(r.t)}</div>`).join('');
- return `<div class="rpstrip"><div>${line} reposted</div>${qs}</div>`};
-function quoteDialog(id){closeReport();closeReport.f=document.activeElement;const p=postById(id);if(!p)return;
- const w=document.createElement('div');w.id='tg-rep';w.className='rep-bg';
- w.innerHTML=`<div class="rep" role="dialog" aria-modal="true" aria-labelledby="q-h"><h3 id="q-h">Repost with comment</h3><p class="hint" style="margin:4px 0 10px">Add your own words. They show above this post for others to see.</p><textarea id="q-t" maxlength="300" style="min-height:90px" placeholder="Add a comment" aria-label="Your comment"></textarea><div class="actions"><button class="btn" id="q-go" disabled>Repost</button><button class="btn ghost" id="q-x">Cancel</button></div></div>`;
- $('tg').appendChild(w);const t=$('q-t');t.focus();
- w.addEventListener('input',e=>{if(e.target.id==='q-t')$('q-go').disabled=!t.value.trim()});
- w.addEventListener('click',async e=>{if(e.target===w||e.target.id==='q-x'){closeReport();return}
-  if(e.target.id==='q-go'){const b=e.target;b.disabled=true;const ok=await api('repost',{id,t:t.value.trim()});if(ok){closeReport();render();toast('Reposted with your comment 🔄')}else b.disabled=false}})}
-function actions(p,full){const u=me(),liked=u&&p.likedBy.includes(u.id),rp=!p.draft&&!(u&&u.id===p.by)?repostBtn(p):'';
- return `<div class="actions">${full?'':`<button class="btn ghost" data-a="open" data-id="${p.id}">Read post</button>`}<button class="act" data-a="like" data-id="${p.id}" aria-label="Like" aria-pressed="${!!liked}"><span class="tl${liked?'':' off'}" aria-hidden="true">🍊</span> ${p.likedBy.length}</button> <button class="act" data-a="open" data-id="${p.id}" aria-label="Comments">💬 ${p.comments.length}</button>${full?`<button class="act" data-a="share" data-id="${p.id}" aria-label="Copy link to share">🔗</button>`:''}${rp}</div>${full?likersPanel(p):''}`}
+function actions(p,full){const u=me(),liked=u&&p.likedBy.includes(u.id);
+ return `<div class="actions"><button class="act" data-a="like" data-id="${p.id}" aria-label="Like" aria-pressed="${!!liked}"><span class="tl${liked?'':' off'}" aria-hidden="true">🍊</span> ${p.likedBy.length}</button> <button class="act" data-a="open" data-id="${p.id}" aria-label="Comments">💬 ${p.comments.length}</button><button class="act" data-a="share" data-id="${p.id}" aria-label="Copy link to share">🔗</button></div>${full?likersPanel(p):''}`}
 const lk=t=>esc(t).replace(/@([a-z0-9_]{3,20})/gi,(m,h)=>{const u=db.profiles.find(x=>x.handle===h.toLowerCase());return u?`<button class="link" data-a="profile" data-id="${u.id}">@${esc(u.handle)}</button>`:m});
 /* Writing boxes work like Word. Bold, italic, underline and strikethrough are saved as hidden [b] [i] [u] [s] tags. Links are saved as [text](https://...). Only http(s) links are shown as links. */
-/* Hide = inline spoiler. Saved as [h]text[/h]. Readers see a dark bar and tap it to show the words. In the editor it shows as a highlighted box. */
-const fmt=(s,ed)=>{const op={b:0,i:0,u:0,s:0,h:0},st=[];const oT=t=>t==='h'?(ed?'<span class="hd">':'<span class="hide" data-a="unhide" role="button" tabindex="0" title="Tap to show">'):'<'+t+'>',cT=t=>t==='h'?'</span>':'</'+t+'>';s=s.replace(/\[(\/?)([biush])\]/g,(m,c,t)=>{if(!c){op[t]++;st.push(t);return oT(t)}if(!op[t])return '';op[t]--;const k=st.lastIndexOf(t);if(k>=0)st.splice(k,1);return cT(t)});return s+st.reverse().map(cT).join('')};
-const hideCut=t=>String(t==null?'':t).replace(/\[h\][\s\S]*?(\[\/h\]|$)/g,'\u25AE\u25AE\u25AE');
+const fmt=s=>{const op={b:0,i:0,u:0,s:0},st=[];s=s.replace(/\[(\/?)([bius])\]/g,(m,c,t)=>{if(!c){op[t]++;st.push(t);return '<'+t+'>'}if(!op[t])return '';op[t]--;const k=st.lastIndexOf(t);if(k>=0)st.splice(k,1);return '</'+t+'>'});return s+st.reverse().map(t=>'</'+t+'>').join('')};
 const lkx=t=>{const L=[];t=String(t==null?'':t).replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]{1,500})\)/g,(m,x,u)=>{L.push([x,u]);return '\u0001'+(L.length-1)+'\u0002'});
  return fmt(lk(t)).replace(/\u0001(\d+)\u0002/g,(m,i)=>{const q=L[+i];return `<a class="link" href="${esc(q[1])}" target="_blank" rel="noopener noreferrer nofollow">${esc(q[0])}</a>`})};
 const staffTxt=l=>(l||[]).map(x=>x.name+(x.role?' | '+x.role:'')).join('\n');
 const staffList=l=>`<ul class="crew">${(l||[]).map(x=>{const m=String(x.name).match(/^(.*?)\s+(@[A-Za-z0-9_]{3,20})$/);return `<li><div class="crew-n">${m?`<b>${esc(m[1])}</b> <span class="crew-u">${lk(m[2])}</span>`:`<b>${lk(x.name)}</b>`}</div>${x.role?`<div class="crew-r">${esc(x.role)}</div>`:''}</li>`}).join('')}</ul>`;
-const plainLk=t=>String(t==null?'':t).replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]{1,500})\)/g,'$1').replace(/\[\/?[biush]\]/g,'');
-const fmtBar=id=>`<div class="fmt" role="toolbar" aria-label="Formatting" data-for="${id}"><button type="button" data-a="fmt" data-c="bold" data-for="${id}" title="Bold (Ctrl+B)" aria-label="Bold" aria-pressed="false"><b>B</b></button><button type="button" data-a="fmt" data-c="italic" data-for="${id}" title="Italic (Ctrl+I)" aria-label="Italic" aria-pressed="false"><i>I</i></button><button type="button" data-a="fmt" data-c="underline" data-for="${id}" title="Underline (Ctrl+U)" aria-label="Underline" aria-pressed="false"><u>U</u></button><button type="button" data-a="fmt" data-c="strikeThrough" data-for="${id}" title="Strikethrough (Ctrl+Shift+X)" aria-label="Strikethrough" aria-pressed="false"><s>S</s></button><button type="button" data-a="fmt" data-c="hide" data-for="${id}" title="Hide selected words (spoiler)" aria-label="Hide selected words as a spoiler" aria-pressed="false">Hide</button></div>`;
+const plainLk=t=>String(t==null?'':t).replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]{1,500})\)/g,'$1').replace(/\[\/?[bius]\]/g,'');
+const fmtBar=id=>`<div class="fmt" role="toolbar" aria-label="Formatting" data-for="${id}"><button type="button" data-a="fmt" data-c="bold" data-for="${id}" title="Bold (Ctrl+B)" aria-label="Bold" aria-pressed="false"><b>B</b></button><button type="button" data-a="fmt" data-c="italic" data-for="${id}" title="Italic (Ctrl+I)" aria-label="Italic" aria-pressed="false"><i>I</i></button><button type="button" data-a="fmt" data-c="underline" data-for="${id}" title="Underline (Ctrl+U)" aria-label="Underline" aria-pressed="false"><u>U</u></button><button type="button" data-a="fmt" data-c="strikeThrough" data-for="${id}" title="Strikethrough (Ctrl+Shift+X)" aria-label="Strikethrough" aria-pressed="false"><s>S</s></button></div>`;
 /* saved text -> what the editor shows */
 function mdToRte(md){return String(md||'').split('\n').map(line=>{const L=[];let t=line.replace(/\[([^\]\n]{1,200})\]\((https?:\/\/[^\s)]{1,500})\)/g,(m,x,u)=>{L.push([x,u]);return '\u0001'+(L.length-1)+'\u0002'});
- t=fmt(esc(t),true).replace(/\u0001(\d+)\u0002/g,(m,i)=>'<a href="'+esc(L[+i][1])+'">'+esc(L[+i][0])+'</a>');return '<div>'+(t||'<br>')+'</div>'}).join('')}
+ t=fmt(esc(t)).replace(/\u0001(\d+)\u0002/g,(m,i)=>'<a href="'+esc(L[+i][1])+'">'+esc(L[+i][0])+'</a>');return '<div>'+(t||'<br>')+'</div>'}).join('')}
 /* what the editor shows -> saved text */
 function rteToMd(root){let o='';const nl=()=>{if(o&&!o.endsWith('\n'))o+='\n'};
  const plain=n=>n.nodeType===3?n.nodeValue:Array.from(n.childNodes).map(plain).join('');
@@ -556,20 +447,12 @@ function rteToMd(root){let o='';const nl=()=>{if(o&&!o.endsWith('\n'))o+='\n'};
   if(tg==='I'||tg==='EM'||s.fontStyle==='italic')tags+='i';
   if(tg==='U'||/underline/.test(td))tags+='u';
   if(tg==='S'||tg==='STRIKE'||tg==='DEL'||/line-through/.test(td))tags+='s';
-  if(tg==='SPAN'&&n.classList&&n.classList.contains('hd'))tags+='h';
   const start=o.length;Array.from(n.childNodes).forEach(walk);
   if(tags){const inner=o.slice(start);o=o.slice(0,start)+inner.split('\n').map(x=>x.trim()?tags.split('').map(t=>'['+t+']').join('')+x+tags.split('').reverse().map(t=>'[/'+t+']').join(''):x).join('\n')}}
  Array.from(root.childNodes).forEach(walk);return o.replace(/\n+$/,'')}
 function rteSync(r){const ta=$(r.dataset.for);if(!ta)return;ta.value=rteToMd(r);r.classList.toggle('is-empty',!ta.value.trim());ta.dispatchEvent(new Event('input',{bubbles:true}))}
-function rteBar(r){const bar=app.querySelector('.fmt[data-for="'+r.dataset.for+'"]');if(!bar)return;bar.querySelectorAll('button').forEach(b=>{let on=false;try{if(b.dataset.c==='hide'){const sl=getSelection();let n=sl.rangeCount?sl.anchorNode:null;n=n&&n.nodeType===3?n.parentElement:n;on=!!(n&&n.closest&&n.closest('.hd')&&r.contains(n))}else on=document.queryCommandState(b.dataset.c)}catch(e){}b.setAttribute('aria-pressed',on?'true':'false')})}
-function rteHide(r){const sl=getSelection();if(!sl.rangeCount||!r.contains(sl.anchorNode)){toast('Select the words you want to hide first');return}
- const rg=sl.getRangeAt(0);let n=rg.commonAncestorContainer;n=n.nodeType===3?n.parentElement:n;const inside=n&&n.closest?n.closest('.hd'):null;
- if(inside&&r.contains(inside)){const f=document.createDocumentFragment();while(inside.firstChild)f.appendChild(inside.firstChild);inside.replaceWith(f);return}
- if(rg.collapsed){toast('Select the words you want to hide first');return}
- const sp=document.createElement('span');sp.className='hd';sp.appendChild(rg.extractContents());rg.insertNode(sp);
- sp.querySelectorAll('.hd').forEach(x=>{while(x.firstChild)x.parentNode.insertBefore(x.firstChild,x);x.remove()});
- sl.removeAllRanges();const r2=document.createRange();r2.selectNodeContents(sp);sl.addRange(r2)}
-function rteCmd(id,c){const r=app.querySelector('.rte[data-for="'+id+'"]');if(!r)return;r.focus();if(c==='hide')rteHide(r);else document.execCommand(c,false,null);rteSync(r);rteBar(r)}
+function rteBar(r){const bar=app.querySelector('.fmt[data-for="'+r.dataset.for+'"]');if(!bar)return;bar.querySelectorAll('button').forEach(b=>{let on=false;try{on=document.queryCommandState(b.dataset.c)}catch(e){}b.setAttribute('aria-pressed',on?'true':'false')})}
+function rteCmd(id,c){const r=app.querySelector('.rte[data-for="'+id+'"]');if(!r)return;r.focus();document.execCommand(c,false,null);rteSync(r);rteBar(r)}
 function initRte(){try{document.execCommand('defaultParagraphSeparator',false,'div')}catch(e){}
  app.querySelectorAll('textarea[data-lk]').forEach(ta=>{if(ta.nextElementSibling&&ta.nextElementSibling.classList.contains('rte'))return;
   const r=document.createElement('div');r.className='rte'+(ta.classList.contains('write')?' big':'');r.contentEditable='true';r.setAttribute('role','textbox');r.setAttribute('aria-multiline','true');r.dataset.for=ta.id;r.dataset.ph=ta.getAttribute('placeholder')||'';
@@ -587,46 +470,45 @@ function addLink(r){if(!r)return;const sl=getSelection();const rg=sl.rangeCount?
  r.focus();sl.removeAllRanges();sl.addRange(rg);
  if(sel)document.execCommand('createLink',false,u);else document.execCommand('insertHTML',false,'<a href="'+esc(u)+'">'+esc(txt)+'</a>&#8203;');
  rteSync(r)}
-const bodyHtml=(p,full)=>p.spoiler&&!rev.has(p.id)?`<div class="body"><button class="btn ghost" data-a="reveal" data-id="${p.id}">⚠️ Contains spoilers. Tap to show</button></div>`:`<div class="body">${lkx(full?p.text:excerpt(p.text))}</div>`;
-const whoHtml=(u,light,noav)=>`<span class="pwho"><span class="nm" role="link" tabindex="0" data-a="profile" data-id="${u.id}">${noav?'':av(u,'sm')}<span>${esc(u.name)}</span></span><span class="un">@${esc(u.handle)}</span>${badgeHtml(u)}</span>`;
-const meta=(p,big)=>{const when=`<span>${ago(p._ots||p.ts)}${p.edited?' <span style="opacity:.6;font-size:.82em">(edited)</span>':''}</span>`,
- draft=p.draft?'<span class="tag">Draft</span>':'',
- prm=p.prompt&&promptOf(p.prompt)?`<button class="link" data-a="prompt" data-id="${p.prompt}">💭 ${esc(promptOf(p.prompt).title)}</button>`:'',
- rate=`<span class="rate" aria-label="${p.rating} out of 5">${stars(p.rating)}</span>`;
- if(big)return `<div class="meta bigtags"><span class="tag">${esc(p.type)}</span><span class="tag">${esc(p.media)}</span></div><div class="meta">${whoHtml(user(p.by))}${draft}${prm}${rate}${when}</div>`;
- return `<div class="meta m1">${whoHtml(user(p.by))}<span class="tag">${esc(p.type)}</span>${draft}${prm}</div><div class="meta m2"><span class="tag">${esc(p.media)}</span>${rate}${when}</div>`};
-const card=(p,_i,_a,noStrip)=>`<article class="post">${postMenu(p)}${noStrip?'':repStrip(p)}<button class="open" data-a="open" data-id="${p.id}">${esc(p.title)}</button>${meta(p)}
- ${bodyHtml(p)}${actions(p)}</article>`;
+const bodyHtml=(p,full)=>p.spoiler&&!rev.has(p.id)?`<div class="body"><button class="btn ghost" data-a="reveal" data-id="${p.id}">⚠️ Contains spoilers. Tap to show</button></div>`:`<div class="body">${lkx(full?p.text:excerpt(plainLk(p.text)))}</div>`;
+const byLine=(u,bold)=>`<button class="link" data-a="profile" data-id="${u.id}">${av(u,'sm')}<span class="${bold?'nm':'nm0'}">${esc(u.name)}</span> <span class="hd">@${esc(u.handle||'')}</span></button>${badgeHtml(u)}`;
+const meta=(p,big)=>{const u=user(p.by),
+ time=`<span>${ago(p._ots||p.ts)}${p.edited?' <span style="opacity:.6;font-size:.82em">(edited)</span>':''}</span>`,
+ rate=`<span class="rate" aria-label="${p.rating} out of 5">${stars(p.rating)}</span>`,
+ pr=p.prompt&&promptOf(p.prompt)?`<button class="link" data-a="prompt" data-id="${p.prompt}">💭 ${esc(promptOf(p.prompt).title)}</button>`:'',
+ dr=p.draft?'<span class="tag">Draft</span>':'';
+ if(big)return `<div class="meta bigtags"><span class="tag">${esc(p.type)}${p.media?' - '+esc(p.media):''}</span></div><div class="meta">${byLine(u,1)}${dr}${pr}${rate}${time}</div>`;
+ return `<div class="meta">${byLine(u,0)}<span class="tag">${esc(p.type)}</span>${dr}${pr}</div><div class="meta" style="margin-top:0">${p.media?`<span>${esc(p.media)} -</span>`:''}${rate}${time}</div>`};
+const card=p=>`<article class="post">${postMenu(p)}<button class="open" data-a="open" data-id="${p.id}">${esc(p.title)}</button>${meta(p)}
+ ${bodyHtml(p)}<div class="actions"><button class="btn ghost" data-a="open" data-id="${p.id}">Read post</button></div>${actions(p)}</article>`;
 
 const newTip=()=>{const u=me();return u&&!db.posts.some(p=>p.by===u.id)?'<div class="panel" style="background:var(--os);margin-bottom:12px"><p style="margin:0">🍊 <b>New?</b> Tap <button class="link" data-a="gocompose"><b>Share your take</b></button> to post your first review.</p></div>':''};
 const feedSeed=Math.random().toString(36).slice(2),fh=id=>{let h=0;const q=id+feedSeed;for(let i=0;i<q.length;i++)h=(h*31+q.charCodeAt(i))|0;return h};
 function feedView(){const fl=(me()&&me().following)||[];
  const list=db.posts.filter(p=>filter==='All'||(filter==='Following'?fl.includes(p.by):p.type===filter)).sort((a,b)=>fh(a.id)-fh(b.id));
-  return newTip()+bannerBox()+suggestBox()+timesBanner()+composeView()+pickBanner()+promptBox()+pollBox()+bingoBox()+`<div class="filters">${TYPES.concat(me()?['Following']:[]).map(t=>`<button class="chip" data-a="filter" data-t="${t}" aria-pressed="${t===filter}">${t}</button>`).join('')}</div>`+
+  return newTip()+bannerBox()+timesBanner()+composeView()+pickBanner()+promptBox()+pollBox()+bingoBox()+`<div class="filters">${TYPES.concat(me()?['Following']:[]).map(t=>`<button class="chip" data-a="filter" data-t="${t}" aria-pressed="${t===filter}">${t}</button>`).join('')}</div>`+
  (list.length?(feedPosts=list,feedShown='IntersectionObserver' in window?Math.min(feedWant,list.length):list.length,`<div id="feed-list">${list.slice(0,feedShown).map(card).join('')}</div>${feedShown<list.length?'<div id="more" style="height:1px"></div>':''}`):`<p class="empty">${filter==='Following'?'Nothing here yet. Use Find people to follow someone.':'No fruit on the tree yet. Be the first to post.'}</p>`)}
 
 const postMenu=p=>{const u=me();if(!u)return'';const own=u.id===p.by,adm=isAdmin();if(!own&&!adm&&p.draft)return'';
  const edit=`<button role="menuitem" data-a="editp" data-id="${p.id}">Edit post</button>`,del=`<button role="menuitem" class="dng" data-a="delete" data-id="${p.id}">Delete post</button>`,rpt=`<button role="menuitem" data-a="report" data-k="post" data-id="${p.id}">Report</button>`;
  return pmenu('p'+p.id,own?edit+del:rpt+(adm?del:''))};
-const cliked=new Set();
-const likeRow=(p,c,i)=>{const u=me(),L=(c.likedBy||[]),on=!!(u&&L.includes(u.id));
- return `<button class="link pale${on?' on':''}" data-a="clike" data-id="${p.id}" data-i="${i}" aria-pressed="${on}">${on?'Liked':'Like'}</button>${L.length?`<button class="link pale" data-a="clikers" data-id="c${p.id}-${i}" aria-expanded="${cliked.has('c'+p.id+'-'+i)}">${L.length} like${L.length===1?'':'s'}</button>`:''}`};
-const clikersPanel=(p,c,i)=>{const L=(c.likedBy||[]).map(id=>user(id)).filter(Boolean);if(!L.length||!cliked.has('c'+p.id+'-'+i))return'';
- return `<div class="hint" style="display:flex;flex-wrap:wrap;gap:0 6px;align-items:center">Liked by ${L.map(x=>`<button class="link nm" data-a="profile" data-id="${x.id}" style="font-size:.85rem">${esc(x.name)} <span class="un">@${esc(x.handle)}</span></button>`).join(', ')}</div>`};
 function commentHtml(p,c,i){const u=me();
  if(c.hidden)return `<div class="cm"><span class="hint">Comment hidden (blocked user).</span></div>`;
- const own=u&&u.id===c.by, mod=u&&(own||u.id===p.by||isAdmin());
+ const own=u&&u.id===c.by, mod=u&&(own||u.id===p.by||isAdmin()), cu=user(c.by), lk2=c.likedBy||[], nl=lk2.length, liked=!!u&&lk2.includes(u.id), showL=rev.has('lk'+p.id+'-'+i);
  const hid=!!c.spoiler&&!own&&!rev.has('c'+p.id+'-'+i), cbody=hid?`<button class="link" data-a="reveal" data-id="c${p.id}-${i}">⚠️ Contains spoilers. Tap to show</button>`:lk(c.t)+(c.spoiler?' <span class="hint">(spoiler)</span>':'');
  const main=view.ec===i&&own?`<div class="cm">${av(u,'sm')}<div class="cform" style="flex:1;margin:0"><input id="ce-t" maxlength="300" value="${esc(c.t)}"><button class="btn" data-a="savec" data-id="${p.id}" data-i="${i}">Save</button><button class="btn ghost" data-a="open" data-id="${p.id}">Cancel</button><label class="cspoil"><input type="checkbox" id="ce-spoil"${c.spoiler?' checked':''}>This comment contains spoilers</label></div></div>`
-  :`<div class="cm">${av(user(c.by),'sm')}<div style="flex:1;min-width:0"><div class="chead">${whoHtml(user(c.by),0,1)}${u&&!own?`<button class="link pale sm" data-a="report" data-k="comment" data-id="${p.id}" data-i="${i}">Report</button>`:''}</div>${cbody}${c.edited?' <span class="hint">(edited)</span>':''}<div class="cacts">${likeRow(p,c,i)}${u?`<button class="link pale" data-a="replyto" data-i="${i}">Reply</button>`:''}${own?`<button class="link pale" data-a="editc" data-i="${i}">Edit</button>`:''}${mod?`<button class="link pale" data-a="delc" data-id="${p.id}" data-i="${i}">Delete</button>`:''}</div>${clikersPanel(p,c,i)}</div></div>`;
- const reps=(c.replies||[]).map((r,j)=>r.hidden?'':`<div class="cm" style="margin-left:34px">${av(user(r.by),'sm')}<div>${whoHtml(user(r.by),0,1)}<div>${lk(r.t)}</div>${u&&(u.id===r.by||u.id===p.by||isAdmin())?`<div class="cacts"><button class="link pale" data-a="delr" data-id="${p.id}" data-i="${i}" data-j="${j}">Delete</button></div>`:''}</div></div>`).join('');
+ :`<div class="cm">${av(cu,'sm')}<div style="flex:1;min-width:0"><div class="cmh"><button class="link" data-a="profile" data-id="${c.by}"><span class="nm">${esc(cu.name)}</span> <span class="hd">@${esc(cu.handle||'')}</span></button>${u&&!own?`<button class="link pale" data-a="report" data-k="comment" data-id="${p.id}" data-i="${i}">Report</button>`:''}</div>
+ <div style="margin:2px 0">${cbody}${c.edited?' <span class="hint">(edited)</span>':''}</div>
+ <div class="cmact">${u?`<button class="link pale" data-a="clike" data-id="${p.id}" data-i="${i}" aria-pressed="${liked}">${liked?'Liked':'Like'}</button>`:''}${nl?`<button class="link pale" data-a="clikers" data-id="${p.id}" data-i="${i}" aria-expanded="${showL}">${nl} like${nl===1?'':'s'}</button>`:''}${u?`<button class="link pale" data-a="replyto" data-i="${i}">Reply</button>`:''}${own?`<button class="link pale" data-a="editc" data-i="${i}">Edit</button>`:''}${mod?`<button class="link pale" data-a="delc" data-id="${p.id}" data-i="${i}">Delete</button>`:''}</div>
+ ${showL&&nl?`<div class="hint" style="margin-top:4px">Liked by ${lk2.map(id=>`<button class="link pale" data-a="profile" data-id="${id}">${esc(user(id).name)}</button>`).join(', ')}</div>`:''}</div></div>`;
+ const reps=(c.replies||[]).map((r,j)=>r.hidden?'':`<div class="cm" style="margin-left:34px">${av(user(r.by),'sm')}<div><button class="link" data-a="profile" data-id="${r.by}"><span class="nm">${esc(user(r.by).name)}</span> <span class="hd">@${esc(user(r.by).handle||'')}</span></button> ${lk(r.t)}${u&&(u.id===r.by||u.id===p.by||isAdmin())?` <button class="link" data-a="delr" data-id="${p.id}" data-i="${i}" data-j="${j}">Delete</button>`:''}</div></div>`).join('');
  const form=view.rp===i&&u?`<div class="cform" style="margin-left:34px"><input id="r-t" maxlength="300" placeholder="Reply as ${esc(u.name)}"><button class="btn" data-a="sendr" data-id="${p.id}" data-i="${i}">Reply</button><button class="btn ghost" data-a="open" data-id="${p.id}">Cancel</button></div>`:'';
  return main+reps+form}
 function editForm(p){return `<section class="panel"><h2>Edit your post</h2>${p.prompt&&promptOf(p.prompt)?`<p style="margin:0 0 6px;padding:8px 12px;background:var(--os);border-radius:10px">💭 Answering the weekly prompt: <b>${esc(promptOf(p.prompt).title)}</b></p>`:''}
  <div class="row"><div><label for="f-type">Category</label><select id="f-type">${TYPES.slice(1).map(t=>`<option${t===p.type?' selected':''}>${t}</option>`).join('')}</select></div>
  <div><label for="f-media">Title</label><input id="f-media" maxlength="80" value="${esc(p.media)}"></div></div>
  <label>Your rating</label><div class="stars" id="f-stars">${[1,2,3,4,5].map(n=>`<button type="button" class="${n<=rating?'on':''}" data-n="${n}" aria-label="${n} stars">🍊</button>`).join('')}</div>
- <label for="f-title">Headline</label><p class="hint" style="margin:0 0 4px">* 200 characters limit</p><input id="f-title" maxlength="200" placeholder="Give your post a headline (optional)" value="${p.title!==p.media?esc(p.title):''}">
+ <label for="f-title">Headline</label><input id="f-title" maxlength="100" placeholder="Give your post a headline (optional)" value="${p.title!==p.media?esc(p.title):''}">
  <label for="f-text">Your review or blog</label>${fmtBar('f-text')}<textarea class="write" data-lk id="f-text" maxlength="10000">${esc(p.text)}</textarea><p class="hint" id="f-count">0 words</p>
  <label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="f-spoil" style="width:auto"${p.spoiler?' checked':''}>This post contains spoilers</label>
  <div class="actions">${p.draft?`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Publish</button><button class="btn ghost" data-a="savepost" data-id="${p.id}" data-draft="1">Save draft</button>`:`<button class="btn" data-a="savepost" data-id="${p.id}" data-draft="0">Save changes</button>`}<button class="btn ghost" data-a="open" data-id="${p.id}">Cancel</button></div></section>`}
@@ -638,17 +520,6 @@ function postView(p){const u=me();if(view.edit&&u&&u.id===p.by)return editForm(p
  ${u?`<div class="cform"><input id="c-t" maxlength="300" placeholder="Comment as ${esc(u.name)}"><button class="btn" data-a="send" data-id="${p.id}">Comment</button><label class="cspoil"><input type="checkbox" id="c-spoil">This comment contains spoilers</label></div>`
  :`<div class="actions"><button class="btn" data-a="join">Create a profile to comment</button></div>`}</div></article>`}
 
-let ptab='all';
-function profileFeed(u,posts){
- const reps=(db.reposts||[]).filter(r=>r.by===u.id).map(r=>({r,p:db.posts.find(x=>x.id===r.pid)})).filter(x=>x.p).sort((a,b)=>b.r.ts-a.r.ts);
- const chip=(k,l)=>`<button class="chip" data-a="ptab" data-t="${k}" aria-pressed="${ptab===k}">${l}</button>`;
- const rItem=x=>`<div class="rpbar">🔄 <b>${esc(u.name)}</b> reposted${x.r.t?': '+lk(x.r.t):''}</div>${card(x.p,0,0,1)}`;
- let list;
- if(ptab==='posts')list=posts.length?sortPosts(posts,psort).map(p=>card(p)).join(''):'<p class="empty">No posts yet.</p>';
- else if(ptab==='reposts')list=reps.length?reps.map(rItem).join(''):'<p class="empty">No reposts yet.</p>';
- else{const all=posts.map(p=>({t:p.ts,h:()=>card(p)})).concat(reps.map(x=>({t:x.r.ts,h:()=>rItem(x)}))).sort((a,b)=>b.t-a.t);list=all.length?all.map(x=>x.h()).join(''):'<p class="empty">Nothing here yet.</p>'}
- const sel=ptab==='posts'&&posts.length>1?`<select id="psort" aria-label="Sort posts" style="width:auto"><option value="new"${psort==='new'?' selected':''}>Newest</option><option value="old"${psort==='old'?' selected':''}>Oldest</option><option value="liked"${psort==='liked'?' selected':''}>Most liked</option><option value="comm"${psort==='comm'?' selected':''}>Most commented</option></select>`:'';
- return `<div id="u-posts" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px"><div class="filters" style="margin:0">${chip('all','Latest')}${chip('posts','Posts')}${chip('reposts','Reposts')}</div>${sel}</div>${list}`}
 function profileView(u){const mine=me()&&me().id===u.id, posts=db.posts.filter(p=>p.by===u.id), shown=posts;
  return `<section class="panel"><div class="phead">${av(u,'lg')}<div><h2>${esc(u.name)}</h2>${badgeHtml(u)?`<div style="margin:6px 0 2px">${badgeHtml(u)}</div>`:''}<div style="color:var(--mut)">@${esc(u.handle)}${pronTxt(u)}</div>
  <div class="stats"><button type="button" data-a="pscroll"><b>${posts.length}</b> posts</button><button type="button" data-a="plist" data-id="${u.id}" data-k="followers"><b>${followers(u)}</b> followers</button><button type="button" data-a="plist" data-id="${u.id}" data-k="following"><b>${(u.following||[]).length}</b> following</button></div>
@@ -663,7 +534,7 @@ function profileView(u){const mine=me()&&me().id===u.id, posts=db.posts.filter(p
  ${pronFields('e',u)}
  ${igFields('e',u)}
  <label>Avatar </label>${avPicker(pickAv)}<div class="actions"><button class="btn" data-a="saveprofile">Save profile</button></div></section>`:''}
- ${draftsView(u)}${profileFeed(u,shown)}`}
+ ${draftsView(u)}<div id="u-posts" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px"><h2 style="color:var(--od)">Posts by ${esc(u.name)}</h2>${shown.length>1?`<select id="psort" aria-label="Sort posts" style="width:auto"><option value="new"${psort==='new'?' selected':''}>Newest</option><option value="old"${psort==='old'?' selected':''}>Oldest</option><option value="liked"${psort==='liked'?' selected':''}>Most liked</option><option value="comm"${psort==='comm'?' selected':''}>Most commented</option></select>`:''}</div>${shown.length?sortPosts(shown,psort).map(card).join(''):'<p class="empty">No posts yet.</p>'}`}
 
 function peopleView(u,k){const bl=(db.blocked||[]).map(x=>x.id),l=(k==='followers'?db.profiles.filter(x=>(x.following||[]).includes(u.id)):(u.following||[]).map(i=>db.profiles.find(x=>x.id===i)).filter(Boolean)).filter(x=>!bl.includes(x.id));
  return `<button class="btn ghost" style="margin-bottom:14px" data-a="profile" data-id="${u.id}">Back to profile</button><section class="panel"><h2>${k==='followers'?'Followers':'Following'} (${l.length})</h2><p class="hint" style="margin:0 0 8px">${esc(u.name)} · @${esc(u.handle)}</p>${l.length?l.map(x=>`<div style="display:flex;align-items:center;gap:12px;padding:6px 0;flex-wrap:wrap">${av(x)}<div style="flex:1 1 140px"><button class="link" data-a="profile" data-id="${x.id}">${esc(x.name)}</button>${badgeHtml(x)}<div class="hint" style="margin:0">@${esc(x.handle)}</div></div>${fbtn(x)}</div>`).join(''):`<p class="empty">${k==='followers'?'No followers yet.':'Not following anyone yet.'}</p>`}</section>`}
@@ -679,52 +550,18 @@ function memberRows(q){q=q.trim().toLowerCase().replace(/^@/,'');
 const MCOLS=[['Username','handle'],['Name','name'],['Email','email'],['Date made','made'],['Posts','posts'],['Likes','likes'],['Followers','followers'],['Following','following'],['Ever suspended','susp'],['Links','links']];
 function membersTsv(q){const cell=v=>String(v).replace(/[\t\r\n]+/g,' ');return [MCOLS.map(c=>c[0]).join('\t')].concat(memberRows(q).map(r=>MCOLS.map(c=>cell(r[c[1]])).join('\t'))).join('\n')}
 function searchRes(q){q=q.trim().toLowerCase().replace(/^@/,'');
- let rows=memberRows(q);
- if(!q){const D=db.discover;rows=D&&Array.isArray(D.people)?D.people.map(id=>rows.find(r=>r.u.id===id)).filter(Boolean):rows.filter(r=>r.u.id!==db.me).sort((a,b)=>fh(a.u.id)-fh(b.u.id)).slice(0,5)}
+ const rows=memberRows(q);
  const people=`<h2 style="margin:0 0 10px;color:var(--od)">People</h2>`+(rows.length?rows.map(r=>{const u=r.u;return `<div class="panel person">${av(u)}<div style="flex:1 1 140px"><button class="link" data-a="profile" data-id="${u.id}">${esc(u.name)}</button><div class="hint" style="margin:0">@${esc(u.handle)}</div></div>${fbtn(u)}</div>`}).join(''):'<p class="empty">No one found.</p>');
- if(!q){const D=db.discover,dp=D&&Array.isArray(D.posts)?D.posts.map(id=>db.posts.find(p=>p.id===id)).filter(Boolean):null;const tp=dp||db.posts.map(p=>({p,s:p.likedBy.length+p.comments.reduce((n,c)=>n+(c.hidden?0:1)+(c.replies||[]).length,0)})).sort((a,b)=>b.s-a.s||b.p.ts-a.p.ts).slice(0,5).map(x=>x.p);
-  return `<h2 style="margin:0 0 10px;color:var(--od)">Posts</h2>`+(tp.length?tp.map(card).join(''):'<p class="empty">No posts yet.</p>')+`<div style="height:18px"></div>`+people}
- const ps=db.posts.filter(p=>[p.title,p.media,p.type].some(x=>x.toLowerCase().includes(q))||(!p.spoiler&&hideCut(p.text).toLowerCase().includes(q))).slice(0,20);
+ if(!q)return people;
+ const ps=db.posts.filter(p=>[p.title,p.media,p.type].some(x=>x.toLowerCase().includes(q))||(!p.spoiler&&p.text.toLowerCase().includes(q))).slice(0,20);
  return people+`<h2 style="margin:18px 0 10px;color:var(--od)">Posts</h2>`+(ps.length?ps.map(card).join(''):'<p class="empty">No posts found.</p>')}
 const membersPanel=()=>{if(!db.owner)return'';const rows=memberRows('');
  return `<section class="panel"><h2>Member list (owner only)</h2><p class="hint">Copy the table and paste it into Google Sheets.</p><div class="actions" style="margin:8px 0 12px"><button class="btn" data-a="copymembers">📋 Copy table</button></div>${rows.length?`<div class="tblwrap"><table class="mtable" id="m-table"><thead><tr>${MCOLS.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${MCOLS.map(c=>c[1]==='handle'?`<td><button class="link" data-a="profile" data-id="${r.u.id}">@${esc(r.handle)}</button></td>`:`<td>${esc(r[c[1]])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<p class="hint">No members yet.</p>'}</section>`};
 const pinView=()=>`<section class="panel"><h2>📌 Pinned content (view only)</h2><p class="hint">Fresh pick: ${db.pick?esc(db.pick.type)+' · '+esc(db.pick.media)+(db.pick.note?' · '+esc(db.pick.note):''):'none'}</p><p class="hint">Announcement: ${db.banner?esc(db.banner.title)+(db.banner.text?' · '+esc(db.banner.text):''):'none'}</p></section>`;
 const statsPanel=()=>{if(!isAdmin()&&!isMod())return'';
- const now=Date.now(),W=8,WEEK=6048e5,wk=t=>Math.floor((now-t)/WEEK),zero=()=>Array(W).fill(0),pw=zero(),cw=zero(),act=new Set(),act30={},cats={},media={},top=[];
- let likes=0,cmt=0;
- const bump=(a,t)=>{if(!t)return;const k=wk(t);if(k>=0&&k<W)a[W-1-k]++},touch=(u,t)=>{if(!u||!t)return;const age=now-t;if(age<7*864e5)act.add(u);if(age<30*864e5)act30[u]=(act30[u]||0)+1};
- db.posts.forEach(p=>{let n=0;const l=p.likedBy.length;likes+=l;bump(pw,p.ts);touch(p.by,p.ts);
-  p.comments.forEach(c=>{if(c.hidden)return;n++;bump(cw,c.ts);touch(c.by,c.ts);(c.replies||[]).forEach(r=>{if(r.hidden)return;n++;bump(cw,r.ts);touch(r.by,r.ts)})});
-  cmt+=n;
-  const c=cats[p.type]||(cats[p.type]={l:p.type,p:0,c:0,k:0});c.p++;c.c+=n;c.k+=l;
-  const mk=(p.media||'').trim().toLowerCase();
-  if(mk){const m=media[mk]||(media[mk]={l:p.media,t:{},p:0,c:0,k:0});m.p++;m.c+=n;m.k+=l;m.t[p.type]=(m.t[p.type]||0)+1}
-  top.push({p,n,l,s:l+n})});
- const S=db.stats,mw=S&&Array.isArray(S.members)?S.members:null,tm=S?S.totalMembers:db.profiles.length;
- const wkTxt=a=>a[W-1]>0?`<span class="st-d up">+${a[W-1]} this week</span>`:`<span class="st-d">none this week</span>`;
- const kpi=(n,l,sub)=>`<div class="st-k"><b>${n}</b><span>${l}</span>${sub||''}</div>`;
- const ch=(t,a)=>{const mx=Math.max(1,...a);return `<div class="st-c"><h3>${t}</h3><div class="st-ch" role="img" aria-label="${t}, last 8 weeks: ${a.join(', ')}">${a.map((v,i)=>`<div${i===W-1?' class="cur"':''}><em>${v}</em><i style="height:${Math.max(3,Math.round(v/mx*64))}px"></i></div>`).join('')}</div><div class="st-lb">${a.map((_,i)=>`<span>${i===W-1?'Now':(W-1-i)+'w'}</span>`).join('')}</div></div>`};
- const rank=o=>Object.values(o).sort((a,b)=>(b.p+b.c)-(a.p+a.c)||b.k-a.k||b.p-a.p);
- const cl=rank(cats),cmx=Math.max(1,...cl.map(x=>x.p+x.c));
- const bars=l=>l.length?l.map((x,i)=>`<div class="st-hb"><span class="st-n">${i+1}</span><span>${esc(x.l)}</span><span class="st-tr"><i style="width:${Math.max(4,Math.round((x.p+x.c)/cmx*100))}%"></i></span><small>${x.p} post${x.p===1?'':'s'}, ${x.c} comments, ${x.k} likes</small></div>`).join(''):'<p class="hint">No posts yet.</p>';
- const ml=rank(media).map(m=>({...m,cat:Object.entries(m.t).sort((a,b)=>b[1]-a[1])[0][0]}));
- const mrow=(x,i)=>`<div class="st-rank"><span class="st-n">${i+1}</span><div><b>${esc(x.l)}</b> <span class="tag">${esc(x.cat)}</span><div class="hint" style="margin:0">${x.p} post${x.p===1?'':'s'}, ${x.c} comments, ${x.k} likes</div></div></div>`;
- const tp=top.filter(x=>x.s>0).sort((a,b)=>b.s-a.s||b.p.ts-a.p.ts).slice(0,10).map((x,i)=>`<div class="st-rank"><span class="st-n">${i+1}</span><div><button class="link" data-a="open" data-id="${x.p.id}">${esc(x.p.title)}</button><div class="hint" style="margin:0">${esc((user(x.p.by)||{}).name||'')}, ${x.l} likes, ${x.n} comments</div></div></div>`).join('');
- const am=Object.entries(act30).filter(([u])=>user(u)).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([u,n],i)=>`<div class="st-rank"><span class="st-n">${i+1}</span><div><button class="link" data-a="profile" data-id="${u}">${esc(user(u).name)}</button> <span class="hint">@${esc(user(u).handle)}</span></div><span class="hint" style="margin:0">${n} action${n===1?'':'s'}</span></div>`).join('');
- const pr={};db.posts.forEach(p=>{if(!p.prompt)return;const x=pr[p.prompt]||(pr[p.prompt]={l:(promptOf(p.prompt)||{}).title||'Deleted prompt',p:0,c:0,k:0});x.p++;x.k+=p.likedBy.length;x.c+=p.comments.reduce((s,c)=>s+(c.hidden?0:1)+(c.replies||[]).length,0)});
- const prl=rank(pr).slice(0,10);
- return `<section class="panel"><h2>Stats</h2><p class="hint">Since launch. Ranked by posts plus comments and replies.</p>
- <div class="st-grid">${kpi(tm,'Members',mw?wkTxt(mw):'')}${kpi(db.posts.length,'Posts',wkTxt(pw))}${kpi(cmt,'Comments and replies',wkTxt(cw))}${kpi(act.size,'Active members','<span class="st-d">posted or commented this week</span>')}</div>
- <h3 style="margin:18px 0 4px">Top 10 categories</h3>${bars(cl.slice(0,10))}
- <h3 style="margin:18px 0 4px">Top 10 media titles</h3>${ml.length?ml.slice(0,10).map(mrow).join(''):'<p class="hint">No posts yet.</p>'}
- <h3 style="margin:18px 0 4px">Top 10 most active members</h3><p class="hint" style="margin:0 0 2px">Posts, comments and replies in the last 30 days.</p>${am||'<p class="hint">No activity yet.</p>'}
- <details class="st-more"><summary>Show full stats</summary>
-  <div class="st-grid" style="margin-top:12px">${kpi(likes,'Likes on posts')}${canMod()?kpi((db.reports||[]).length,'Open reports'):''}</div>
-  <div class="st-charts">${ch('Posts per week',pw)}${ch('Comments and replies per week',cw)}${mw?ch('New members per week',mw):''}</div>
-  ${ml.length>10?`<h3 style="margin:18px 0 4px">More media titles</h3>${ml.slice(10,25).map((x,i)=>mrow(x,i+10)).join('')}`:''}
-  <h3 style="margin:18px 0 4px">Top posts</h3>${tp||'<p class="hint">No likes or comments yet.</p>'}
-  ${prl.length?`<h3 style="margin:18px 0 4px">Weekly prompts</h3>${prl.map((x,i)=>`<div class="st-rank"><span class="st-n">${i+1}</span><div>${esc(x.l)}<div class="hint" style="margin:0">${x.p} post${x.p===1?'':'s'}, ${x.c} comments, ${x.k} likes</div></div></div>`).join('')}`:''}
- </details></section>`};
+ const tally=(key,label)=>{const m={};db.posts.forEach(p=>{const k=key(p);if(!k)return;const x=m[k]||(m[k]={l:label(p),p:0,c:0,k:0});x.p++;x.k+=p.likedBy.length;x.c+=p.comments.reduce((s,c)=>s+(c.hidden?0:1)+(c.replies||[]).length,0)});return Object.values(m).sort((a,b)=>(b.p+b.c)-(a.p+a.c)||b.k-a.k).slice(0,10)};
+ const tbl=(t,rows)=>`<h3 style="margin:14px 0 6px">${t}</h3>`+(rows.length?`<div class="tblwrap"><table class="mtable"><thead><tr><th>#</th><th>Topic</th><th>Posts</th><th>Comments</th><th>Likes</th></tr></thead><tbody>${rows.map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.l)}</td><td>${x.p}</td><td>${x.c}</td><td>${x.k}</td></tr>`).join('')}</tbody></table></div>`:'<p class="hint">Nothing yet.</p>');
+ return `<section class="panel"><h2>Stats</h2><p class="hint">Most talked about (admin and mods). Ranked by posts plus comments and replies.</p>${tbl('Titles',tally(p=>(p.media||'').trim().toLowerCase(),p=>p.media))}${tbl('Categories',tally(p=>p.type,p=>p.type))}${tbl('Weekly prompts',tally(p=>p.prompt,p=>(promptOf(p.prompt)||{}).title||'Deleted prompt'))}</section>`};
 const searchView=()=>`<section class="panel"><h2>Search</h2><input id="s-q" placeholder="Search people, reviews or titles" autocomplete="off"></section><div id="s-res">${searchRes('')}</div>`;
 
 const threads=()=>{const m={};(db.msgs||[]).forEach(x=>{const o=x.from===db.me?x.to:x.from;(m[o]=m[o]||[]).push(x)});return Object.entries(m).map(([o,l])=>({o,l,last:l[l.length-1]})).sort((a,b)=>b.last.ts-a.last.ts)};
@@ -753,27 +590,25 @@ const cmUpdate=()=>{const l=$('cm-list');if(l){l.innerHTML=clubList();l.scrollTo
 const chatList=id=>{const l=(db.msgs||[]).filter(m=>m.from===id||m.to===id);return l.length?l.map(m=>{const mine=m.from===db.me;return `<div style="display:flex;justify-content:${mine?'flex-end':'flex-start'};margin:6px 0"><div style="max-width:80%;padding:8px 12px;border-radius:14px;white-space:pre-wrap;word-break:break-word;background:${mine?'var(--o)':'var(--os)'};color:${mine?'#fff':'var(--ink)'}">${esc(m.t)}<div style="font-size:.72rem;opacity:.75">${ago(m.ts)}${mine?` · <button class="link" data-a="delm" data-id="${m.id}" style="font-size:.72rem;color:#fff">Delete</button>`:''}</div></div></div>`}).join(''):'<p class="empty">Say hi.</p>'};
 function chatView(id){if(!me())return inboxView();const u=user(id);return `<button class="btn ghost" style="margin-bottom:14px" data-a="inbox">Back to messages</button><section class="panel"><div class="phead">${av(u)}<h2 style="font-size:1.3rem">${esc(u.name)}</h2></div><div id="m-list" style="margin-top:12px">${chatList(id)}</div><div class="cform"><input id="m-t" maxlength="1000" placeholder="Write a message"><button class="btn" data-a="sendm" data-id="${id}">Send</button></div></section>`}
 const noteText={like:'liked your post',comment:'commented on your post',reply:'replied to a comment',follow:'started following you',repost:'reposted your post',mention:'mentioned you'};
-const sysNote=n=>{const em=(db.about&&db.about.email)||ABOUT_EMAIL,w=n.kind==='warn';return `<div class="panel" style="${n.read?'':'border-color:var(--o)'}"><b>${w?'Warning':(n.text==='comment'?'Comment removed':'Post removed')}</b><div style="margin:4px 0">${w?`${n.n?`This is warning ${n.n} of 3. `:''}${n.n>=3?'Your account can now be suspended.':'At 3 warnings your account can be suspended.'} For any concern, email <a href="mailto:${esc(em)}" style="color:var(--od)">${esc(em)}</a>.`:`Your ${n.text==='comment'?'comment':'post'} was deleted because it violates the rules.`}</div><span class="hint" style="margin:0">${ago(n.ts)}</span></div>`};
 function notesView(){if(!me())return inboxView();const l=db.notes||[];
- return `<section class="panel"><h2>Notifications</h2></section>`+(l.length?l.map(n=>(n.kind==='warn'||n.kind==='removed')?sysNote(n):`<div class="panel person" style="${n.read?'':'border-color:var(--o)'}">${av(user(n.from),'sm')}<button class="link" data-a="${n.pid?'open':'profile'}" data-id="${n.pid||n.from}">${esc(user(n.from).name)} ${noteText[n.kind]||'did something'}</button><span class="hint" style="margin:0">${ago(n.ts)}</span></div>`).join(''):'<p class="empty">No juicy news yet.</p>')}
+ return `<section class="panel"><h2>Notifications</h2></section>`+(l.length?l.map(n=>`<div class="panel person" style="${n.read?'':'border-color:var(--o)'}">${av(user(n.from),'sm')}<button class="link" data-a="${n.pid?'open':'profile'}" data-id="${n.pid||n.from}">${esc(user(n.from).name)} ${noteText[n.kind]||'did something'}</button><span class="hint" style="margin:0">${ago(n.ts)}</span></div>`).join(''):'<p class="empty">No juicy news yet.</p>')}
 function settingsView(){if(!me())return inboxView();const A=adminTools();
  return `<section class="panel"><h2>Passwords</h2><h3 style="margin:8px 0 2px;font-size:1.05rem">Email for password reset</h3><p class="hint">${db.email?'Current: '+esc(db.email):'No email yet. Add one so you can reset a forgotten password.'}</p><label for="em-n">Email</label><input id="em-n" type="email" placeholder="you@example.com"><label for="em-p">Your password</label><input id="em-p" type="password" autocomplete="current-password"><div class="actions"><button class="btn" data-a="setemail">Save email</button></div><h3 style="margin:20px 0 2px;font-size:1.05rem">Change password</h3><label for="pw-o">Current password</label><input id="pw-o" type="password" autocomplete="current-password"><label for="pw-n">New password</label><input id="pw-n" type="password" autocomplete="new-password" placeholder="At least 6 characters"><div class="actions"><button class="btn" data-a="changepw">Change password</button></div></section>
  <section class="panel"><h2>Community safety rules</h2><ol style="margin:0;padding-left:20px;line-height:1.65"><li><strong>Be kind.</strong> Disagree with the take, never attack the person. No bullying, harassment or hate.</li><li><strong>Keep everyone safe.</strong> No threats, violence or encouraging anyone to hurt themselves. If someone is in danger, tell a trusted adult or local emergency services.</li><li><strong>Protect privacy.</strong> Never share anyone’s personal details (address, phone, school, email or private photos), including your own.</li><li><strong>Keep it appropriate.</strong> No sexual harassment or graphic violent content.</li><li><strong>Mark spoilers.</strong> Please mark them, and be respectful of others who have not seen, read or played it yet.</li><li><strong>Be real.</strong> No spam, scams, impersonation or fake accounts.</li><li><strong>Follow the rules.</strong> Your account will be suspended if other members report you or if you do not follow these rules.</li></ol><p class="hint" style="margin:10px 0 0">See something that breaks these rules? Use Report or Block. Any concerns? Email <a href="mailto:tangerinetakes@gmail.com">tangerinetakes@gmail.com</a>.</p></section>
  ${isLead()?`<section class="panel"><h2>Email check (lead admin)</h2><p class="hint">Sends a test email to your own address and tells you exactly what is wrong if it fails. Password reset emails use the same setup.</p><div class="actions"><button class="btn" data-a="mailtest">Send test email</button></div></section>`:''}
  ${A.admins||''}
  ${A.mods||''}
- ${canMod()?crewBox():''}
+ ${isAdmin()?crewBox():''}
  ${membersPanel()}
  ${isMod()&&!isLead()?pinView():''}
  ${A.banner||''}
- ${suggestAdmin()}
  ${isLead()?`<section class="panel"><h2>Fresh pick of the week</h2><div class="row"><div><label for="fp-t">Category</label><select id="fp-t">${TYPES.slice(1).map(t=>`<option${db.pick&&db.pick.type===t?' selected':''}>${t}</option>`).join('')}</select></div><div><label for="fp-m">Title</label><input id="fp-m" maxlength="80" value="${db.pick?esc(db.pick.media):''}"></div></div><label for="fp-n">Why it is a fresh pick (optional)</label><input id="fp-n" maxlength="200" value="${db.pick?esc(db.pick.note||''):''}"><div class="actions"><button class="btn" data-a="setpick">Save pick</button><button class="btn ghost" data-a="clearpick">Remove pick</button></div></section>`:''}
  ${A.prompts||''}
  ${A.polls||''}
  ${A.bingo||''}
  ${statsPanel()}
  <section class="panel"><h2>Blocked people</h2>${(db.blocked||[]).length?db.blocked.map(u=>`<div style="display:flex;align-items:center;gap:12px;padding:6px 0">${av(u)}<span style="flex:1">${esc(u.name)} <span class="hint">@${esc(u.handle)}</span></span><button class="btn ghost" data-a="block" data-id="${u.id}">Unblock</button></div>`).join(''):'<p class="hint">You have not blocked anyone.</p>'}</section>
- ${canMod()?`<section class="panel"><h2>Reports</h2>${(db.reports||[]).length?db.reports.map(r=>`<div class="cm" style="flex-wrap:wrap"><div style="flex:1 1 100%">${esc(r.kind)} reported by ${esc(user(r.by).name)}: <b>${esc(r.reason||'no reason given')}</b>${r.detail?' ('+esc(r.detail)+')':''}${repWhat(r)}</div><div style="display:flex;gap:6px 14px;flex-wrap:wrap"><button class="link" data-a="open" data-id="${r.pid}">View</button>${repAuthor(r)}<button class="link" data-a="dismissr" data-id="${r.id}">Dismiss</button></div></div>`).join(''):'<p class="hint">No reports.</p>'}</section>`:''}
+ ${isAdmin()?`<section class="panel"><h2>Reports</h2>${(db.reports||[]).length?db.reports.map(r=>`<div class="cm"><div style="flex:1">${esc(r.kind)} reported by ${esc(user(r.by).name)}: <b>${esc(r.reason||'no reason given')}</b>${r.detail?' ('+esc(r.detail)+')':''}${repWhat(r)}</div><button class="link" data-a="open" data-id="${r.pid}">View</button>${repAuthor(r)}<button class="link" data-a="dismissr" data-id="${r.id}">Dismiss</button></div>`).join(''):'<p class="hint">No reports.</p>'}</section>`:''}
  ${isLead()||isMod()?`<section class="panel"><h2>Suspended accounts</h2>${(db.suspended||[]).length?db.suspended.map(id=>`<div class="cm"><span style="flex:1">${esc(user(id).name)} <span class="hint">@${esc(user(id).handle)}</span></span>${isLead()?`<button class="link" data-a="suspend" data-id="${id}">Unsuspend</button>`:''}</div>`).join(''):'<p class="hint">None.</p>'}</section>`:''}
  <section class="panel"><h2>Delete account</h2><p class="hint">This permanently deletes your profile, posts, comments and messages.</p><label for="da-pw">Password</label><input id="da-pw" type="password" autocomplete="current-password"><div class="actions"><button class="btn danger" data-a="delacct">Delete my account</button></div></section>`}
 const PL={Movie:['movie','movies'],Documentary:['documentary','documentaries'],Book:['book','books'],Game:['game','games'],Show:['show','shows'],Anime:['anime','anime'],Music:['music','music'],Musical:['musical','musicals'],Internet:['internet post','internet posts'],Other:['other post','other posts']};
@@ -816,8 +651,7 @@ const bingoBox=()=>{const l=(db.bingos||[])[0];if(!l)return'';const m=me(),done=
 const bingoShares=u=>{const l=u.bingoShares||[];return l.length?`<section class="panel"><h2>🎯 Bingo cards</h2>${bviewBtns()}${l.map(x=>`<div style="margin-bottom:16px"><div style="font-weight:700;margin-bottom:8px">${esc(x.title)} ${bingoDone(x.cells,x.marks)?'🎉':''} <span class="hint">${ago(x.ts)}</span></div>${bingoGrid(x.cells,x.marks,'')}${me()&&me().id===u.id?`<div class="actions"><button class="btn ghost" data-a="bunshare" data-id="${x.id}">Remove from my profile</button></div>`:''}</div>`).join('')}</section>`:''};
 const pickBanner=()=>{const k=db.pick;return k?`<section class="panel" style="background:var(--os)"><h2>🍊 Fresh pick of the week</h2><div style="font-weight:700">${esc(k.type)} - ${esc(k.media)}</div>${k.note?`<p style="margin:6px 0 0">${lk(k.note)}</p>`:''}${me()?`<div class="actions"><button class="btn" data-a="pickreview">Review it</button></div>`:''}</section>`:''};
 const repWhat=r=>{const p=db.posts.find(x=>x.id===r.pid);if(!p)return'';const c=r.kind==='comment'&&r.i!=null?p.comments[r.i]:null,t=c&&!c.hidden?c.t:p.title;return t?` <span class="hint">“${esc(String(t).slice(0,80))}”</span>`:''};
-const repAuthor=r=>{const p=db.posts.find(x=>x.id===r.pid),isC=r.kind==='comment'&&r.i!=null&&p&&p.comments[r.i],by=p?(isC?p.comments[r.i].by:p.by):null;if(!by||by===db.me||!user(by))return'';const sus=(db.suspended||[]).includes(by),u=user(by),k=isC?'comment':'post';
- return ` <button class="link" data-a="warnu" data-id="${by}">${(u.warned||0)?'Warn again':'Warn'} ${esc(u.name)} (${u.warned||0}/3)</button><button class="link" data-a="modrm" data-id="${r.pid}" data-k="${k}" data-i="${isC?r.i:''}">Delete ${k}</button>${isLead()?`<button class="link" data-a="suspend" data-id="${by}">${sus?'Unsuspend':'Suspend'} ${esc(u.name)}</button>`:''}`};
+const repAuthor=r=>{const p=db.posts.find(x=>x.id===r.pid),by=p?(r.kind==='comment'&&r.i!=null&&p.comments[r.i]?p.comments[r.i].by:p.by):null;if(!by||by===db.me)return'';const sus=(db.suspended||[]).includes(by);return ` <button class="link" data-a="suspend" data-id="${by}">${sus?'Unsuspend':'Suspend'} ${esc(user(by).name)}</button>`};
 
 /* ---------- Feature picks 🧺 ---------- */
 const FSTAT={pending:'⏳ Waiting for the editor',published:'✅ Published',rejected:'↩️ Sent back'};
@@ -876,7 +710,7 @@ const TT_SEC=TT.filter(x=>x[0]!=='latest'&&x[0]!=='about');
 const TT_KINDS=['Article','Essay','Review','Recommendation'];
 const TT_DEF={head:'The first edition is on its way.',body:"The Tangerine Times is our own paper: features, essays and recommendations written by our team.\n\nWe are still warming up the presses. Check back soon.",about:"The Tangerine Times is the publishing side of Tangerine Takes. Tangerine Takes is where everyone posts their own slices. The Times is where our team writes and edits longer pieces, features and picks.\n\nEvery piece is read by an editor before it goes live.",joinHead:'Join the Tangerine Tree',joinBody:'We are looking for writers, editors and creatives. Fill out our form and tell us what you would like to do.',abHead:'Peeled, sliced and shared.',abBody:'Tangerine Takes is a space to review and talk about movies, shows, books, games, music and internet culture. Rate with tangerines, write reviews and join the conversation.'};
 let timesEdit=false,timesWrite=null,ttDir=1,ttLast=null;
-function ttPath(v){if(v.wid){const u=(db.profiles||[]).find(x=>x.id===v.wid);return u?'/times/w/'+u.handle:'/times'}return v.pid?'/times/p/'+v.pid:'/times'+(v.s&&v.s!=='latest'?'/'+v.s:'')}
+function ttPath(v){return v.pid?'/times/p/'+v.pid:'/times'+(v.s&&v.s!=='latest'?'/'+v.s:'')}
 function pathOf(v){
  const hd=id=>{const u=(db.profiles||[]).find(x=>x.id===id);return u?u.handle:null};
  switch(v.n){
@@ -913,7 +747,7 @@ function routeNow(){
  const P=(db&&db.profiles)||[],byH=x=>P.find(u=>u.handle===String(x||'').toLowerCase()),inn=!!(db&&db.me),need=v=>inn?v:{n:'join'};
  switch(seg[0]){
   case'home':return{n:'feed'};
-  case'times':{if(seg[1]==='p'&&seg[2])return{n:'times',s:'latest',pid:seg[2]};if(seg[1]==='w'&&seg[2]){const u=byH(seg[2]);return u?{n:'times',s:'latest',wid:u.id}:{n:'times',s:'latest'}}return{n:'times',s:TT.some(x=>x[0]===seg[1])?seg[1]:'latest'}}
+  case'times':{if(seg[1]==='p'&&seg[2])return{n:'times',s:'latest',pid:seg[2]};return{n:'times',s:TT.some(x=>x[0]===seg[1])?seg[1]:'latest'}}
   case'join':return{n:'join'};
   case'forgot':return{n:'forgot'};
   case'search':return{n:'search'};
@@ -937,37 +771,35 @@ function ttInd(){const nav=app.querySelector('.tt-nav'),ac=nav&&nav.querySelecto
  if(ttLast){ind.style.transition='none';put(ttLast);ind.getBoundingClientRect();ind.style.transition=''}
  put(to);ttLast=to}
 const ttLabel=k=>{const x=TT.find(y=>y[0]===k);return x?x[1]:k};
-const ttRead=p=>{const n=plainLk(p.text||'').trim().split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round(n/200))+' min read'};
-const ttMeta=p=>[p.kind,ttLabel(p.sec),ttRead(p)].filter(Boolean).map(esc).join(' · ');
+const ttMeta=p=>[p.kind,ttLabel(p.sec)].filter(Boolean).map(esc).join(' · ');
 const ttDate=ts=>new Date(ts).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
 const tRole=r=>db.profiles.filter(u=>((db.tstaff||{})[u.id]||[]).includes(r));
 const ttJoin=T=>`<div class="tt-join"><p style="font-weight:700">${esc(T.jh)}</p><p>${esc(T.jb)}</p>${T.jl?`<a class="btn" href="${esc(T.jl)}" target="_blank" rel="noopener noreferrer">Fill out the form →</a> `:''}<a class="${T.jl?'link':'btn'}" href="mailto:${esc(T.je)}?subject=${encodeURIComponent('Joining the Tangerine Times')}">Email ${esc(T.je)}</a></div>`;
 const timesParas=t=>t.split(/\n\s*\n/).filter(x=>x.trim()).map(x=>`<p style="white-space:pre-line">${lkx(x.trim())}</p>`).join('');
-const BN_DEF={k1:'Our own paper',h1:'The Tangerine Times',t1:'Our own paper, written by the team. Coming soon.',b1:'📰 READ THE TANGERINE TIMES →',k2:'About us',h2:'Tangerine Takes',t2:'is a space where people review and talk about movies, shows, books, games, music and internet culture.',b2:'Read more about us here →',k3:'Join us',b3:'You can apply here →'};
-const BN_OLD={'b1|Read the Tangerine Times →':1,'k1|📰 Read the Tangerine Times':1};
-const bnT=t=>{const o={};Object.keys(BN_DEF).forEach(k=>{o[k]=(t.bn&&t.bn[k]&&!BN_OLD[k+'|'+t.bn[k]])?t.bn[k]:BN_DEF[k]});return o};
+const BN_DEF={k1:'Our own paper',h1:'The Tangerine Times',t1:'Our own paper, written by the team. Coming soon.',b1:'Read the Tangerine Times →',k2:'About us',h2:'Tangerine Takes',t2:'is a space where people review and talk about movies, shows, books, games, music and internet culture.',b2:'About the Tangerine Takes →',k3:'Join us',b3:'You can apply here →'};
+const bnT=t=>{const o={};Object.keys(BN_DEF).forEach(k=>{o[k]=(t.bn&&t.bn[k])||BN_DEF[k]});return o};
 const timesBanner=()=>{const t=db.times||{},B=bnT(t),adm=isLead(),jl=/^https?:\/\//i.test(t.joinLink||'')?t.joinLink:'',je=t.joinEmail||ABOUT_EMAIL,jh=t.joinHead||TT_DEF.joinHead,jb=t.joinBody||TT_DEF.joinBody;
  const sl=(on,k,h,p,btn)=>`<div class="hb-s${on?' on':''}"><span class="hb-k">${esc(k)}</span><h2>${esc(h)}</h2><p>${esc(p)}</p>${btn}</div>`;
  const apply=jl?`<a class="btn" href="${esc(jl)}" target="_blank" rel="noopener noreferrer">${esc(B.b3)}</a>`:`<a class="btn" href="mailto:${esc(je)}?subject=${encodeURIComponent('Joining the Tangerine Times')}">${esc(B.b3)}</a>`;
  return `<section class="hb" aria-label="The Tangerine Times"><span class="tt-fl f1" aria-hidden="true">🍊</span><span class="tt-fl f2" aria-hidden="true">🍊</span><span class="tt-fl f3" aria-hidden="true">🍊</span>`
  +`<div class="hb-v" tabindex="0" aria-label="Tangerine Times banner, swipe for the next ones"><div class="hb-t">`
- +sl(1,B.k1,B.h1,B.t1,`<button class="btn" data-a="times">${esc(B.b1)}</button>`)
- +sl(0,B.k2,B.h2,B.t2,`<button class="btn" data-a="ttabout">${esc(B.b2)}</button>`)
+ +sl(1,B.k2,B.h2,B.t2,`<button class="btn" data-a="ttabout">${esc(B.b2)}</button>`)
+ +sl(0,B.k1,B.h1,B.t1,`<button class="btn" data-a="times">${esc(B.b1)}</button>`)
  +sl(0,B.k3,jh,jb,apply)
  +`</div></div><div class="hb-bar"><button data-a="hbcar" data-d="-1" aria-label="Previous slide">←</button><span class="hb-dots"><button data-a="hbdot" data-i="0" aria-label="Show slide 1" aria-current="true"></button><button data-a="hbdot" data-i="1" aria-label="Show slide 2" aria-current="false"></button><button data-a="hbdot" data-i="2" aria-label="Show slide 3" aria-current="false"></button></span><button data-a="hbcar" data-d="1" aria-label="Next slide">→</button>${adm?`<button class="hb-ed" data-a="edbn">✏️ Edit banner</button>`:''}</div></section>`};
 let hbI=0,hbTm=0;
 const hbReduce=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function hbTick(){const m=app.querySelector('.hb');if(!m)return;if(m.classList.contains('pause'))hbTm=setTimeout(hbTick,800);else hbGo(hbI+1)}
-function hbGo(i){clearTimeout(hbTm);const t=app.querySelector('.hb-t');if(!t)return;const s=t.querySelectorAll('.hb-s'),n=s.length;if(!n)return;i=((i%n)+n)%n;hbI=i;t.style.transform='translateX(-'+i*100+'%)';s.forEach((x,k)=>x.classList.toggle('on',k===i));app.querySelectorAll('.hb-dots button').forEach((d,k)=>d.setAttribute('aria-current',k===i));if(!hbReduce())hbTm=setTimeout(hbTick,6500)}
+function hbGo(i){clearTimeout(hbTm);const t=app.querySelector('.hb-t');if(!t)return;const s=t.querySelectorAll('.hb-s'),n=s.length;if(!n)return;i=((i%n)+n)%n;hbI=i;t.style.transform='translateX(-'+i*100+'%)';s.forEach((x,k)=>x.classList.toggle('on',k===i));app.querySelectorAll('.hb-dots button').forEach((d,k)=>d.setAttribute('aria-current',k===i))}
 function hbInit(){const m=app.querySelector('.hb'),t=app.querySelector('.hb-t');if(!m||!t)return;
  t.style.transition='none';hbGo(hbI);void t.offsetWidth;t.style.transition='';
  m.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')m.classList.add('pause')});m.addEventListener('pointerleave',()=>m.classList.remove('pause'));
  m.addEventListener('focusin',()=>m.classList.add('pause'));m.addEventListener('focusout',()=>m.classList.remove('pause'));
  let x0=null;t.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;m.classList.add('pause')},{passive:true});
  t.addEventListener('touchend',e=>{if(x0!==null){const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)hbGo(hbI+(dx<0?1:-1));x0=null}m.classList.remove('pause')})}
-const ttCredits=p=>{const b=[];if(p.by)b.push(['By',p.by]);if(p.art)b.push(['Art by',p.art]);if(p.layout)b.push(['Layout by',p.layout]);return b.length?`<p class="tt-cred">${b.map(x=>x[0]+' '+(db.profiles.some(u=>u.id===x[1])?'<button class="link" data-a="ttwriter" data-id="'+esc(x[1])+'" title="See their pieces">'+esc(user(x[1]).name)+'</button>':'<b>'+esc(user(x[1]).name)+'</b>')).join(' · ')}</p>`:''};
+const ttCredits=p=>{const b=[];if(p.by)b.push(['By',p.by]);if(p.art)b.push(['Art by',p.art]);if(p.layout)b.push(['Layout by',p.layout]);return b.length?`<p class="tt-cred">${b.map(x=>x[0]+' <b>'+esc(user(x[1]).name)+'</b>').join(' · ')}</p>`:''};
 const ttCard=p=>`<article class="tt-card">${p.img?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="/api?img=${p.img}" alt="" loading="lazy"></button>`:''}<div><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(excerpt(p.text))}</p>${db.canTimes?`<button class="link" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Featured · remove':'☆ Feature this'}</button>`:''}</div></article>`;
-const ttTwo=t=>{t=plainLk(hideCut(t)).replace(/\s+/g,' ').trim();const m=t.match(/[^.!?]+[.!?]+(?=\s|$)/g);let r=m?m.slice(0,2).join(' ').trim():t;if(r.length>230)r=r.slice(0,230).replace(/\s+\S*$/,'')+'...';return r||excerpt(t)};
+const ttTwo=t=>{t=plainLk(t).replace(/\s+/g,' ').trim();const m=t.match(/[^.!?]+[.!?]+(?=\s|$)/g);let r=m?m.slice(0,2).join(' ').trim():t;if(r.length>230)r=r.slice(0,230).replace(/\s+\S*$/,'')+'...';return r||excerpt(t)};
 const ttRow=p=>`<article class="tt-row${p.img?'':' tt-noimg'}">${p.img?`<button class="tt-imgb" data-a="tpost" data-id="${p.id}" aria-label="Read ${esc(p.title)}"><img class="tt-img" src="/api?img=${p.img}" alt="" loading="lazy"></button>`:''}<div><span class="hint">${ttMeta(p)} · ${ttDate(p.ts)}</span><h3><button data-a="tpost" data-id="${p.id}">${esc(p.title)}</button></h3>${ttCredits(p)}<p class="tt-ex">${esc(ttTwo(p.text))}</p>${db.canTimes?`<button class="link" data-a="tfeat" data-id="${p.id}">${p.feat?'★ Featured · remove':'☆ Feature this'}</button>`:''}</div></article>`;
 let ttCarI=0;
 const ttMotion=()=>window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
@@ -1010,40 +842,31 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist');
  <label for="tt-refs">References (optional)</label>${fmtBar('tt-refs')}<textarea id="tt-refs" data-lk maxlength="3000" style="min-height:110px" placeholder="One source per line. For example: Author, Title, Year, or a link.">${esc(w.refs||'')}</textarea><p class="hint">Shows in small text at the end of the piece, as a numbered list. One reference per line.</p>
  <div class="actions"><button class="btn" data-a="ttsave">${w.id?'Save changes':'Publish'}</button><button class="btn ghost" data-a="ttcancel">Cancel</button></div></section>`}
 const crewBox=()=>{const cr=db.profiles.filter(u=>u.crew);
- return `<section class="panel"><h2>Team badges 🍊</h2><p class="hint">Only the lead admin and mods can give these. Pick Editorial for editors and Team for everyone else.</p>
+ return `<section class="panel"><h2>Team badges 🍊</h2><p class="hint">Only admins can give these. Pick Editorial for editors and Team for everyone else.</p>
  ${cr.length?cr.map(u=>`<div class="cm" style="align-items:center;flex-wrap:wrap">${av(u,'sm')}<span style="flex:1 1 160px">${esc(u.name)} <span class="hint">@${esc(u.handle)}</span></span><span class="badge">🍊 ${u.crew==='Editorial'?'Editorial':'Team'}</span><button class="link" data-a="crewrm" data-id="${u.id}">Remove</button></div>`).join(''):'<p class="hint">No team badges yet.</p>'}
  <label for="crew-add">Give a badge to</label><div class="cform"><select id="crew-add">${db.profiles.filter(u=>!u.crew).map(u=>`<option value="${u.id}">${esc(u.name)} (@${esc(u.handle)})</option>`).join('')}</select><select id="crew-team">${CREW.map(t=>`<option>${t}</option>`).join('')}</select><button class="btn" data-a="crewadd">Give badge</button></div></section>`};
 const TS=[['publisher','Publishers (Times admins)','Can post, edit and delete pieces in the Times. They get no other admin powers.'],['writer','Writers','Show up in the byline dropdown.'],['artist','Artists','Show up in the Art by and Layout by dropdowns.']];
 const tsBox=()=>`<section class="panel"><h2>Times team ✍️</h2><p class="hint">Only the lead admin can change this.</p>${TS.map(x=>{const r=x[0],cur=tRole(r),rest=db.profiles.filter(u=>!cur.some(c=>c.id===u.id));
  return `<h3 style="font-size:1.05rem;margin:16px 0 2px">${x[1]}</h3><p class="hint" style="margin:0 0 6px">${x[2]}</p>${cur.length?cur.map(u=>`<div class="cm" style="align-items:center;flex-wrap:wrap">${av(u,'sm')}<span style="flex:1 1 160px">@${esc(u.handle)} <span class="hint">${esc(u.name)}</span></span><button class="link" data-a="tsrm" data-r="${r}" data-id="${u.id}">Remove</button></div>`).join(''):'<p class="hint">Nobody yet.</p>'}<div class="cform"><select id="ts-${r}" aria-label="Pick a username">${rest.map(u=>`<option value="${u.id}">@${esc(u.handle)} · ${esc(u.name)}</option>`).join('')}</select><button class="btn" data-a="tsadd" data-r="${r}">Add</button></div>`}).join('')}</section>`;
-const ttWriterPage=(u,tp)=>{const w=tp.filter(x=>x.by===u.id),a=tp.filter(x=>x.by!==u.id&&(x.art===u.id||x.layout===u.id));
- return `<button class="link" data-a="timestab" data-s="latest">← Latest</button><section class="tt-writer"><div class="cm" style="align-items:center;margin:14px 0 6px">${av(u)}<div><h2 class="tt-h" style="margin:0">${esc(u.name)}</h2><span class="hint">@${esc(u.handle)} · <button class="link" data-a="profile" data-id="${u.id}">View profile</button></span></div></div>${u.bio?`<p>${esc(u.bio)}</p>`:''}<p class="hint">${w.length} piece${w.length===1?'':'s'} written${a.length?' · '+a.length+' with art or layout':''}</p></section>`+(w.length?`<h2 class="tt-sh">Written by ${esc(u.name)}</h2>${w.map(ttRow).join('')}`:'')+(a.length?`<h2 class="tt-sh">Art and layout</h2>${a.map(ttRow).join('')}`:'')+(!w.length&&!a.length?'<p class="empty">No pieces yet.</p>':'')};
-const ttRelated=p=>{const sc=x=>(x.sec===p.sec?2:0)+(p.by&&x.by===p.by?1:0),l=(db.tposts||[]).filter(x=>x.id!==p.id).sort((a,b)=>sc(b)-sc(a)||b.ts-a.ts).slice(0,3);return l.length?`<section class="tt-rel" aria-label="Related pieces"><h2 class="tt-sh">Related pieces</h2>${l.map(ttRow).join('')}</section>`:''};
-const ttTeams=(T,adm)=>{const G=[['Editorial',T.ed,0],['Creatives and Publishing',T.ap,0],['The Takes Team',T.cr,1]];if(!adm&&!G.some(x=>x[1].length))return'';
- return `<section class="tt-behind" aria-label="Behind the Tangerine Times"><h2 class="tt-sh">Behind the Tangerine Times</h2>${G.map(x=>x[1].length||adm?`<section class="tt-team"><h3 class="crew-h ln">${x[0]}</h3>${x[1].length?staffList(x[1]):`<p class="hint">${x[2]?'No team listed yet.':'Nobody listed yet. Admins can add people from the Latest page (Edit this page).'}</p>`}${x[2]&&adm?`<p style="margin:8px 0 0"><button class="link" data-a="editcrew">Edit the team (on the About us page)</button></p>`:''}</section>`:'').join('')}</section>`};
+const ttTeams=(T,adm)=>[['The Team',T.cr,1],['Editorial Team',T.ed,0],['Creatives and Publishing Team',T.ap,0]].map(x=>x[1].length||adm?`<section class="tt-team"><h3 class="crew-h ln">${x[0]}</h3>${x[1].length?staffList(x[1]):`<p class="hint">${x[2]?'No team listed yet.':'Nobody listed yet. Tap "Edit this page" at the bottom to add people.'}</p>`}${x[2]&&adm?`<p style="margin:8px 0 0"><button class="link" data-a="editcrew">Edit the team (on the About us page)</button></p>`:''}</section>`:'').join('');
 function timesView(){
- const tp=db.tposts||[],pst=view.pid&&tp.find(x=>x.id===view.pid),wu=!view.pid&&view.wid&&db.profiles.find(x=>x.id===view.wid),s=pst?pst.sec:(TT.some(x=>x[0]===view.s)?view.s:'latest'),t=db.times||{},adm=isLead(),can=!!db.canTimes;
+ const tp=db.tposts||[],pst=view.pid&&tp.find(x=>x.id===view.pid),s=pst?pst.sec:(TT.some(x=>x[0]===view.s)?view.s:'latest'),t=db.times||{},adm=isLead(),can=!!db.canTimes;
  const T={head:t.head||TT_DEF.head,body:t.body||TT_DEF.body,about:t.about||TT_DEF.about,jh:t.joinHead||TT_DEF.joinHead,jb:t.joinBody||TT_DEF.joinBody,je:t.joinEmail||ABOUT_EMAIL,ah:t.abHead||TT_DEF.abHead,ab:t.abBody||TT_DEF.abBody,jl:/^https?:\/\//i.test(t.joinLink||'')?t.joinLink:'',ed:t.editorial||[],bn:bnT(t),ap:t.artpub||[],cr:(db.about&&db.about.crew)||[]};
  const mast=`<header class="tt-mast"><button class="tt-back" data-a="feed">← Back to Tangerine Takes</button><h1>The Tangerine Times</h1><p>Features, essays, reviews, and recommendations from the Tangerine Takes team.</p></header><nav class="tt-nav" aria-label="Tangerine Times sections"><span class="tt-ind" aria-hidden="true"></span>${TT.map(x=>`<button data-a="timestab" data-s="${x[0]}" aria-current="${x[0]===s}">${x[1]}</button>`).join('')}</nav>`;
  if(timesWrite&&can)return mast+ttForm();
  if(timesEdit&&adm)return mast+`<section class="panel"><h2>Edit the Times page</h2><label for="tt-h">Headline (front page, shows until the first piece is posted)</label><input id="tt-h" maxlength="200" value="${esc(T.head)}"><label for="tt-b">Front page text (blank line between paragraphs)</label><textarea id="tt-b" maxlength="3000" style="min-height:140px">${esc(T.body)}</textarea><label for="tt-a">About the Times text</label><textarea id="tt-a" maxlength="3000" style="min-height:140px">${esc(T.about)}</textarea><h3 style="font-size:1.1rem;margin:18px 0 4px">Homepage banner: slide 1</h3><label for="tt-k1">Small label</label><input id="tt-k1" maxlength="100" value="${esc(T.bn.k1)}"><label for="tt-h1">Title</label><input id="tt-h1" maxlength="100" value="${esc(T.bn.h1)}"><label for="tt-t1">Text</label><textarea id="tt-t1" maxlength="400" style="min-height:80px">${esc(T.bn.t1)}</textarea><label for="tt-b1">Button text</label><input id="tt-b1" maxlength="100" value="${esc(T.bn.b1)}"><h3 style="font-size:1.1rem;margin:18px 0 4px">Homepage banner: slide 2 (About us)</h3><label for="tt-k2">Small label</label><input id="tt-k2" maxlength="100" value="${esc(T.bn.k2)}"><label for="tt-h2">Title</label><input id="tt-h2" maxlength="100" value="${esc(T.bn.h2)}"><label for="tt-t2">Text</label><textarea id="tt-t2" maxlength="400" style="min-height:80px">${esc(T.bn.t2)}</textarea><label for="tt-b2">Button text (opens the About us page)</label><input id="tt-b2" maxlength="100" value="${esc(T.bn.b2)}"><h3 style="font-size:1.1rem;margin:18px 0 4px">Homepage banner: slide 3 (Join us)</h3><label for="tt-k3">Small label</label><input id="tt-k3" maxlength="100" value="${esc(T.bn.k3)}"><label for="tt-b3">Button text</label><input id="tt-b3" maxlength="100" value="${esc(T.bn.b3)}"><p class="hint">The title, text and Google Form link for this slide are the three boxes right below.</p><label for="tt-jh">Join us title</label><input id="tt-jh" maxlength="100" value="${esc(T.jh)}"><label for="tt-jb">Join us text</label><textarea id="tt-jb" maxlength="500" style="min-height:90px">${esc(T.jb)}</textarea><label for="tt-jl">Join us Google Form link</label><input id="tt-jl" type="url" maxlength="300" placeholder="https://forms.gle/..." value="${esc(T.jl)}"><p class="hint">Paste your Google Form link here. The Join us banner and the join box at the bottom will send people to it. Leave empty to use email instead.</p><label for="tt-je">Join us email (backup contact)</label><input id="tt-je" type="email" maxlength="120" value="${esc(T.je)}"><label for="tt-ed">Editorial Team (one person per line: Name @username | Role)</label><textarea id="tt-ed" maxlength="3000" style="min-height:120px" placeholder="Achelois | Editor-in-Chief">${esc(staffTxt(T.ed))}</textarea><label for="tt-ap">Creatives and Publishing Team (one person per line: Name | Role)</label><textarea id="tt-ap" maxlength="3000" style="min-height:120px" placeholder="Name | Layout Artist">${esc(staffTxt(T.ap))}</textarea><p class="hint">Use @username to link to a profile. These show at the bottom of the Latest page. Leave a box empty to hide that team.</p><div class="actions"><button class="btn" data-a="savetimes">Save</button><button class="btn ghost" data-a="canceltimes">Cancel</button>${db.times?`<button class="btn ghost" data-a="resettimes">Back to original text</button>`:''}</div></section>`;
- const join=ttJoin(T)+ttTeams(T,adm),editBtn=adm?`<div class="actions"><button class="btn ghost" data-a="edittimes">Edit this page</button></div>`:'',writeBtn=can&&!pst&&s!=='about'?`<div class="actions" style="margin:0 0 22px"><button class="btn" data-a="ttwrite">Write a piece</button></div>`:'';
+ const join=ttJoin(T),editBtn=adm?`<div class="actions"><button class="btn ghost" data-a="edittimes">Edit this page</button></div>`:'',writeBtn=can&&!pst&&s!=='about'?`<div class="actions" style="margin:0 0 22px"><button class="btn" data-a="ttwrite">Write a piece</button></div>`:'';
  let body;
- if(pst)body=ttArticle(pst)+ttRelated(pst)+join;
- else if(wu)body=ttWriterPage(wu,tp)+join;
+ if(pst)body=ttArticle(pst)+join;
  else if(s==='about')body=`<section class="tt-soon"><h2>About the Times</h2>${timesParas(T.about)}</section>${join}${editBtn}`;
  else{const list=s==='latest'?tp:tp.filter(x=>x.sec===s);
-  if(list.length)body=writeBtn+(s==='latest'?ttHero(tp)+ttFeatured(tp,can)+join+editBtn:list.map(ttRow).join('')+join);
-  else if(s==='latest')body=writeBtn+`<section class="tt-soon"><h2>${esc(T.head)}</h2>${timesParas(T.body)}</section>${join}${editBtn}`;
+  if(list.length)body=writeBtn+(s==='latest'?ttHero(tp)+ttFeatured(tp,can)+ttTeams(T,adm)+join+editBtn:list.map(ttRow).join('')+join);
+  else if(s==='latest')body=writeBtn+`<section class="tt-soon"><h2>${esc(T.head)}</h2>${timesParas(T.body)}</section>${ttTeams(T,adm)}${join}${editBtn}`;
   else body=writeBtn+`<section class="tt-soon"><h2>${esc(ttLabel(s))} is coming soon.</h2><p>Nothing has been published here yet.</p></section>${join}`}
- if(s==='latest'&&!pst&&!wu&&isLead())body+=tsBox();
+ if(s==='latest'&&!pst&&isLead())body+=tsBox();
  const dx=ttDir*28;ttDir=0;return mast+`<div class="tt-slide" style="--dx:${dx}px">${body}</div>`}
 
 const draftsView=u=>{const l=(db.drafts||[]).filter(p=>p.by===u.id);return me()&&me().id===u.id&&l.length?`<section class="panel"><h2>Your drafts</h2>${l.map(p=>`<div class="cm" style="align-items:center;flex-wrap:wrap"><span style="flex:1 1 200px">${esc(p.title)}${p.media&&p.media!==p.title?' <span class="hint">'+esc(p.type)+' - '+esc(p.media)+'</span>':''}</span><button class="btn ghost" data-a="editp" data-id="${p.id}">Edit</button><button class="link" data-a="open" data-id="${p.id}">Open</button></div>`).join('')}</section>`:''};
-const suggestBox=()=>{if(!db.suggOn)return'';const u=me();
- return `<section class="panel"><h2>💡 Suggestion box</h2><p class="hint" style="margin:0 0 8px">Got an idea to make Tangerine Takes better? Tell us.</p>${u?`<div class="sugg-row"><textarea id="sg-t" maxlength="500" placeholder="Write your suggestion" aria-label="Your suggestion"></textarea><button class="btn" data-a="sendsugg">Send</button></div>`:`<div class="actions" style="margin:0"><button class="btn" data-a="join">Log in to send a suggestion</button></div>`}</section>`};
-const suggestAdmin=()=>{if(!isAdmin())return'';const L=db.sugg||[];
- return `<section class="panel"><h2>💡 Suggestion box</h2>${isLead()?`<p class="hint" style="margin:0 0 6px">${db.suggOn?'The box is showing on Home under the announcement.':'The box is hidden from members.'}</p><div class="actions" style="margin:0 0 10px"><button class="btn${db.suggOn?' ghost':''}" data-a="togglesugg" data-on="${db.suggOn?0:1}">${db.suggOn?'Turn off':'Turn on'}</button></div>`:''}${L.length?L.map(x=>`<div class="cm" style="flex-wrap:wrap"><div style="flex:1 1 220px"><div class="body">${esc(x.t)}</div><span class="hint">${user(x.by)?esc(user(x.by).name)+' @'+esc(user(x.by).handle):'Deleted member'} · ${ago(x.ts)}</span></div><button class="link" data-a="delsugg" data-id="${x.id}">Delete</button></div>`).join(''):'<p class="hint">No suggestions yet.</p>'}</section>`};
 const bannerBox=()=>db.banner?`<section class="panel" style="background:var(--os);border-color:var(--o)"><h2>📣 ${esc(db.banner.title||'Announcement')}</h2>${db.banner.title&&db.banner.text||(!db.banner.title&&db.banner.text)?`<div class="body">${lk(db.banner.text)}</div>`:''}</section>`:'';
 const promptBox=()=>{const k=(db.prompts||[])[0];if(!k)return'';const n=db.posts.filter(p=>p.prompt===k.id).length;
  return `<section class="panel"><h2>💭 Weekly prompt</h2><div style="font-weight:700;font-size:1.1rem">${esc(k.title)}</div>${k.desc?`<p style="margin:6px 0 0">${esc(k.desc)}</p>`:''}<div class="actions">${me()?`<button class="btn" data-a="promptreply" data-id="${k.id}">Reply with a post</button>`:`<button class="btn" data-a="join">Log in to reply</button>`}<button class="btn ghost" data-a="prompt" data-id="${k.id}">See replies (${n})</button></div></section>`};
@@ -1056,11 +879,10 @@ const pollCard=l=>{
 const pollBox=()=>{const l=(db.polls||[])[0];return l?pollCard(l):''};
 let ed={prompt:null,poll:null,bingo:null};
 const editBtns=k=>`<button class="link" data-a="cancelEdit" data-k="${k}">Cancel</button>`;
-const modsBox=()=>{const md=db.mods||[];return `<section class="panel"><h2>Moderators</h2><p class="hint">Mods can view and dismiss reports, give team badges, and view suspended accounts, pinned content and stats. Only the lead admin can change this list.</p>${md.length?md.map(id=>`<div style="display:flex;align-items:center;gap:10px;padding:4px 0;flex-wrap:wrap">${av(user(id),'sm')}<span style="flex:1 1 140px">${esc(user(id).name)} <span class="hint">@${esc(user(id).handle)}</span></span><button class="btn ghost" data-a="rmmod" data-id="${id}">Remove</button></div>`).join(''):'<p class="hint">No mods yet.</p>'}<label for="mod-add">Add a mod</label><div class="cform"><select id="mod-add">${db.profiles.filter(u=>!md.includes(u.id)&&u.id!==db.me).map(u=>`<option value="${u.id}">${esc(u.name)} (@${esc(u.handle)})</option>`).join('')}</select><button class="btn" data-a="addmod">Add mod</button></div></section>`};
+const modsBox=()=>{const md=db.mods||[];return `<section class="panel"><h2>Moderators</h2><p class="hint">Mods can only view suspended accounts, pinned content and stats. Only the lead admin can change this list.</p>${md.length?md.map(id=>`<div style="display:flex;align-items:center;gap:10px;padding:4px 0;flex-wrap:wrap">${av(user(id),'sm')}<span style="flex:1 1 140px">${esc(user(id).name)} <span class="hint">@${esc(user(id).handle)}</span></span><button class="btn ghost" data-a="rmmod" data-id="${id}">Remove</button></div>`).join(''):'<p class="hint">No mods yet.</p>'}<label for="mod-add">Add a mod</label><div class="cform"><select id="mod-add">${db.profiles.filter(u=>!md.includes(u.id)&&u.id!==db.me).map(u=>`<option value="${u.id}">${esc(u.name)} (@${esc(u.handle)})</option>`).join('')}</select><button class="btn" data-a="addmod">Add mod</button></div></section>`};
 const adminTools=()=>{if(!isAdmin())return{};const bn=db.banner,pr=db.prompts||[],po=db.polls||[],ad=db.admins||[];
  const bgl=db.bingos||[],ep=pr.find(k=>k.id===ed.prompt),el=po.find(l=>l.id===ed.poll),eb=bgl.find(l=>l.id===ed.bingo),bingoAdmin=`<section class="panel"><h2>🎯 Bingo cards</h2><p class="hint">The newest card shows on Home. Members tick squares and can share a finished card on their profile.</p>${eb?`<p class="hint"><b>Editing:</b> ${esc(eb.title)}. Members keep their ticks by square position. Cards already shared on profiles stay as they were.</p>`:''}<label for="bg-t">Title</label><input id="bg-t" maxlength="80" placeholder="e.g. November watch bingo" value="${eb?esc(eb.title):''}"><label for="bg-c">25 squares (one per line)</label><textarea id="bg-c" style="min-height:140px" placeholder="Watch a horror movie&#10;Read a book">${eb?esc(eb.cells.join('\n')):''}</textarea><div class="actions"><button class="btn" data-a="newbingo">${eb?'Save changes':'Create card'}</button>${eb?`<button class="btn ghost" data-a="cancelEdit" data-k="bingo">Cancel</button>`:''}</div>${bgl.map(l=>`<div class="cm"><span style="flex:1">${esc(l.title)} <span class="hint">${ago(l.ts)}</span></span><button class="link" data-a="editbingo" data-id="${l.id}">Edit</button><button class="link" data-a="delbingo" data-id="${l.id}">Delete</button></div>`).join('')}</section>`;
-  const ow=db.owners||[],oh=db.ownerHandles||[],leads=db.owner?`<section class="panel"><h2>Lead admins</h2><p class="hint">Lead admins can do everything: change this list, add admins and mods, run email checks and suspend accounts. People listed in ADMIN_HANDLE are permanent and cannot be removed here.</p>${oh.map(h=>`<div style="display:flex;align-items:center;gap:10px;padding:4px 0"><span style="flex:1">@${esc(h)} <span class="hint">permanent</span></span></div>`).join('')}${ow.map(id=>user(id)?`<div style="display:flex;align-items:center;gap:10px;padding:4px 0;flex-wrap:wrap">${av(user(id),'sm')}<span style="flex:1 1 140px">${esc(user(id).name)} <span class="hint">@${esc(user(id).handle)}</span></span>${id===db.me?'':`<button class="btn ghost" data-a="rmowner" data-id="${id}">Remove</button>`}</div>`:'').join('')}<label for="ow-add">Assign a lead admin</label><div class="cform"><select id="ow-add">${db.profiles.filter(u=>!ow.includes(u.id)&&!oh.includes(u.handle)&&u.id!==db.me).map(u=>`<option value="${u.id}">${esc(u.name)} (@${esc(u.handle)})</option>`).join('')}</select><button class="btn" data-a="addowner">Assign</button></div></section>`:'';
-  const owner=db.owner?leads+`<section class="panel"><h2>Admins</h2><p class="hint">You are a lead admin. Admins you add here can see stats, run polls, prompts and bingo and approve Feature Picks. Reports and team badges are handled by the lead admin and mods. Only lead admins can change this list.</p>${ad.length?ad.map(id=>`<div style="display:flex;align-items:center;gap:10px;padding:4px 0;flex-wrap:wrap">${av(user(id),'sm')}<span style="flex:1 1 140px">${esc(user(id).name)} <span class="hint">@${esc(user(id).handle)}</span></span><button class="btn ghost" data-a="setadmin" data-id="${id}" data-on="0">Remove</button></div>`).join(''):'<p class="hint">No extra admins yet.</p>'}<label for="ad-add">Add an admin</label><div class="cform"><select id="ad-add">${db.profiles.filter(u=>!ad.includes(u.id)&&u.id!==db.me).map(u=>`<option value="${u.id}">${esc(u.name)} (@${esc(u.handle)})</option>`).join('')}</select><button class="btn" data-a="addadmin">Add admin</button></div></section>`:'';
+  const owner=db.owner?`<section class="panel"><h2>Admins</h2><p class="hint">You are an owner (listed in ADMIN_HANDLE). Admins you add here can see reports and stats, run polls, prompts and bingo, give team badges and approve Feature Picks. Only owners can change this list.</p>${ad.length?ad.map(id=>`<div style="display:flex;align-items:center;gap:10px;padding:4px 0;flex-wrap:wrap">${av(user(id),'sm')}<span style="flex:1 1 140px">${esc(user(id).name)} <span class="hint">@${esc(user(id).handle)}</span></span><button class="btn ghost" data-a="setadmin" data-id="${id}" data-on="0">Remove</button></div>`).join(''):'<p class="hint">No extra admins yet.</p>'}<label for="ad-add">Add an admin</label><div class="cform"><select id="ad-add">${db.profiles.filter(u=>!ad.includes(u.id)&&u.id!==db.me).map(u=>`<option value="${u.id}">${esc(u.name)} (@${esc(u.handle)})</option>`).join('')}</select><button class="btn" data-a="addadmin">Add admin</button></div></section>`:'';
  const banner=(db.owner?`<section class="panel"><h2>📣 Pinned announcement</h2><label for="bn-h">Headline (shown at the top of Home)</label><input id="bn-h" maxlength="100" value="${bn?esc(bn.title||''):''}" placeholder="e.g. New bingo card is live!"><label for="bn-t">Body (optional)</label><textarea id="bn-t" maxlength="1000" style="min-height:70px">${bn?esc(bn.text||''):''}</textarea><label style="display:flex;align-items:center;gap:8px;margin-top:10px"><input type="checkbox" id="bn-pub" style="width:auto"${!bn||bn.pub!==false?' checked':''}>Show to visitors who have not signed up</label><p class="hint" style="margin:4px 0 0">Untick this to show the announcement only to members who are logged in.</p><div class="actions"><button class="btn" data-a="setbanner">Pin it</button>${bn?'<button class="btn ghost" data-a="clearbanner">Remove</button>':''}</div></section>`:'');
  const prompts=`<section class="panel"><h2>💭 Weekly prompts</h2><p class="hint">Members reply with a post. The newest prompt shows on Home.</p>${ep?`<p class="hint"><b>Editing:</b> ${esc(ep.title)}</p>`:''}<label for="pr-t">Prompt</label><input id="pr-t" maxlength="100" placeholder="e.g. Best comfort movie" value="${ep?esc(ep.title):''}"><label for="pr-d">Details (optional)</label><input id="pr-d" maxlength="300" value="${ep?esc(ep.desc||''):''}"><div class="actions"><button class="btn" data-a="newprompt">${ep?'Save changes':'Post prompt'}</button>${ep?`<button class="btn ghost" data-a="cancelEdit" data-k="prompt">Cancel</button>`:''}</div>${pr.map(k=>`<div class="cm"><span style="flex:1">${esc(k.title)} <span class="hint">${ago(k.ts)}${k.edited?' (edited)':''}</span></span><button class="link" data-a="editprompt" data-id="${k.id}">Edit</button><button class="link" data-a="delprompt" data-id="${k.id}">Delete</button></div>`).join('')}</section>`;
  const polls=`<section class="panel"><h2>📊 Polls and This or that</h2><p class="hint">The newest one shows on Home. For This or that, write one pair per line with a | between the two choices.</p>${el?`<p class="hint"><b>Editing:</b> ${esc(el.q)}. Votes are kept. If you change what an option means, old votes will count for the new wording.</p>`:''}<div class="row"><div><label for="po-k">Type</label><select id="po-k"${el?' disabled':''}><option value="poll"${el&&el.kind==='poll'?' selected':''}>Poll (2 to 6 options)</option><option value="thisthat"${el&&el.kind==='thisthat'?' selected':''}>This or that (3 to 9 lines, like Pizza | Burgers)</option></select></div><div><label for="po-q">Question</label><input id="po-q" maxlength="120" placeholder="e.g. Movie night snack?" value="${el?esc(el.q):''}"></div></div><label for="po-o">Options (one per line)</label><textarea id="po-o" style="min-height:80px" placeholder="Popcorn&#10;Chips">${el?esc(el.kind==='thisthat'?(el.pairs||[]).map(p=>p.a+' | '+p.b).join('\n'):(el.options||[]).map(o=>o.t).join('\n')):''}</textarea><div class="actions"><button class="btn" data-a="newpoll">${el?'Save changes':'Create'}</button>${el?`<button class="btn ghost" data-a="cancelEdit" data-k="poll">Cancel</button>`:''}</div>${po.map(l=>`<div class="cm" style="flex-wrap:wrap"><span style="flex:1 1 200px">${esc(l.q)} <span class="hint">${l.kind==='thisthat'?'This or that':'Poll'}${l.closed?', closed':''}</span></span><button class="link" data-a="editpoll" data-id="${l.id}">Edit</button><button class="link" data-a="pollclose" data-id="${l.id}">${l.closed?'Reopen':'Close'}</button><button class="link" data-a="delpoll" data-id="${l.id}">Delete</button></div>`).join('')}</section>`;
@@ -1155,10 +977,10 @@ function render(){
  const tt=view.n==='times';$('tg').classList.toggle('intimes',tt);document.title=tt?'The Tangerine Times':'Tangerine Takes';app.innerHTML=(tt?'':bar())+body;{const s2=$('tg-s2');if(s2)s2.style.display=me()?'none':'block';fitTitle()}if(tt){ttInd();ttCar()}else ttLast=null;hbInit();
  if(obs){obs.disconnect();obs=null}
  const mo=$('more');if(mo){obs=new IntersectionObserver(es=>{if(es[0].isIntersecting)loadMore()},{rootMargin:'500px'});obs.observe(mo)}
- setMark();restoreCompose();initRte();const ft=$('f-text');if(ft)grow(ft);
+ initRte();const ft=$('f-text');if(ft)grow(ft);
 }
 
-window.addEventListener('popstate',e=>{prevN=null;view=(e.state&&e.state.v)||routeNow()||{n:'feed'};render();const y=(e.state&&e.state.y)||0;window.scrollTo(0,y);requestAnimationFrame(()=>window.scrollTo(0,y))});
+window.addEventListener('popstate',e=>{view=(e.state&&e.state.v)||routeNow()||{n:'feed'};render();window.scrollTo(0,0)});
 function copyText(t){return navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()}
 function fallbackCopy(t){const x=document.createElement('textarea');x.value=t;document.body.appendChild(x);x.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}x.remove();return ok}
 function needUser(){if(me())return true;toast('Create a profile or log in first');go({n:'join'});return false}
@@ -1186,17 +1008,16 @@ app.addEventListener('click',async e=>{
  const ss=e.target.closest('#s-stars button');
  if(ss){sRating=sRating===+ss.dataset.n?0:+ss.dataset.n;app.querySelectorAll('#s-stars button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=sRating));return}
  const st=e.target.closest('#f-stars button');
- if(st){rating=rating===+st.dataset.n?0:+st.dataset.n;app.querySelectorAll('#f-stars button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=rating));saveCompose();return}
+ if(st){rating=rating===+st.dataset.n?0:+st.dataset.n;app.querySelectorAll('#f-stars button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=rating));return}
  const b=e.target.closest('[data-a]');if(!b)return;
  if(b.dataset.a==='fmt'){rteCmd(b.dataset.for,b.dataset.c);return}
- if(b.dataset.a==='unhide'){b.classList.toggle('on');b.title=b.classList.contains('on')?'Tap to hide again':'Tap to show';return}
  const a=b.dataset.a, id=b.dataset.id, p=postById(id), g=i=>$(i)?$(i).value.trim():'';
  if(a==='gocompose'){const b=$('compose-box');if(b){b.scrollIntoView({behavior:'smooth',block:'start'});const f=$('f-type');if(f)setTimeout(()=>f.focus({preventScroll:true}),350)}else go({n:'compose'})}
- else if(a==='feed'){if(prevN==='feed'&&view.n!=='feed'&&/^(Back|\u2190)/.test((b.textContent||'').trim())){history.back();return}pre=null;feedWant=20;go({n:'feed'})}
+ else if(a==='feed'){pre=null;feedWant=20;go({n:'feed'})}
  else if(a==='join'){pickAv=AVATARS[0];go({n:'join'})}
  else if(a==='searchview')go({n:'search'});
  else if(a==='times'){timesEdit=false;timesWrite=null;ttDir=1;ttLast=null;ttCarI=0;go({n:'times',s:'latest'})}
- else if(a==='timestab'){timesEdit=false;timesWrite=null;ttCarI=0;const oi=TT.findIndex(x=>x[0]===(view.s||'latest')),ni=TT.findIndex(x=>x[0]===b.dataset.s);if(oi===ni&&!view.pid&&!view.wid)return;ttDir=view.pid&&oi===ni?-1:(ni>=oi?1:-1);go({n:'times',s:b.dataset.s})}
+ else if(a==='timestab'){timesEdit=false;timesWrite=null;ttCarI=0;const oi=TT.findIndex(x=>x[0]===(view.s||'latest')),ni=TT.findIndex(x=>x[0]===b.dataset.s);if(oi===ni&&!view.pid)return;ttDir=view.pid&&oi===ni?-1:(ni>=oi?1:-1);go({n:'times',s:b.dataset.s})}
  else if(a==='editcrew'){if(!isLead())return;timesEdit=false;timesWrite=null;aboutEdit=true;go({n:'about'})}
  else if(a==='edittimes'){timesEdit=true;timesWrite=null;render()}
  else if(a==='canceltimes'){timesEdit=false;render()}
@@ -1211,7 +1032,6 @@ app.addEventListener('click',async e=>{
  else if(a==='ttcancel'){timesWrite=null;render()}
  else if(a==='ttnophoto'){if(timesWrite){timesWrite.img='';timesWrite.data='';ttPrev()}}
  else if(a==='ttsave'){const w=timesWrite;if(!w)return;const sec=$('tt-sec').value,r=await api('tpost',{id:w.id,sec,kind:$('tt-kind').value,refs:$('tt-refs').value,title:g('tt-title'),by:$('tt-by').value,art:$('tt-art').value,layout:$('tt-layout').value,text:$('tt-text').value,keepImg:!!w.img,data:w.data});if(r){timesWrite=null;toast(w.id?'Saved':'Published');ttDir=1;go({n:'times',s:sec,pid:r.tid})}}
- else if(a==='ttwriter'){if(!db.profiles.some(u=>u.id===id))return;timesEdit=false;timesWrite=null;ttDir=1;go({n:'times',s:'latest',wid:id})}
  else if(a==='tpost'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q)return;timesEdit=false;timesWrite=null;ttDir=1;go({n:'times',s:q.sec,pid:q.id})}
  else if(a==='ttcar'){const t=app.querySelector('.tt-car');if(t)t.scrollBy({left:(+b.dataset.d)*t.clientWidth,behavior:ttMotion()})}
  else if(a==='hbcar'){hbGo(hbI+(+b.dataset.d))}
@@ -1306,6 +1126,8 @@ app.addEventListener('click',async e=>{
  else if(a==='pickreview'){pre={type:db.pick.type,media:db.pick.media,pick:true};rating=0;go({n:'compose'})}
  else if(a==='notes'){go({n:'notes'});api('readnotes').then(()=>refreshBar())}
  else if(a==='settings')go({n:'settings'});
+ else if(a==='clike'){if(!needUser())return;const y=window.scrollY;if(await api('clike',{id,i:+b.dataset.i})){render();window.scrollTo(0,y)}}
+ else if(a==='clikers'){const k='lk'+id+'-'+b.dataset.i;if(rev.has(k))rev.delete(k);else rev.add(k);const y=window.scrollY;render();window.scrollTo(0,y)}
  else if(a==='reveal'){rev.add(id);const y=window.scrollY;render();window.scrollTo(0,y)}
  else if(a==='replyto')go({n:'post',id:view.id,rp:+b.dataset.i},true);
  else if(a==='sendr'){const t=g('r-t');if(!t){toast('Write a reply first');return}if(await api('reply',{id,i:+b.dataset.i,t})){go({n:'post',id},true);toast('Reply posted')}}
@@ -1318,8 +1140,6 @@ app.addEventListener('click',async e=>{
   if(await api('changepw',{old:$('pw-o').value,pw:n})){$('pw-o').value='';$('pw-n').value='';toast('Password changed')}}
  else if(a==='delacct'){if(!confirm('Delete your account forever? This cannot be undone.'))return;
   if(await api('deleteaccount',{pw:$('da-pw').value})){toast('Account deleted');go({n:'feed'})}}
- else if(a==='warnu'){const u=user(id);if(!confirm('Send a warning to '+(u?u.name:'this member')+'? This counts as one of 3 warnings. At 3 warnings the account can be suspended. They will see the contact email for any concern.'))return;if(await api('warn',{id})){toast('Warning sent');render()}}
- else if(a==='modrm'){if(!confirm('Delete this '+b.dataset.k+'? The author will be told it was removed. Deleting does not count as a warning.'))return;if(await api('modremove',{id,k:b.dataset.k,i:b.dataset.i})){toast('Deleted and author notified');render()}}
  else if(a==='dismissr'){if(await api('dismissreport',{id}))render()}
  else if(a==='editp'){rating=p.rating;go({n:'post',id,edit:true})}
  else if(a==='editc')go({n:'post',id:view.id,ec:+b.dataset.i},true);
@@ -1333,11 +1153,11 @@ app.addEventListener('click',async e=>{
  else if(a==='savedraft'){if(!needUser())return;
   const d={type:g('f-type'),media:g('f-media'),title:g('f-title')||g('f-media'),rating,text:g('f-text'),spoiler:$('f-spoil').checked,draft:true};
   if(!d.media){toast('Add a title to save a draft');return}
-  if(await api('publish',{...d,prompt:pre&&pre.prompt})){const wp=pre&&pre.prompt;pre=null;rating=0;clearCompose();toast('Draft saved. Find it on your profile.');const nd=(db.drafts||[]).filter(x=>x.by===db.me).sort((a,b)=>b.ts-a.ts)[0];if(wp&&nd)go({n:'post',id:nd.id});else render()}}
- else if(a==='open'){if(me())api('viewpost',{id});go({n:'post',id})}
+  if(await api('publish',{...d,prompt:pre&&pre.prompt})){const wp=pre&&pre.prompt;pre=null;rating=0;toast('Draft saved. Find it on your profile.');const nd=(db.drafts||[]).filter(x=>x.by===db.me).sort((a,b)=>b.ts-a.ts)[0];if(wp&&nd)go({n:'post',id:nd.id});else render()}}
+ else if(a==='open')go({n:'post',id});
  else if(a==='pscroll'){const e2=$('u-posts');if(e2)e2.scrollIntoView({behavior:'smooth',block:'start'})}
  else if(a==='plist'){go({n:'people',id,k:b.dataset.k})}
- else if(a==='profile'){const u=user(id);pickAv=u.avatar;psort='new';ptab='all';go({n:'profile',id})}
+ else if(a==='profile'){const u=user(id);pickAv=u.avatar;psort='new';go({n:'profile',id})}
  else if(a==='filter'){filter=b.dataset.t;feedWant=20;render()}
  else if(a==='pickav'){pickAv=b.dataset.v;app.querySelectorAll('#avpick button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===pickAv))}
  else if(a==='create'){
@@ -1355,12 +1175,6 @@ app.addEventListener('click',async e=>{
   if(!g('e-name')){toast('Display name cannot be empty');return}
   const r=await api('saveprofile',{name:g('e-name'),handle:g('e-handle').toLowerCase().replace(/^@/,''),bio:g('e-bio'),avatar:pickAv,top:readTops('e'),...readPron('e'),...readIg('e')});
   if(r){toast('Profile saved');render()}}
- else if(a==='repost'){if(!needUser())return;menuOpen='';const y=window.scrollY;if(await api('repost',{id})){render();window.scrollTo(0,y);toast((db.reposts||[]).some(r=>r.pid===id&&r.by===db.me)?'Reposted 🔄':'Repost removed')}}
- else if(a==='repsby'){repsDialog(id)}
- else if(a==='quote'){if(!needUser())return;menuOpen='';render();quoteDialog(id)}
- else if(a==='ptab'){ptab=b.dataset.t;const y=window.scrollY;render();window.scrollTo(0,y)}
- else if(a==='clike'){if(!needUser())return;const y=window.scrollY;if(await api('clike',{id,i:+b.dataset.i})){render();window.scrollTo(0,y)}}
- else if(a==='clikers'){if(cliked.has(id))cliked.delete(id);else cliked.add(id);const y=window.scrollY;render();window.scrollTo(0,y)}
  else if(a==='likers'){if(likersAll.has(id))likersAll.delete(id);else likersAll.add(id);const y=window.scrollY;render();window.scrollTo(0,y)}
  else if(a==='dots'){menuOpen=menuOpen===id?'':id;const y=window.scrollY;render();window.scrollTo(0,y)}
  else if(a==='like'){if(!needUser())return;const y=window.scrollY;if(await api('like',{id})){if($('s-res'))$('s-res').innerHTML=searchRes($('s-q').value);else render();window.scrollTo(0,y)}}
@@ -1372,16 +1186,13 @@ app.addEventListener('click',async e=>{
   const d={type:g('f-type'),media:g('f-media'),title:g('f-title')||g('f-media'),rating,text:g('f-text'),spoiler:$('f-spoil').checked};
   if(!d.media||!d.text){toast('Add a title and your review first');return}
   if(!rating){toast('Pick a star rating first');return}
-  if(await api('publish',{...d,wid:pre&&pre.wid,prompt:pre&&pre.prompt})){const jump=pre&&(pre.prompt||pre.pick);pre=null;rating=0;clearCompose();toast('Take shared! 🍊');const np=db.posts.filter(x=>x.by===db.me).sort((a,b)=>b.ts-a.ts)[0];if(jump&&np)go({n:'post',id:np.id});else render()}}
+  if(await api('publish',{...d,wid:pre&&pre.wid,prompt:pre&&pre.prompt})){const jump=pre&&(pre.prompt||pre.pick);pre=null;rating=0;toast('Take shared! 🍊');const np=db.posts.filter(x=>x.by===db.me).sort((a,b)=>b.ts-a.ts)[0];if(jump&&np)go({n:'post',id:np.id});else render()}}
  else if(a==='follow'){if(!needUser())return;
   if(await api('follow',{id})){if($('s-res'))$('s-res').innerHTML=searchRes($('s-q').value);else render()}}
  else if(a==='prompt')go({n:'prompt',id});
  else if(a==='promptreply'){const k=promptOf(id);if(!k)return;if(!needUser())return;pre={type:'',media:'',prompt:id,ptitle:k.title};rating=0;go({n:'compose'})}
  else if(a==='vote'){if(!needUser())return;const y=window.scrollY;if(await api('pollvote',{id,i:+b.dataset.i,c:b.dataset.c===undefined?undefined:+b.dataset.c})){render();window.scrollTo(0,y)}}
  else if(a==='setbanner'){if(!g('bn-h')){toast('Add a headline first');return}if(await api('setbanner',{title:g('bn-h'),text:g('bn-t'),pub:!!($('bn-pub')&&$('bn-pub').checked)})){toast('Announcement pinned');render()}}
- else if(a==='sendsugg'){if(!needUser())return;const t=g('sg-t');if(!t){toast('Write your suggestion first');return}if(await api('suggest',{t})){render();toast('Thanks, your suggestion was sent')}}
- else if(a==='togglesugg'){if(await api('setsuggest',{on:b.dataset.on==='1'})){render();toast(db.suggOn?'Suggestion box is on':'Suggestion box is off')}}
- else if(a==='delsugg'){if(await api('delsugg',{id})){render()}}
  else if(a==='clearbanner'){if(await api('setbanner',{title:'',text:''})){toast('Announcement removed');render()}}
  else if(a==='newprompt'){if(!g('pr-t')){toast('Write the prompt first');return}if(await api('saveprompt',{id:ed.prompt||undefined,title:g('pr-t'),desc:g('pr-d')})){toast(ed.prompt?'Prompt updated':'Prompt posted');ed.prompt=null;render()}}
  else if(a==='delprompt'){if(!confirm('Delete this prompt? Replies stay as normal posts.'))return;if(await api('delprompt',{id}))render()}
@@ -1391,8 +1202,6 @@ app.addEventListener('click',async e=>{
  else if(a==='pollclose'){if(await api('pollclose',{id}))render()}
  else if(a==='delpoll'){if(!confirm('Delete this poll?'))return;if(await api('delpoll',{id}))render()}
  else if(a==='addadmin'){const v=$('ad-add')&&$('ad-add').value;if(v&&await api('setadmin',{id:v,on:true})){toast('Admin added');render()}}
- else if(a==='addowner'){const v=$('ow-add')&&$('ow-add').value;if(v&&confirm('Make this person a lead admin? They get full control.')&&await api('setowner',{id:v,on:true})){toast('Lead admin added');render()}}
- else if(a==='rmowner'){if(!confirm('Remove this lead admin?'))return;if(await api('setowner',{id,on:false})){toast('Lead admin removed');render()}}
  else if(a==='addmod'){const v=$('mod-add')&&$('mod-add').value;if(v&&await api('setmod',{id:v,on:true})){toast('Mod added');render()}}
  else if(a==='rmmod'){if(!confirm('Remove this mod?'))return;if(await api('setmod',{id,on:false})){toast('Mod removed');render()}}
  else if(a==='setadmin'){if(!confirm('Remove this admin?'))return;if(await api('setadmin',{id,on:false})){toast('Admin removed');render()}}
@@ -1421,7 +1230,6 @@ document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)ret
  else if(e.shiftKey&&k==='x'){e.preventDefault();document.execCommand('strikeThrough');rteSync(r);rteBar(r)}});
 app.addEventListener('input',e=>{const r=e.target;if(r&&r.classList&&r.classList.contains('rte'))rteSync(r)});
 app.addEventListener('paste',e=>{const r=e.target&&e.target.closest?e.target.closest('.rte'):null;if(!r)return;e.preventDefault();const t=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,t)});
-app.addEventListener('keydown',e=>{const h=e.target&&e.target.classList&&e.target.classList.contains('hide')?e.target:null;if(h&&(e.key==='Enter'||e.key===' ')){e.preventDefault();h.classList.toggle('on')}});
 app.addEventListener('mousedown',e=>{if(e.target.closest&&e.target.closest('.fmt button'))e.preventDefault()});
 document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(a&&a.classList&&a.classList.contains('rte'))rteBar(a)});
 
