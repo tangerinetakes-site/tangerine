@@ -49,7 +49,7 @@ const TOPK = ["movies","albums","books","shows","games","other"];
 const CREW_TEAMS = ["Editorial", "Team"];
 const TSEC = ["movies", "books", "games", "music", "culture", "magazine"];
 const TROLES = ["publisher", "writer", "artist"];
-const TKINDS = ["Article", "Essay", "Review", "Recommendation"];
+const TKINDS = ["Article", "Essay", "Review", "Recommendation", "Flipbook"];
 const DAY = 864e5;
 const REASONS = ["Spoiler", "Copying", "Not kind", "Crime"];
 /* Report reasons shown to members. "Others" needs a short written detail. REASONS above is still used by the admin warning. */
@@ -322,7 +322,7 @@ export default async function handler(req, res) {
   const extra = {};
   const mails = [];
   const F = id => db.features.find(f => f.id === id) || bad("Piece not found");
-  let dirty = a !== "state" && a !== "read" && a !== "club";
+  let dirty = a !== "state" && a !== "read" && a !== "club" && a !== "tpage" && a !== "tpagedrop";
   const C = id => db.clubs.find(c => c.id === id) || bad("Club not found");
   const me = () => (uid && U(db, uid)) || bad("Log in first");
   const P = id => db.posts.find(p => p.id === id) || bad("Post not found");
@@ -741,14 +741,38 @@ export default async function handler(req, res) {
         if (team) db.crew[t.id] = team; else delete db.crew[t.id];
         break;
       }
+
+      /* ---- Flipbook page uploads (one 4:5 page per request) ---- */
+      case "tpage": {
+        const m = me();
+        if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post in the Times");
+        const dd = String(d.data || "");
+        const mm = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(dd);
+        if (!mm || dd.length > 700000) bad("That page could not be used. Try another one.");
+        const nid = id8() + id8();
+        await redis.set("tg:img:" + nid, mm[1]);
+        await redis.set("tg:pend:" + nid, m.id, { ex: 86400 }); /* waiting for the piece to be saved, cleaned up by tpagedrop */
+        extra.pid = nid;
+        break;
+      }
+      case "tpagedrop": {
+        const m = me();
+        for (const x of (Array.isArray(d.ids) ? d.ids : []).slice(0, 30)) {
+          const k = String(x).replace(/[^a-z0-9]/gi, "").slice(0, 20);
+          if (k && (await redis.get("tg:pend:" + k)) === m.id) { await redis.del("tg:img:" + k); await redis.del("tg:pend:" + k); }
+        }
+        break;
+      }
+
       case "tpost": {
         const m = me();
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post in the Times");
         const sec = TSEC.includes(d.sec) ? d.sec : bad("Pick a section");
         const title = clip(d.title, 140), text = clip(d.text, 20000), refs = clip(d.refs, 3000);
-        const kind = TKINDS.includes(d.kind) ? d.kind : bad("Pick a type: Article, Essay, Review or Recommendation");
+        const kind = TKINDS.includes(d.kind) ? d.kind : bad("Pick a type: Article, Essay, Review, Recommendation or Flipbook");
         if (!title) bad("Add a headline first");
-        if (!text) bad("Add the content first");
+        const fb = kind === "Flipbook";
+        if (!text && !fb) bad("Add the content first");
         const credit = (v, role, what) => {
           v = clip(v, 20);
           if (!v) return "";
@@ -769,10 +793,27 @@ export default async function handler(req, res) {
           await redis.del("tg:img:" + img);
           img = "";
         }
-        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, img, edited: true }); extra.tid = old.id; }
+        /* Flipbook pages: new pages must have been uploaded by this person (tpage). Removed pages are deleted. */
+        if (!old && db.tposts.length >= 500) bad("Delete some old Times pieces first");
+        let pages = old ? (old.pages || []) : [];
+        if (fb) {
+          const want = (Array.isArray(d.pages) ? d.pages : []).map(x => String(x).replace(/[^a-z0-9]/gi, "").slice(0, 20));
+          if (want.length < 2 || want.length > 30) bad("A flipbook needs 2 to 30 pages");
+          if (new Set(want).size !== want.length) bad("The same page is in the flipbook twice");
+          for (const pid of want) {
+            if (pages.includes(pid)) continue;
+            if ((await redis.get("tg:pend:" + pid)) !== m.id) bad("A page upload expired. Add the pages again.");
+          }
+          for (const pid of want) if (!pages.includes(pid)) await redis.del("tg:pend:" + pid);
+          for (const pid of pages) if (!want.includes(pid)) await redis.del("tg:img:" + pid);
+          pages = want;
+        } else {
+          for (const pid of pages) await redis.del("tg:img:" + pid);
+          pages = [];
+        }
+        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, img, pages, edited: true }); extra.tid = old.id; }
         else {
-          if (db.tposts.length >= 500) bad("Delete some old Times pieces first");
-          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, img, comments: [], ts: Date.now(), pub: m.id };
+          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, img, pages, comments: [], ts: Date.now(), pub: m.id };
           db.tposts.push(np); extra.tid = np.id;
         }
         break;
@@ -834,6 +875,7 @@ export default async function handler(req, res) {
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Not allowed");
         const tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found");
         if (tp.img) { try { await redis.del("tg:img:" + tp.img); } catch (e) { console.error(e.message); } }
+        for (const pg of (tp.pages || [])) { try { await redis.del("tg:img:" + pg); } catch (e) { console.error(e.message); } }
         db.tposts = db.tposts.filter(x => x !== tp);
         db.reports = db.reports.filter(r => r.pid !== tp.id);
         break;
@@ -1210,6 +1252,7 @@ export default async function handler(req, res) {
     console.error(e);
     return send({ error: "Something went wrong, try again" });
   }
+  if (a === "tpage" || a === "tpagedrop") return send({ ok: true, ...extra });
   if (dirty) await save(db, raw);
   if (mails.length) await Promise.allSettled(mails.map(f => f()));
   return send(out(db, uid, extra));
