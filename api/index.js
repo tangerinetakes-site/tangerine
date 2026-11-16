@@ -29,6 +29,8 @@ async function load() {
   if (!Array.isArray(db.tposts)) db.tposts = [];
   if (!Array.isArray(db.pitches)) db.pitches = [];
   if (!Array.isArray(db.flipbooks)) db.flipbooks = [];
+  db.tposts.forEach(x => { if (!Array.isArray(x.likedBy)) x.likedBy = []; });
+  db.flipbooks.forEach(x => { if (!Array.isArray(x.likedBy)) x.likedBy = []; if (!Array.isArray(x.comments)) x.comments = []; });
   db.pitchOpen = !!db.pitchOpen;
   db.joinOff = { home: !!(db.joinOff && db.joinOff.home), times: !!(db.joinOff && db.joinOff.times) };
   if (!Array.isArray(db.mods)) db.mods = [];
@@ -77,6 +79,7 @@ const checkPw = (pw, h) => {
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
 const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
+const TP = (db, id) => db.tposts.find(x => x.id === id) || db.flipbooks.find(x => x.id === id) || bad("Piece not found");
 
 /* Photos (16:9 jpeg) for Feature Picks pieces and featured posts.
    New photo (d.data) replaces the old one. No d.keepImg means "remove the photo". */
@@ -228,12 +231,18 @@ function out(db, uid, extra) {
       times: db.times || null,
       tposts: db.tposts.slice().sort((x, y) => y.ts - x.ts).map(({ pub, ...p }) => ({
         ...p,
+        likedBy: (p.likedBy || []).filter(x => !bs.has(x)),
         comments: (p.comments || []).map(c => bs.has(c.by) ? { hidden: true, replies: [] }
           : { ...c, replies: (c.replies || []).map(r => bs.has(r.by) ? { hidden: true } : r) })
       })),
       tstaff: admin || canTimes ? db.tstaff : {},
       canTimes,
-      flipbooks: db.flipbooks.slice().sort((x, y) => y.ts - x.ts),
+      flipbooks: db.flipbooks.slice().sort((x, y) => y.ts - x.ts).map(p => ({
+        ...p,
+        likedBy: (p.likedBy || []).filter(x => !bs.has(x)),
+        comments: (p.comments || []).map(c => bs.has(c.by) ? { hidden: true, replies: [] }
+          : { ...c, replies: (c.replies || []).map(r => bs.has(r.by) ? { hidden: true } : r) })
+      })),
       /* Pitch box */
       canPitch: !!(me && canPitch(db, me.id)),
       canReviewPitch: !!(me && canReviewPitch(db, me.id)),
@@ -692,12 +701,18 @@ export default async function handler(req, res) {
           x.comments = (x.comments || []).filter(c => c.by !== id);
           x.comments.forEach(c => { c.replies = (c.replies || []).filter(r => r.by !== id); });
         });
+        db.tposts.forEach(x => { x.likedBy = (x.likedBy || []).filter(k => k !== id); });
+        db.flipbooks.forEach(x => {
+          x.likedBy = (x.likedBy || []).filter(k => k !== id);
+          x.comments = (x.comments || []).filter(c => c.by !== id);
+          x.comments.forEach(c => { c.replies = (c.replies || []).filter(r => r.by !== id); });
+        });
         db.admins = db.admins.filter(x => x !== id);
         db.mods = db.mods.filter(x => x !== id);
         db.polls.forEach(l => { delete l.votes[id]; });
         db.bingos.forEach(l => { delete l.marks[id]; });
         db.msgs = db.msgs.filter(x => x.from !== id && x.to !== id);
-        db.reports = db.reports.filter(r => r.by !== id && (db.posts.some(p => p.id === r.pid) || db.tposts.some(p => p.id === r.pid)));
+        db.reports = db.reports.filter(r => r.by !== id && (db.posts.some(p => p.id === r.pid) || db.tposts.some(p => p.id === r.pid) || db.flipbooks.some(p => p.id === r.pid)));
         db.suspended = db.suspended.filter(x => x !== id);
         dropSessions(db, id);
         uid = null; extra.token = "";
@@ -806,6 +821,7 @@ export default async function handler(req, res) {
         const f = db.flipbooks.find(x => x.id === d.id) || bad("Flipbook not found");
         for (const pg of f.pages) { try { await redis.del("tg:img:" + pg); } catch (e) { console.error(e.message); } }
         db.flipbooks = db.flipbooks.filter(x => x !== f);
+        db.reports = db.reports.filter(r => r.pid !== f.id);
         break;
       }
 
@@ -847,9 +863,17 @@ export default async function handler(req, res) {
         break;
       }
 
-      /* ---- Comments on Times pieces ---- */
+      /* ---- Tangerines (likes) on Times pieces and flipbooks ---- */
+      case "tlike": {
+        const m = me(), tp = TP(db, d.id);
+        const i = tp.likedBy.indexOf(m.id);
+        if (i >= 0) tp.likedBy.splice(i, 1); else tp.likedBy.push(m.id);
+        break;
+      }
+
+      /* ---- Comments on Times pieces and flipbooks ---- */
       case "tcomment": {
-        const m = me(), tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found"), t = clip(d.t, 300);
+        const m = me(), tp = TP(db, d.id), t = clip(d.t, 300);
         if (!t) bad("Write a comment first");
         tp.comments = tp.comments || [];
         if (tp.comments.length >= 300) bad("This piece has too many comments");
@@ -857,14 +881,14 @@ export default async function handler(req, res) {
         break;
       }
       case "teditcomment": {
-        const m = me(), tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found"), c = (tp.comments || [])[parseInt(d.i, 10)], t = clip(d.t, 300);
+        const m = me(), tp = TP(db, d.id), c = (tp.comments || [])[parseInt(d.i, 10)], t = clip(d.t, 300);
         if (!c || c.by !== m.id) bad("You can only edit your own comments");
         if (!t) bad("Comment cannot be empty");
         c.t = t; c.edited = true;
         break;
       }
       case "tdelcomment": {
-        const m = me(), tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found"), i = parseInt(d.i, 10), c = (tp.comments || [])[i];
+        const m = me(), tp = TP(db, d.id), i = parseInt(d.i, 10), c = (tp.comments || [])[i];
         if (!c) bad("Comment not found");
         if (c.by !== m.id && !isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Not allowed");
         tp.comments.splice(i, 1);
@@ -872,7 +896,7 @@ export default async function handler(req, res) {
         break;
       }
       case "treply": {
-        const m = me(), tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found"), c = (tp.comments || [])[parseInt(d.i, 10)], t = clip(d.t, 300);
+        const m = me(), tp = TP(db, d.id), c = (tp.comments || [])[parseInt(d.i, 10)], t = clip(d.t, 300);
         if (!c) bad("Comment not found");
         if (!t) bad("Write a reply first");
         c.replies = c.replies || [];
@@ -881,14 +905,14 @@ export default async function handler(req, res) {
         break;
       }
       case "tdelreply": {
-        const m = me(), tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found"), c = (tp.comments || [])[parseInt(d.i, 10)], r = c && (c.replies || [])[parseInt(d.j, 10)];
+        const m = me(), tp = TP(db, d.id), c = (tp.comments || [])[parseInt(d.i, 10)], r = c && (c.replies || [])[parseInt(d.j, 10)];
         if (!r) bad("Reply not found");
         if (r.by !== m.id && !isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Not allowed");
         c.replies.splice(parseInt(d.j, 10), 1);
         break;
       }
       case "treport": {
-        const m = me(), tp = db.tposts.find(x => x.id === d.id) || bad("Piece not found"), i = parseInt(d.i, 10);
+        const m = me(), tp = TP(db, d.id), i = parseInt(d.i, 10);
         if (!(tp.comments || [])[i]) bad("Comment not found");
         /* CHANGED: uses the new report reasons (Spoiler, Plagiarism, Bullying or harassment, Others) */
         const reason = REPORT_REASONS.includes(d.reason) ? d.reason : bad("Pick a reason");
