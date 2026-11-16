@@ -140,7 +140,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;",
 const pub = (u, viewer) => ({
   id: u.id, name: u.name, handle: u.handle, bio: u.bio, avatar: u.avatar, following: u.following, top: u.top, pronouns: Array.isArray(u.pronouns) ? u.pronouns.join(" / ") : (u.pronouns || ""), bingoShares: u.bingoShares || [],
   insta: viewer === u.id || !u.igPrivate ? u.insta : "", igPrivate: u.igPrivate, links: u.links, watch: u.watch,
-  ...(viewer === u.id ? { idtop: u.idtop || "", qr: u.qr || "", idpic: u.idpic || "", joined: u.joined || 0 } : {})
+  ...(viewer === u.id ? { idtop: u.idtop || "", idpic: u.idpic || "", joined: u.joined || 0 } : {})
 });
 function blockedSet(db, uid) {
   const s = new Set();
@@ -681,7 +681,6 @@ export default async function handler(req, res) {
           try { await redis.del("tg:img:" + x.img); } catch (e) { console.error(e.message); }
         }
         if (m.idpic) { try { await redis.del("tg:img:" + m.idpic); } catch (e) { console.error(e.message); } }
-        if (m.qr) { try { await redis.del("tg:img:" + m.qr); } catch (e) { console.error(e.message); } }
         db.users = db.users.filter(u => u.id !== id);
         db.users.forEach(u => { u.following = u.following.filter(x => x !== id); u.blocked = u.blocked.filter(x => x !== id); u.notes = u.notes.filter(n => n.from !== id); });
         db.posts = db.posts.filter(p => p.by !== id);
@@ -778,8 +777,6 @@ export default async function handler(req, res) {
         if (d.avatar !== undefined) { const av = clip(d.avatar, 8); if (av) m.avatar = av; }
         if (typeof d.pdata === "string" && d.pdata) m.idpic = await putImg(m.idpic || "", { data: d.pdata });
         else if (d.rmpic && m.idpic) { await redis.del("tg:img:" + m.idpic); m.idpic = ""; }
-        if (typeof d.data === "string" && d.data) m.qr = await putImg(m.qr || "", { data: d.data });
-        else if (d.rmqr && m.qr) { await redis.del("tg:img:" + m.qr); m.qr = ""; }
         break;
       }
       case "setcrew": {
