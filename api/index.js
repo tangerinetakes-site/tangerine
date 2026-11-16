@@ -182,17 +182,18 @@ const dropSessions = (db, uid) => Object.keys(db.sessions).forEach(k => { if (db
 function statsOf(db) {
   const now = Date.now(), W = 8, WEEK = 7 * DAY, wk = t => Math.floor((now - t) / WEEK);
   const posts = Array(W).fill(0), members = Array(W).fill(0), cats = {};
-  let totalPosts = 0, comments = 0;
+  let totalPosts = 0, comments = 0, likes = 0;
   db.posts.forEach(p => {
     if (p.draft) return;
     totalPosts++;
     comments += (p.comments || []).length;
+    likes += (p.likedBy || []).length;
     const k = wk(p.ts);
     if (k >= 0 && k < W) posts[W - 1 - k]++;
     if (now - p.ts < 30 * DAY) { const c = cats[p.type] || (cats[p.type] = { p: 0, c: 0, l: 0 }); c.p++; c.c += (p.comments || []).length; c.l += (p.likedBy || []).length; }
   });
   db.users.forEach(u => { if (!u.joined) return; const k = wk(u.joined); if (k >= 0 && k < W) members[W - 1 - k]++; });
-  return { weeks: W, posts, members, cats, totalPosts, comments, totalMembers: db.users.length };
+  return { weeks: W, posts, members, cats, totalPosts, comments, likes, reports: db.reports.length, totalMembers: db.users.length };
 }
 
 function out(db, uid, extra) {
