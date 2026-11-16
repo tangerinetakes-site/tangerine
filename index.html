@@ -1139,7 +1139,7 @@ async function idFront(c,u){const pim=u.idpic?await idLoad('/api?img='+u.idpic):
  x.font='28px '+ID_EM;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#000';x.fillText(t.team?'🍊':'🌱',514,482);
  idTxt(x,t.team?'TEAM STATUS':'STATUS',549,467,{px:14,w:500,c:t.team?'rgba(255,255,255,.9)':'#B5702F',ls:1.5});
  idTxt(x,t.label,549,493,{px:23,w:700,c:t.team?'#fff':'#3A2210',max:340,min:14})}
-async function idBack(c,u){const qid=u.qr||db.idqr||'',im=qid?await idLoad('/api?img='+qid):null;
+async function idBack(c,u){const qid=db.idqr||'',im=qid?await idLoad('/api?img='+qid):null;
  const x=idFrame(c,[[70,60,110,.2],[990,190,70,.5],[62,566,46,1],[745,615,115,.8]]);
  idTxt(x,'SHARE YOUR TAKES',115,187,ID_LAB);
  x.save();x.shadowColor='rgba(160,70,0,.28)';x.shadowBlur=16;x.shadowOffsetY=6;x.fillStyle='#FF8A00';idRR(x,108,208,264,264,24);x.fill();x.restore();
@@ -1188,10 +1188,9 @@ function idView(){const u=me();if(!u)return inboxView();
  <label for="id-top">Top 4 on the back</label><select id="id-top">${TOPS.map(([k,l])=>`<option value="${k}"${k===cat?' selected':''}>${l}</option>`).join('')}</select><p class="hint">Fill in your lists under Edit your profile.</p>
  <label for="id-pic">Photo for the front</label><input type="file" id="id-pic" accept="image/*"><p class="hint">${u.idpic?'Showing your photo.':'No photo yet, so the front shows your emoji below.'} The photo is cropped to a circle.</p>${u.idpic?'<div class="actions"><button class="btn ghost" data-a="idpicrm">Use my emoji instead</button></div>':''}
  <label>Emoji avatar</label><div class="avpick" role="group" aria-label="Pick an avatar">${AVATAR_ROWS.map(r=>`<div class="avrow">${r.map(a=>`<button type="button" data-a="idav" data-v="${a}" aria-pressed="${a===u.avatar}">${a}</button>`).join('')}</div>`).join('')}</div>
- <label for="id-qr">QR code on the back</label><input type="file" id="id-qr" accept="image/*"><p class="hint">${u.qr?'Showing your own QR.':db.idqr?'Showing the Tangerine Takes QR. Upload your own if you like, for example your Instagram.':'Upload your own QR, for example your Instagram.'}</p>${u.qr?'<div class="actions"><button class="btn ghost" data-a="idqrrm">Use the Tangerine Takes QR</button></div>':''}
  <p class="hint">Your team status comes from the admins and shows on the front.</p></section>`}
 const idAdminBox=()=>`<section class="panel"><h2>Member ID cards 🪪</h2><p class="hint">${db.idOn?'ON: every member can see and download their ID.':'OFF: members cannot see it yet. Only you can preview it.'}</p><div class="actions"><button class="btn" data-a="idon">${db.idOn?'Turn off':'Turn on'}</button><button class="btn ghost" data-a="idcard">Preview my ID</button></div>
- <label for="id-dqr">Default QR (shown when a member has not added their own)</label>${db.idqr?`<img src="/api?img=${esc(db.idqr)}" alt="Default QR" style="width:120px;height:120px;object-fit:contain;background:#fff;border-radius:12px;display:block;margin:6px 0">`:'<p class="hint">No default QR yet.</p>'}<input type="file" id="id-dqr" accept="image/*">${db.idqr?'<div class="actions"><button class="btn ghost" data-a="iddqrrm">Remove default QR</button></div>':''}</section>
+ <label for="id-dqr">Default QR (shown on every member's ID back)</label>${db.idqr?`<img src="/api?img=${esc(db.idqr)}" alt="Default QR" style="width:120px;height:120px;object-fit:contain;background:#fff;border-radius:12px;display:block;margin:6px 0">`:'<p class="hint">No default QR yet.</p>'}<input type="file" id="id-dqr" accept="image/*">${db.idqr?'<div class="actions"><button class="btn ghost" data-a="iddqrrm">Remove default QR</button></div>':''}</section>
 `;
 const crewBox=()=>{const cr=db.profiles.filter(u=>u.crew);
  return `<section class="panel"><h2>Team badges 🍊</h2><p class="hint">Only admins can give these. Pick which team they are on. Members without a badge show as Community Member on their ID card.</p>
@@ -1367,7 +1366,6 @@ app.addEventListener('input',e=>{if(e.target.id==='f-text')grow(e.target);if(e.t
 app.addEventListener('change',async e=>{const t=e.target;
  if(t.id==='id-top'){const y=window.scrollY;if(await api('saveid',{top:t.value})){render();window.scrollTo(0,y)}}
  else if(t.id==='id-pic'){const f=t.files&&t.files[0];t.value='';picJpeg(f,async d=>{if(await api('saveid',{pdata:d})){toast('Photo saved');render()}})}
- else if(t.id==='id-qr'){const f=t.files&&t.files[0];t.value='';qrJpeg(f,async d=>{if(await api('saveid',{data:d})){toast('QR updated');render()}})}
  else if(t.id==='id-dqr'){const f=t.files&&t.files[0];t.value='';qrJpeg(f,async d=>{if(await api('setidqr',{data:d})){toast('Default QR saved');render()}})}
 });
 app.addEventListener('click',async e=>{
@@ -1405,7 +1403,6 @@ app.addEventListener('click',async e=>{
  else if(a==='idav'){const y=window.scrollY;if(await api('saveid',{avatar:b.dataset.v})){pickAv=b.dataset.v;render();window.scrollTo(0,y)}}
  else if(a==='idpicrm'){if(await api('saveid',{rmpic:true})){toast('Back to your emoji');render()}}
  else if(a==='iddl')idDownload(b.dataset.w);
- else if(a==='idqrrm'){if(await api('saveid',{rmqr:true})){toast('Back to the Tangerine Takes QR');render()}}
  else if(a==='idon'){if(!isLead())return;if(await api('setidon',{on:!db.idOn})){toast(db.idOn?'Member ID is on':'Member ID is off');render()}}
  else if(a==='iddqrrm'){if(!isLead())return;if(await api('setidqr',{rm:true})){toast('Default QR removed');render()}}
  else if(a==='ptopen'){if(await api('setpitchopen',{on:!db.pitchOpen})){toast(db.pitchOpen?'Open for everyone':'Team only');render()}}
