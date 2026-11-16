@@ -610,7 +610,34 @@ function memberRows(q){q=q.trim().toLowerCase().replace(/^@/,'');
   return {u,handle:u.handle,name:u.name,email:m.email||'',made:day(m.joined),posts:posts[u.id]||0,likes:likes[u.id]||0,followers:fol[u.id]||0,following:(u.following||[]).length,susp:(m.everSuspended||(db.suspended||[]).includes(u.id))?'Yes':'No',links}})}
 const MCOLS=[['Username','handle'],['Name','name'],['Email','email'],['Date made','made'],['Posts','posts'],['Likes','likes'],['Followers','followers'],['Following','following'],['Ever suspended','susp'],['Links','links']];
 function membersTsv(q){const cell=v=>String(v).replace(/[\t\r\n]+/g,' ');return [MCOLS.map(c=>c[0]).join('\t')].concat(memberRows(q).map(r=>MCOLS.map(c=>cell(r[c[1]])).join('\t'))).join('\n')}
+/* Search home: shown when the search box is empty */
+let sugCache=null;
+const seenKey=()=>'tg-seen:'+(db.me||'guest');
+const getSeen=()=>{try{return JSON.parse(localStorage.getItem(seenKey())||'[]')}catch(e){return[]}};
+const markSeen=id=>{try{const l=getSeen().filter(x=>x!==id);l.unshift(id);localStorage.setItem(seenKey(),JSON.stringify(l.slice(0,20)))}catch(e){}};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function suggestPeople(){
+ const m=me(),bl=(db.blocked||[]).map(x=>x.id),fl=m?(m.following||[]):[];
+ const pool=db.profiles.filter(u=>(!m||u.id!==m.id)&&!bl.includes(u.id));
+ const via=u=>{if(!m)return null;if((u.following||[]).includes(m.id))return 'Follows you';const f=fl.map(i=>db.profiles.find(x=>x.id===i)).find(p=>p&&(p.following||[]).includes(u.id));return f?'Followed by @'+f.handle:null};
+ const notF=pool.filter(u=>!fl.includes(u.id)),mu=shuf(notF.filter(u=>via(u))),rn=shuf(notF.filter(u=>!via(u))),fo=shuf(pool.filter(u=>fl.includes(u.id)));
+ const pick=[],has=u=>pick.some(x=>x.id===u.id),add=(l,n)=>{for(const u of l){if(n<=0||pick.length>=5)break;if(!has(u)){pick.push(u);n--}}};
+ add(mu,2);add(rn,2);add(fo,1);add(mu,5);add(rn,5);add(fo,5);
+ return shuf(pick).map(u=>({u,why:fl.includes(u.id)?'You follow them':(via(u)||'Suggested for you')}));
+}
+function discoverView(){
+ if(!sugCache)sugCache=suggestPeople();
+ const live=db.posts.filter(p=>!p.draft);
+ const recent=getSeen().map(id=>live.find(p=>p.id===id)).filter(Boolean).slice(0,3);
+ const top=live.slice().sort((a,b)=>b.likedBy.length-a.likedBy.length||b.comments.length-a.comments.length||b.ts-a.ts).slice(0,3);
+ const h=t=>`<h2 style="margin:18px 0 10px;color:var(--od)">${t}</h2>`;
+ const ppl=sugCache.map(x=>db.profiles.find(p=>p.id===x.u.id)?{u:db.profiles.find(p=>p.id===x.u.id),why:x.why}:null).filter(Boolean);
+ return (recent.length?`<h2 style="margin:0 0 10px;color:var(--od)">Recently viewed</h2>`+recent.map(p=>card(p)).join(''):'')
+  +h('Top posts')+(top.length?top.map(p=>card(p)).join(''):'<p class="empty">No posts yet.</p>')
+  +h('People to find')+(ppl.length?ppl.map(({u,why})=>`<div class="panel person">${av(u)}<div style="flex:1 1 140px"><button class="link" data-a="profile" data-id="${u.id}">${esc(u.name)}</button><div class="hint" style="margin:0">@${esc(u.handle)} · ${esc(why)}</div></div>${fbtn(u)}</div>`).join(''):'<p class="empty">No one to suggest yet.</p>');
+}
 function searchRes(q){q=q.trim().toLowerCase().replace(/^@/,'');
+ if(!q)return discoverView();
  const rows=memberRows(q);
  const people=`<h2 style="margin:0 0 10px;color:var(--od)">People</h2>`+(rows.length?rows.map(r=>{const u=r.u;return `<div class="panel person">${av(u)}<div style="flex:1 1 140px"><button class="link" data-a="profile" data-id="${u.id}">${esc(u.name)}</button><div class="hint" style="margin:0">@${esc(u.handle)}</div></div>${fbtn(u)}</div>`}).join(''):'<p class="empty">No one found.</p>');
  if(!q)return people;
@@ -1179,6 +1206,7 @@ function fitTitle(){const h=document.querySelector('#tg .top h1'),p=$('tg-sub'),
 window.addEventListener('resize',fitTitle);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTitle);
 function render(){
  let body;
+ if(view.n!=='search')sugCache=null;
  if(view.n==='join')body=joinView();
  else if(view.n==='search')body=searchView();
  else if(view.n==='inbox')body=inboxView();
@@ -1202,7 +1230,7 @@ function render(){
  else if(view.n==='feat')body=featView(view.id);
  else if(view.n==='featform')body=featForm(view.id);
  else if(view.n==='compose')body='<button class="btn ghost" style="margin-bottom:14px" data-a="feed">Back to all posts</button>'+composeView();
- else if(view.n==='post'){const p=postById(view.id);body=p?postView(p):feedView()}
+ else if(view.n==='post'){const p=postById(view.id);if(p&&!p.draft)markSeen(p.id);body=p?postView(p):feedView()}
  else if(view.n==='profile')body=profileView(user(view.id));
  else body=feedView();
  const tt=view.n==='times';$('tg').classList.toggle('intimes',tt);document.title=tt?'The Tangerine Times':'Tangerine Takes';app.innerHTML=(tt?'':bar())+body;{const s2=$('tg-s2');if(s2)s2.style.display=me()?'none':'block';fitTitle()}if(tt){ttInd();ttCar();fbInit()}else{ttLast=null;fbS=null}hbInit();
