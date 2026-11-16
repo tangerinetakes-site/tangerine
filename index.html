@@ -1097,15 +1097,16 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist'),pb=[.
  <label for="tt-refs">References (optional)</label>${fmtBar('tt-refs')}<textarea id="tt-refs" data-lk maxlength="3000" style="min-height:110px" placeholder="One source per line. For example: Author, Title, Year, or a link.">${esc(w.refs||'')}</textarea><p class="hint">Shows in small text at the end of the piece, as a numbered list. One reference per line.</p>
  <div class="actions"><button class="btn" data-a="ttsave">${w.id?'Save changes':'Publish'}</button><button class="btn ghost" data-a="ttcancel">Cancel</button></div></section>`}
 /* ---- Member ID card (drawn on a canvas so the picture you see is the picture you download) ---- */
-const ID_W=1011,ID_H=640,ID_URL='TANGERINETAKES.VERCEL.APP';
+const ID_W=1011,ID_H=640,ID_URL='tangerinetakes.vercel.app';
 const ID_FF='"DM Sans",system-ui,sans-serif',ID_HF='"Bricolage Grotesque","DM Sans",sans-serif',ID_EM='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+const ID_LAB={px:18,w:500,ls:1.2},ID_VAL='#F27A00';
 const idOn=()=>!!(db.idOn||isLead());
 const idTeam=u=>u&&u.crew?{team:true,label:u.crew==='Team'?'Part of The Team':/team$/i.test(u.crew)?'Part of '+u.crew:'Part of '+u.crew+' Team'}:{team:false,label:'Community Member'};
 const idDate=u=>{const d=new Date(u.joined||Date.now());return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+d.getFullYear()};
 const idCat=u=>{const t=u.top||{};if(u.idtop&&TOPS.some(k=>k[0]===u.idtop))return u.idtop;return(TOPS.find(k=>(t[k[0]]||[]).some(Boolean))||TOPS[0])[0]};
 const idImgs={};
 const idLoad=src=>idImgs[src]||(idImgs[src]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src}));
-const idFonts=()=>Promise.all(['800 40px "Bricolage Grotesque"','400 20px "DM Sans"','700 20px "DM Sans"'].map(f=>document.fonts.load(f,'Aa@0')).concat(document.fonts.ready)).catch(()=>{});
+const idFonts=()=>Promise.all(['800 40px "Bricolage Grotesque"','400 20px "DM Sans"','500 20px "DM Sans"','700 20px "DM Sans"'].map(f=>document.fonts.load(f,'Aa@0')).concat(document.fonts.ready)).catch(()=>{});
 const idRR=(x,X,Y,W,H,R)=>{x.beginPath();x.moveTo(X+R,Y);x.arcTo(X+W,Y,X+W,Y+H,R);x.arcTo(X+W,Y+H,X,Y+H,R);x.arcTo(X,Y+H,X,Y,R);x.arcTo(X,Y,X+W,Y,R);x.closePath()};
 function idTxt(x,t,X,Y,o){o=o||{};const w=o.w||400,fam=o.fam||ID_FF,ls='letterSpacing' in x;let px=o.px||20;
  x.textAlign=o.al||'left';x.textBaseline='middle';x.fillStyle=o.c||'#FF8A00';if(ls)x.letterSpacing=(o.ls||0)+'px';x.font=w+' '+px+'px '+fam;
@@ -1123,42 +1124,42 @@ function idFrame(c,slices){const S=2;c.width=ID_W*S;c.height=ID_H*S;const x=c.ge
  x.save();x.shadowColor='rgba(120,50,0,.28)';x.shadowBlur=24;x.shadowOffsetY=8;x.fillStyle='#FFF5E6';idRR(x,64,64,883,511,64);x.fill();x.restore();
  x.textBaseline='middle';x.textAlign='left';x.fillStyle='#000';x.font='46px '+ID_EM;x.fillText('🍊',118,113);
  idTxt(x,'Tangerine Takes',178,113,{px:44,w:800,fam:ID_HF});
- x.fillStyle='#FF8A00';idRR(x,756,90,149,42,21);x.fill();idTxt(x,'MEMBER ID',830.5,111.5,{px:24,c:'#fff',al:'center'});
+ x.fillStyle='#FF8A00';idRR(x,756,90,149,42,21);x.fill();idTxt(x,'MEMBER ID',830.5,111.5,{px:22,w:500,c:'#fff',al:'center'});
  x.fillStyle='#FF8A00';x.fillRect(115,155,781,3);return x}
 async function idFront(c,u){const pim=u.idpic?await idLoad('/api?img='+u.idpic):null;const x=idFrame(c,[[88,72,105,.3],[570,6,58,1],[946,78,46,.2],[362,606,58,.5],[905,560,105,.9]]),cx=273,cy=348,T=6.2832;
  x.save();x.shadowColor='rgba(160,70,0,.25)';x.shadowBlur=18;x.shadowOffsetY=6;x.fillStyle='#FF8A00';x.beginPath();x.arc(cx,cy,173,0,T);x.fill();x.restore();
  const g=x.createRadialGradient(cx-50,cy-60,10,cx,cy,165);g.addColorStop(0,'#FFF3E2');g.addColorStop(1,'#FFC98A');x.fillStyle=g;x.beginPath();x.arc(cx,cy,164,0,T);x.fill();
  if(pim){x.save();x.beginPath();x.arc(cx,cy,164,0,T);x.clip();const k=Math.max(328/pim.width,328/pim.height),w=pim.width*k,h=pim.height*k;x.drawImage(pim,cx-w/2,cy-h/2,w,h);x.restore()}
  else{x.font='190px '+ID_EM;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#000';x.fillText(u.avatar||'🍊',cx,cy+10)}
- const L=(t,y)=>idTxt(x,t,482,y,{px:19,ls:.6}),V=(t,y)=>idTxt(x,String(t).toUpperCase(),482,y,{px:36,max:425,min:20});
+ const L=(t,y)=>idTxt(x,t,482,y,ID_LAB),V=(t,y)=>idTxt(x,String(t),482,y,{px:36,w:500,c:ID_VAL,max:425,min:20});
  L('NAME',194);V(u.name,226);L('USERNAME',276);V('@'+u.handle,308);L('DATE OF ISSUE',358);V(idDate(u),390);
  const t=idTeam(u);x.save();
  if(t.team){x.shadowColor='rgba(160,70,0,.3)';x.shadowBlur=12;x.shadowOffsetY=4;const g2=x.createLinearGradient(478,0,909,0);g2.addColorStop(0,'#FF8A00');g2.addColorStop(1,'#F2600A');x.fillStyle=g2}else x.fillStyle='#FFE6C9';
  idRR(x,478,450,431,62,16);x.fill();x.restore();
  x.font='28px '+ID_EM;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#000';x.fillText(t.team?'🍊':'🌱',514,482);
- idTxt(x,t.team?'TEAM STATUS':'STATUS',549,467,{px:13,w:700,c:t.team?'rgba(255,255,255,.88)':'#B5702F',ls:2.5});
+ idTxt(x,t.team?'TEAM STATUS':'STATUS',549,467,{px:14,w:500,c:t.team?'rgba(255,255,255,.9)':'#B5702F',ls:1.5});
  idTxt(x,t.label,549,493,{px:23,w:700,c:t.team?'#fff':'#3A2210',max:340,min:14})}
 async function idBack(c,u){const qid=u.qr||db.idqr||'',im=qid?await idLoad('/api?img='+qid):null;
  const x=idFrame(c,[[70,60,110,.2],[990,190,70,.5],[62,566,46,1],[745,615,115,.8]]);
- idTxt(x,'SHARE YOUR TAKES',115,187,{px:19});
+ idTxt(x,'SHARE YOUR TAKES',115,187,ID_LAB);
  x.save();x.shadowColor='rgba(160,70,0,.28)';x.shadowBlur=16;x.shadowOffsetY=6;x.fillStyle='#FF8A00';idRR(x,108,208,264,264,24);x.fill();x.restore();
  x.fillStyle='#fff';idRR(x,117,217,246,246,16);x.fill();
  if(im)x.drawImage(im,131,231,218,218);
  else{x.save();x.setLineDash([8,7]);x.lineWidth=3;x.strokeStyle='#E8A56A';idRR(x,134,234,212,212,12);x.stroke();x.restore();
   idTxt(x,'Your QR',240,327,{px:22,w:700,c:'#B5702F',al:'center'});idTxt(x,'goes here',240,354,{px:22,w:700,c:'#B5702F',al:'center'})}
- idTxt(x,'BIO',410,227,{px:19});
+ idTxt(x,'BIO',410,227,ID_LAB);
  x.font='500 22px '+ID_FF;const bio=(u.bio||'').trim()||'No bio yet.',words=bio.split(/\s+/),lines=[];let cur='';
  for(const w of words){const n=cur?cur+' '+w:w;if(x.measureText(n).width<=485||!cur)cur=n;else{lines.push(cur);cur=w}}if(cur)lines.push(cur);
- lines.slice(0,3).forEach((l,i,a)=>{if(i===2&&lines.length>3)l=l+'…';idTxt(x,l,410,258+i*29,{px:22,w:500,c:'#D95F00',max:485,min:14})});
+ lines.slice(0,3).forEach((l,i,a)=>{if(i===2&&lines.length>3)l=l+'…';idTxt(x,l,410,258+i*29,{px:22,w:500,c:ID_VAL,max:485,min:14})});
  const cat=idCat(u),lab=(TOPS.find(k=>k[0]===cat)||TOPS[0])[1].toUpperCase();
- const hw=idTxt(x,lab,416,337,{px:17,w:700,c:'#B5702F',ls:2.5});x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,335.5,887-(416+hw+14),3);
+ const hw=idTxt(x,lab,416,337,ID_LAB);x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,335.5,887-(416+hw+14),3);
  const items=((u.top||{})[cat]||[]).slice(0,4);
  if(!items.some(Boolean))idTxt(x,'Add your picks in Edit your profile',416,395,{px:19,c:'#B5702F'});
  items.forEach((t,i)=>{if(!t)return;const X=i%2?657:416,Y=i<2?359:413;x.fillStyle='#FFE6C9';idRR(x,X,Y,230,44,16);x.fill();
   x.fillStyle='#FF8A00';x.beginPath();x.arc(X+26,Y+22,14,0,6.2832);x.fill();idTxt(x,String(i+1),X+26,Y+22.5,{px:17,w:700,c:'#fff',al:'center'});
   idTxt(x,t,X+50,Y+22.5,{px:20,w:700,c:'#3A2210',max:168,min:13})});
  x.fillStyle='#FF8A00';x.fillRect(115,506,781,3);
- idTxt(x,(u.name+' @'+u.handle).toUpperCase(),115,548,{px:24,max:470,min:14});idTxt(x,ID_URL,895,548,{px:21,al:'right'})}
+ idTxt(x,u.name+' @'+u.handle,115,548,{px:24,w:500,c:ID_VAL,max:470,min:14});idTxt(x,ID_URL,895,548,{px:22,w:500,c:ID_VAL,al:'right'})}
 let idTok=0;
 async function idDraw(){const u=me();if(!u)return;const t=++idTok;await idFonts();const f=$('id-front'),b=$('id-back');if(!f||!b||t!==idTok)return;await idFront(f,u);await idBack(b,u)}
 function idDownload(w){const f=$('id-front'),b=$('id-back');if(!f||!b)return;let c=w==='front'?f:b;
