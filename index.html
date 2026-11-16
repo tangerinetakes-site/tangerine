@@ -374,8 +374,8 @@ function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<1)return'just no
 const excerpt=t=>{t=plainLk(t).replace(/\s+/g,' ');return t.length>150?t.slice(0,150).trim()+'...':t};
 const stars=n=>'🍊'.repeat(n)+'<span style="filter:grayscale(1);opacity:.3">'+'🍊'.repeat(5-n)+'</span>';
 const av=(u,c='')=>`<span class="av ${c}" aria-hidden="true">${esc(u.avatar)}</span>`;
-const CREW=['Editorial','Team'];
-const badgeHtml=u=>u&&u.crew?`<span class="badge" title="Official Tangerine Takes staff">🍊 ${u.crew==='Editorial'?'Editorial':'Team'}</span>`:'';
+const CREW=['Editorial','Community Management','Promotion & Publication'];
+const badgeHtml=u=>u&&u.crew?`<span class="badge" title="Official Tangerine Takes staff">🍊 ${esc(u.crew)}</span>`:'';
 const userLink=u=>`<button class="link" data-a="profile" data-id="${u.id}">${av(u,'sm')}${esc(u.name)}</button>${badgeHtml(u)}`;
 const unread=()=>(db.msgs||[]).filter(m=>m.to===db.me&&!m.read).length;
 const unreadN=()=>(db.notes||[]).filter(n=>!n.read).length;
@@ -584,7 +584,7 @@ function postView(p){const u=me();if(view.edit&&u&&(u.id===p.by||(isEd()&&fWork(
 function profileView(u){const mine=me()&&me().id===u.id, posts=db.posts.filter(p=>p.by===u.id), shown=posts;
  return `<section class="panel"><div class="phead">${av(u,'lg')}<div><h2>${esc(u.name)}</h2>${badgeHtml(u)?`<div style="margin:6px 0 2px">${badgeHtml(u)}</div>`:''}<div style="color:var(--mut)">@${esc(u.handle)}${pronTxt(u)}</div>
  <div class="stats"><button type="button" data-a="pscroll"><b>${posts.length}</b> posts</button><button type="button" data-a="plist" data-id="${u.id}" data-k="followers"><b>${followers(u)}</b> followers</button><button type="button" data-a="plist" data-id="${u.id}" data-k="following"><b>${(u.following||[]).length}</b> following</button></div>
- <div class="actions"><button class="btn ghost" data-a="diary" data-id="${u.id}">📔 Diary</button>${fbtn(u)}${me()&&!mine?`<button class="btn ghost" data-a="chat" data-id="${u.id}">✉️ Message</button><button class="btn ghost" data-a="block" data-id="${u.id}">🚫 Block</button>`:''}${isLead()&&!mine?`<button class="btn ghost" data-a="suspend" data-id="${u.id}">${(db.suspended||[]).includes(u.id)?'Unsuspend':'Suspend'}</button>`:''}</div></div></div>
+ <div class="actions"><button class="btn ghost" data-a="diary" data-id="${u.id}">📔 Diary</button>${mine&&idOn()?'<button class="btn ghost" data-a="idcard">🪪 Member ID</button>':''}${fbtn(u)}${me()&&!mine?`<button class="btn ghost" data-a="chat" data-id="${u.id}">✉️ Message</button><button class="btn ghost" data-a="block" data-id="${u.id}">🚫 Block</button>`:''}${isLead()&&!mine?`<button class="btn ghost" data-a="suspend" data-id="${u.id}">${(db.suspended||[]).includes(u.id)?'Unsuspend':'Suspend'}</button>`:''}</div></div></div>
  <p>${u.bio?lk(u.bio):'No bio yet.'}</p>${profLinks(u)}</section>
  ${topsView(u)}
  ${bingoShares(u)}
@@ -702,6 +702,7 @@ function settingsView(){if(!me())return inboxView();const A=adminTools();
  ${A.admins||''}
  ${A.mods||''}
  ${isAdmin()?crewBox():''}
+ ${isLead()?idAdminBox():''}
  ${membersPanel()}
  ${isMod()&&!isLead()?pinView():''}
  ${A.banner||''}
@@ -839,6 +840,7 @@ function pathOf(v){
   case'club':return'/groups/'+v.id;
   case'prompt':return'/prompts/'+v.id;
   case'about':return'/about';
+  case'idcard':return'/id';
   case'features':return'/feature-picks';
   case'feat':return'/feature-picks/'+v.id;
   case'featform':return v.id?'/feature-picks/'+v.id+'/edit':'/feature-picks/new';
@@ -869,6 +871,7 @@ function routeNow(){
   case'groups':case'clubs':return seg[1]?need({n:'club',id:seg[1]}):{n:'feed'};
   case'prompts':return seg[1]?{n:'prompt',id:seg[1]}:{n:'feed'};
   case'about':return{n:'about'};
+  case'id':return need({n:'idcard'});
   case'feature-picks':return seg[1]&&seg[1]!=='new'?{n:'feat',id:seg[1]}:{n:'features'};
   case'post':return seg[1]?{n:'post',id:seg[1]}:{n:'feed'};
   case'profile':{const u=byH(seg[1]);if(u&&(seg[2]==='followers'||seg[2]==='following'))return{n:'people',id:u.id,k:seg[2]};return u?{n:'profile',id:u.id}:{n:'feed'}}
@@ -1093,9 +1096,97 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist'),pb=[.
  <label for="tt-text">Content</label>${fmtBar('tt-text')}<textarea id="tt-text" data-lk maxlength="20000" style="min-height:340px">${esc(w.text||'')}</textarea>
  <label for="tt-refs">References (optional)</label>${fmtBar('tt-refs')}<textarea id="tt-refs" data-lk maxlength="3000" style="min-height:110px" placeholder="One source per line. For example: Author, Title, Year, or a link.">${esc(w.refs||'')}</textarea><p class="hint">Shows in small text at the end of the piece, as a numbered list. One reference per line.</p>
  <div class="actions"><button class="btn" data-a="ttsave">${w.id?'Save changes':'Publish'}</button><button class="btn ghost" data-a="ttcancel">Cancel</button></div></section>`}
+/* ---- Member ID card (drawn on a canvas so the picture you see is the picture you download) ---- */
+const ID_W=1011,ID_H=640,ID_URL='TANGERINETAKES.VERCEL.APP';
+const ID_FF='"DM Sans",system-ui,sans-serif',ID_HF='"Bricolage Grotesque","DM Sans",sans-serif',ID_EM='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+const idOn=()=>!!(db.idOn||isLead());
+const idTeam=u=>u&&u.crew?{team:true,label:u.crew==='Team'?'Part of The Team':'Part of '+u.crew+' Team'}:{team:false,label:'Community Member'};
+const idDate=u=>{const d=new Date(u.joined||Date.now());return String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0')+'/'+d.getFullYear()};
+const idCat=u=>{const t=u.top||{};if(u.idtop&&TOPS.some(k=>k[0]===u.idtop))return u.idtop;return(TOPS.find(k=>(t[k[0]]||[]).some(Boolean))||TOPS[0])[0]};
+const idImgs={};
+const idLoad=src=>idImgs[src]||(idImgs[src]=new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src}));
+const idFonts=()=>Promise.all(['800 40px "Bricolage Grotesque"','400 20px "DM Sans"','700 20px "DM Sans"'].map(f=>document.fonts.load(f,'Aa@0')).concat(document.fonts.ready)).catch(()=>{});
+const idRR=(x,X,Y,W,H,R)=>{x.beginPath();x.moveTo(X+R,Y);x.arcTo(X+W,Y,X+W,Y+H,R);x.arcTo(X+W,Y+H,X,Y+H,R);x.arcTo(X,Y+H,X,Y,R);x.arcTo(X,Y,X+W,Y,R);x.closePath()};
+function idTxt(x,t,X,Y,o){o=o||{};const w=o.w||400,fam=o.fam||ID_FF,ls='letterSpacing' in x;let px=o.px||20;
+ x.textAlign=o.al||'left';x.textBaseline='middle';x.fillStyle=o.c||'#FF8A00';if(ls)x.letterSpacing=(o.ls||0)+'px';x.font=w+' '+px+'px '+fam;
+ if(o.max){while(px>(o.min||10)&&x.measureText(t).width>o.max){px--;x.font=w+' '+px+'px '+fam}
+  if(x.measureText(t).width>o.max){while(t.length>1&&x.measureText(t+'…').width>o.max)t=t.slice(0,-1);t=t.trimEnd()+'…'}}
+ const wd=x.measureText(t).width;x.fillText(t,X,Y);if(ls)x.letterSpacing='0px';return wd}
+function idSlice(x,cx,cy,r,rot){x.save();x.translate(cx,cy);x.rotate(rot);const T=6.2832;
+ x.fillStyle='rgba(255,232,205,.5)';x.beginPath();x.arc(0,0,r,0,T);x.fill();
+ x.fillStyle='#F26A00';x.beginPath();x.arc(0,0,r*.9,0,T);x.fill();
+ x.fillStyle='#FF9626';x.strokeStyle='#FF9626';x.lineJoin='round';x.lineWidth=Math.max(2,r*.05);
+ for(let i=0;i<10;i++){const a0=i/10*T+.07,a1=(i+1)/10*T-.07,m=(a0+a1)/2;x.beginPath();x.moveTo(r*.09*Math.cos(m),r*.09*Math.sin(m));x.arc(0,0,r*.78,a0,a1);x.closePath();x.fill();x.stroke()}
+ x.fillStyle='rgba(255,232,205,.6)';x.beginPath();x.arc(0,0,r*.07,0,T);x.fill();x.restore()}
+function idFrame(c,slices){const S=2;c.width=ID_W*S;c.height=ID_H*S;const x=c.getContext('2d');x.setTransform(S,0,0,S,0,0);
+ x.fillStyle='#FF8A00';x.fillRect(0,0,ID_W,ID_H);slices.forEach(s=>idSlice(x,s[0],s[1],s[2],s[3]));
+ x.save();x.shadowColor='rgba(120,50,0,.28)';x.shadowBlur=24;x.shadowOffsetY=8;x.fillStyle='#FFF5E6';idRR(x,64,64,883,511,64);x.fill();x.restore();
+ x.textBaseline='middle';x.textAlign='left';x.fillStyle='#000';x.font='46px '+ID_EM;x.fillText('🍊',118,113);
+ idTxt(x,'Tangerine Takes',178,113,{px:44,w:800,fam:ID_HF});
+ x.fillStyle='#FF8A00';idRR(x,756,90,149,42,21);x.fill();idTxt(x,'MEMBER ID',830.5,111.5,{px:24,c:'#fff',al:'center'});
+ x.fillStyle='#FF8A00';x.fillRect(115,155,781,3);return x}
+function idFront(c,u){const x=idFrame(c,[[88,72,105,.3],[570,6,58,1],[946,78,46,.2],[362,606,58,.5],[905,560,105,.9]]),cx=273,cy=348,T=6.2832;
+ x.save();x.shadowColor='rgba(160,70,0,.25)';x.shadowBlur=18;x.shadowOffsetY=6;x.fillStyle='#FF8A00';x.beginPath();x.arc(cx,cy,173,0,T);x.fill();x.restore();
+ const g=x.createRadialGradient(cx-50,cy-60,10,cx,cy,165);g.addColorStop(0,'#FFF3E2');g.addColorStop(1,'#FFC98A');x.fillStyle=g;x.beginPath();x.arc(cx,cy,164,0,T);x.fill();
+ x.font='190px '+ID_EM;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#000';x.fillText(u.avatar||'🍊',cx,cy+10);
+ const L=(t,y)=>idTxt(x,t,482,y,{px:21,ls:.4}),V=(t,y)=>idTxt(x,String(t).toUpperCase(),482,y,{px:38,max:425,min:20});
+ L('NAME',214);V(u.name,250);L('USERNAME',293);V('@'+u.handle,330);L('DATE OF ISSUE',372);V(idDate(u),408);
+ const t=idTeam(u);x.save();
+ if(t.team){x.shadowColor='rgba(160,70,0,.3)';x.shadowBlur=12;x.shadowOffsetY=4;const g2=x.createLinearGradient(478,0,909,0);g2.addColorStop(0,'#FF8A00');g2.addColorStop(1,'#F2600A');x.fillStyle=g2}else x.fillStyle='#FFE6C9';
+ idRR(x,478,430,431,60,16);x.fill();x.restore();
+ x.font='28px '+ID_EM;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#000';x.fillText(t.team?'🍊':'🌱',514,461);
+ idTxt(x,t.team?'TEAM STATUS':'STATUS',549,447,{px:13,w:700,c:t.team?'rgba(255,255,255,.88)':'#B5702F',ls:2.5});
+ idTxt(x,t.label,549,472,{px:23,w:700,c:t.team?'#fff':'#3A2210',max:340,min:14})}
+async function idBack(c,u){const qid=u.qr||db.idqr||'',im=qid?await idLoad('/api?img='+qid):null;
+ const x=idFrame(c,[[70,60,110,.2],[990,190,70,.5],[62,566,46,1],[745,615,115,.8]]);
+ idTxt(x,'SHARE YOUR TAKES',115,187,{px:19});
+ x.save();x.shadowColor='rgba(160,70,0,.28)';x.shadowBlur=16;x.shadowOffsetY=6;x.fillStyle='#FF8A00';idRR(x,108,208,264,264,24);x.fill();x.restore();
+ x.fillStyle='#fff';idRR(x,117,217,246,246,16);x.fill();
+ if(im)x.drawImage(im,131,231,218,218);
+ else{x.save();x.setLineDash([8,7]);x.lineWidth=3;x.strokeStyle='#E8A56A';idRR(x,134,234,212,212,12);x.stroke();x.restore();
+  idTxt(x,'Your QR',240,327,{px:22,w:700,c:'#B5702F',al:'center'});idTxt(x,'goes here',240,354,{px:22,w:700,c:'#B5702F',al:'center'})}
+ idTxt(x,'BIO',410,227,{px:19});
+ x.font='500 22px '+ID_FF;const bio=(u.bio||'').trim()||'No bio yet.',words=bio.split(/\s+/),lines=[];let cur='';
+ for(const w of words){const n=cur?cur+' '+w:w;if(x.measureText(n).width<=485||!cur)cur=n;else{lines.push(cur);cur=w}}if(cur)lines.push(cur);
+ lines.slice(0,3).forEach((l,i,a)=>{if(i===2&&lines.length>3)l=l+'…';idTxt(x,l,410,258+i*29,{px:22,w:500,c:'#D95F00',max:485,min:14})});
+ const cat=idCat(u),lab=(TOPS.find(k=>k[0]===cat)||TOPS[0])[1].toUpperCase();
+ const hw=idTxt(x,lab,416,337,{px:17,w:700,c:'#B5702F',ls:2.5});x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,335.5,887-(416+hw+14),3);
+ const items=((u.top||{})[cat]||[]).slice(0,4);
+ if(!items.some(Boolean))idTxt(x,'Add your picks in Edit your profile',416,395,{px:19,c:'#B5702F'});
+ items.forEach((t,i)=>{if(!t)return;const X=i%2?657:416,Y=i<2?359:413;x.fillStyle='#FFE6C9';idRR(x,X,Y,230,44,16);x.fill();
+  x.fillStyle='#FF8A00';x.beginPath();x.arc(X+26,Y+22,14,0,6.2832);x.fill();idTxt(x,String(i+1),X+26,Y+22.5,{px:17,w:700,c:'#fff',al:'center'});
+  idTxt(x,t,X+50,Y+22.5,{px:20,w:700,c:'#3A2210',max:168,min:13})});
+ x.fillStyle='#FF8A00';x.fillRect(115,506,781,3);
+ idTxt(x,(u.name+' @'+u.handle).toUpperCase(),115,548,{px:24,max:470,min:14});idTxt(x,ID_URL,895,548,{px:21,al:'right'})}
+let idTok=0;
+async function idDraw(){const u=me();if(!u)return;const t=++idTok;await idFonts();const f=$('id-front'),b=$('id-back');if(!f||!b||t!==idTok)return;idFront(f,u);await idBack(b,u)}
+function idDownload(w){const f=$('id-front'),b=$('id-back');if(!f||!b)return;let c=w==='front'?f:b;
+ if(w==='both'){const gap=32*2;c=document.createElement('canvas');c.width=f.width;c.height=f.height+b.height+gap;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(f,0,0);x.drawImage(b,0,f.height+gap)}
+ c.toBlob(bl=>{if(!bl){toast('Could not make the image');return}const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='tangerine-takes-id-'+(me()?me().handle:'member')+'-'+w+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)},'image/png')}
+function qrJpeg(f,cb){if(!f)return;if(!/^image\//.test(f.type)){toast('Choose an image file');return}
+ const url=URL.createObjectURL(f),im=new Image();
+ im.onload=()=>{const S=640,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,S,S);const k=Math.min(S/im.width,S/im.height),w=im.width*k,h=im.height*k;x.drawImage(im,(S-w)/2,(S-h)/2,w,h);URL.revokeObjectURL(url);
+  let q=.92,d=c.toDataURL('image/jpeg',q);while(d.length>600000&&q>.5){q-=.08;d=c.toDataURL('image/jpeg',q)}
+  if(d.length>600000){toast('That image is too big, try a smaller one');return}cb(d)};
+ im.onerror=()=>{URL.revokeObjectURL(url);toast('Could not read that image')};im.src=url}
+function idView(){const u=me();if(!u)return inboxView();
+ const back=`<button class="btn ghost" style="margin-bottom:14px" data-a="profile" data-id="${u.id}">Back to profile</button>`;
+ if(!idOn())return back+`<section class="panel"><h2>Member ID</h2><p class="hint">Member ID cards are not open yet. Check back soon.</p></section>`;
+ const cat=idCat(u),cv=i=>`<canvas id="${i}" width="${ID_W}" height="${ID_H}" style="display:block;width:100%;height:auto;aspect-ratio:${ID_W}/${ID_H};border-radius:18px" aria-label="Member ID card"></canvas>`;
+ return back+(db.idOn?'':'<p class="hint">Only you can see this for now. Members will see it when you turn Member ID on in Settings.</p>')
+ +`<section class="panel"><h2>My Member ID 🍊</h2><p class="hint" style="margin:10px 0 6px">Front</p>${cv('id-front')}<p class="hint" style="margin:14px 0 6px">Back</p>${cv('id-back')}
+ <div class="actions"><button class="btn" data-a="iddl" data-w="front">Download front</button><button class="btn" data-a="iddl" data-w="back">Download back</button><button class="btn ghost" data-a="iddl" data-w="both">Download both</button></div></section>
+ <section class="panel"><h2>Make it yours</h2>
+ <label for="id-top">Top 4 on the back</label><select id="id-top">${TOPS.map(([k,l])=>`<option value="${k}"${k===cat?' selected':''}>${l}</option>`).join('')}</select><p class="hint">Fill in your lists under Edit your profile.</p>
+ <label>Profile picture</label><div class="avpick" role="group" aria-label="Pick an avatar">${AVATAR_ROWS.map(r=>`<div class="avrow">${r.map(a=>`<button type="button" data-a="idav" data-v="${a}" aria-pressed="${a===u.avatar}">${a}</button>`).join('')}</div>`).join('')}</div>
+ <label for="id-qr">QR code on the back</label><input type="file" id="id-qr" accept="image/*"><p class="hint">${u.qr?'Showing your own QR.':db.idqr?'Showing the Tangerine Takes QR. Upload your own if you like, for example your Instagram.':'Upload your own QR, for example your Instagram.'}</p>${u.qr?'<div class="actions"><button class="btn ghost" data-a="idqrrm">Use the Tangerine Takes QR</button></div>':''}
+ <p class="hint">Your team status comes from the admins and shows on the front.</p></section>`}
+const idAdminBox=()=>`<section class="panel"><h2>Member ID cards 🪪</h2><p class="hint">${db.idOn?'ON: every member can see and download their ID.':'OFF: members cannot see it yet. Only you can preview it.'}</p><div class="actions"><button class="btn" data-a="idon">${db.idOn?'Turn off':'Turn on'}</button><button class="btn ghost" data-a="idcard">Preview my ID</button></div>
+ <label for="id-dqr">Default QR (shown when a member has not added their own)</label>${db.idqr?`<img src="/api?img=${esc(db.idqr)}" alt="Default QR" style="width:120px;height:120px;object-fit:contain;background:#fff;border-radius:12px;display:block;margin:6px 0">`:'<p class="hint">No default QR yet.</p>'}<input type="file" id="id-dqr" accept="image/*">${db.idqr?'<div class="actions"><button class="btn ghost" data-a="iddqrrm">Remove default QR</button></div>':''}</section>
+`;
 const crewBox=()=>{const cr=db.profiles.filter(u=>u.crew);
- return `<section class="panel"><h2>Team badges 🍊</h2><p class="hint">Only admins can give these. Pick Editorial for editors and Team for everyone else.</p>
- ${cr.length?cr.map(u=>`<div class="cm" style="align-items:center;flex-wrap:wrap">${av(u,'sm')}<span style="flex:1 1 160px">${esc(u.name)} <span class="hint">@${esc(u.handle)}</span></span><span class="badge">🍊 ${u.crew==='Editorial'?'Editorial':'Team'}</span><button class="link" data-a="crewrm" data-id="${u.id}">Remove</button></div>`).join(''):'<p class="hint">No team badges yet.</p>'}
+ return `<section class="panel"><h2>Team badges 🍊</h2><p class="hint">Only admins can give these. Pick which team they are on. Members without a badge show as Community Member on their ID card.</p>
+ ${cr.length?cr.map(u=>`<div class="cm" style="align-items:center;flex-wrap:wrap">${av(u,'sm')}<span style="flex:1 1 160px">${esc(u.name)} <span class="hint">@${esc(u.handle)}</span></span><span class="badge">🍊 ${esc(u.crew)}</span><button class="link" data-a="crewrm" data-id="${u.id}">Remove</button></div>`).join(''):'<p class="hint">No team badges yet.</p>'}
  <label for="crew-add">Give a badge to</label><div class="cform"><select id="crew-add">${db.profiles.filter(u=>!u.crew).map(u=>`<option value="${u.id}">${esc(u.name)} (@${esc(u.handle)})</option>`).join('')}</select><select id="crew-team">${CREW.map(t=>`<option>${t}</option>`).join('')}</select><button class="btn" data-a="crewadd">Give badge</button></div></section>`};
 const TS=[['publisher','Publishers (Times admins)','Can post, edit and delete pieces in the Times. They get no other admin powers.'],['writer','Writers','Show up in the byline dropdown.'],['artist','Artists','Show up in the Art by and Layout by dropdowns.'],['publication','Publication team','Show up in the Published by dropdown on Zine pieces. They get no admin powers.'],['operations','Operations','Show up in the Operations by dropdown on Zine pieces. They get no admin powers.']];
 const tsBox=()=>`<section class="panel"><h2>Times team ✍️</h2><p class="hint">Only the lead admin can change this.</p>${TS.map(x=>{const r=x[0],cur=tRole(r),rest=db.profiles.filter(u=>!cur.some(c=>c.id===u.id));
@@ -1226,6 +1317,7 @@ function render(){
  else if(view.n==='prompt')body=promptView(view.id);
  else if(view.n==='times')body=timesView();
  else if(view.n==='about')body=aboutView();
+ else if(view.n==='idcard')body=idView();
  else if(view.n==='features')body=featuresView();
  else if(view.n==='feat')body=featView(view.id);
  else if(view.n==='featform')body=featForm(view.id);
@@ -1233,7 +1325,7 @@ function render(){
  else if(view.n==='post'){const p=postById(view.id);if(p&&!p.draft)markSeen(p.id);body=p?postView(p):feedView()}
  else if(view.n==='profile')body=profileView(user(view.id));
  else body=feedView();
- const tt=view.n==='times';$('tg').classList.toggle('intimes',tt);document.title=tt?'The Tangerine Times':'Tangerine Takes';app.innerHTML=(tt?'':bar())+body;{const s2=$('tg-s2');if(s2)s2.style.display=me()?'none':'block';fitTitle()}if(tt){ttInd();ttCar();fbInit()}else{ttLast=null;fbS=null}hbInit();
+ const tt=view.n==='times';$('tg').classList.toggle('intimes',tt);document.title=tt?'The Tangerine Times':'Tangerine Takes';app.innerHTML=(tt?'':bar())+body;if(view.n==='idcard')idDraw();{const s2=$('tg-s2');if(s2)s2.style.display=me()?'none':'block';fitTitle()}if(tt){ttInd();ttCar();fbInit()}else{ttLast=null;fbS=null}hbInit();
  if(obs){obs.disconnect();obs=null}
  const mo=$('more');if(mo){obs=new IntersectionObserver(es=>{if(es[0].isIntersecting)loadMore()},{rootMargin:'500px'});obs.observe(mo)}
  initRte();const ft=$('f-text');if(ft)grow(ft);
@@ -1263,6 +1355,11 @@ document.addEventListener('input',e=>{const t=e.target;if(!t||!t.matches)return;
 document.addEventListener('mousedown',e=>{const b=e.target.closest&&e.target.closest('[data-mn]');if(b){e.preventDefault();const f=mnApply;mnClose();if(f)f(b.dataset.mn)}else if(!(e.target.closest&&e.target.closest('#mention-pop')))mnClose()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')mnClose()});
 app.addEventListener('input',e=>{if(e.target.id==='f-text')grow(e.target);if(e.target.id==='cl-q')$('cl-res').innerHTML=clRes(e.target.value);if(e.target.id==='pm-q')$('pm-res').innerHTML=pmRes(e.target.value);if(e.target.id==='s-q')$('s-res').innerHTML=searchRes(e.target.value);});
+app.addEventListener('change',async e=>{const t=e.target;
+ if(t.id==='id-top'){const y=window.scrollY;if(await api('saveid',{top:t.value})){render();window.scrollTo(0,y)}}
+ else if(t.id==='id-qr'){const f=t.files&&t.files[0];t.value='';qrJpeg(f,async d=>{if(await api('saveid',{data:d})){toast('QR updated');render()}})}
+ else if(t.id==='id-dqr'){const f=t.files&&t.files[0];t.value='';qrJpeg(f,async d=>{if(await api('setidqr',{data:d})){toast('Default QR saved');render()}})}
+});
 app.addEventListener('click',async e=>{
  const ss=e.target.closest('#s-stars button');
  if(ss){sRating=sRating===+ss.dataset.n?0:+ss.dataset.n;app.querySelectorAll('#s-stars button').forEach(x=>x.classList.toggle('on',+x.dataset.n<=sRating));return}
@@ -1294,6 +1391,12 @@ app.addEventListener('click',async e=>{
  else if(a==='ptsave'){const w=timesPitch;if(!w)return;if(await api('pitch',{id:w.id,sec:$('pt-sec').value,kind:$('pt-kind').value,title:g('pt-title'),text:$('pt-text').value})){timesPitch=null;timesBox=true;toast(w.id?'Saved':'Pitch sent');render();window.scrollTo(0,0)}}
  else if(a==='ptback'){if(await api('pitchback',{id,note:g('ptn-'+id)})){toast('Sent back');render()}}
  else if(a==='ptdel'){if(!confirm('Delete this pitch?'))return;if(await api('pitchdel',{id})){toast('Deleted');render()}}
+ else if(a==='idcard'){if(!me()){go({n:'join'});return}go({n:'idcard'})}
+ else if(a==='idav'){const y=window.scrollY;if(await api('saveid',{avatar:b.dataset.v})){pickAv=b.dataset.v;render();window.scrollTo(0,y)}}
+ else if(a==='iddl')idDownload(b.dataset.w);
+ else if(a==='idqrrm'){if(await api('saveid',{rmqr:true})){toast('Back to the Tangerine Takes QR');render()}}
+ else if(a==='idon'){if(!isLead())return;if(await api('setidon',{on:!db.idOn})){toast(db.idOn?'Member ID is on':'Member ID is off');render()}}
+ else if(a==='iddqrrm'){if(!isLead())return;if(await api('setidqr',{rm:true})){toast('Default QR removed');render()}}
  else if(a==='ptopen'){if(await api('setpitchopen',{on:!db.pitchOpen})){toast(db.pitchOpen?'Open for everyone':'Team only');render()}}
  else if(a==='ttwrite'){if(!db.canTimes)return;timesEdit=false;timesWrite={id:'',sec:TT_SEC.some(x=>x[0]===view.s)?view.s:'movies',kind:'Article',refs:'',img:'',data:'',title:'',text:'',by:'',art:'',layout:'',cpub:'',ops:''};render();window.scrollTo(0,0)}
  else if(a==='ttedit'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;timesEdit=false;timesWrite={id:q.id,sec:q.sec,kind:q.kind||'Article',refs:q.refs||'',img:q.img||'',data:'',title:q.title,text:q.text,by:q.by||'',art:q.art||'',layout:q.layout||'',cpub:q.cpub||'',ops:q.ops||''};render();window.scrollTo(0,0)}
