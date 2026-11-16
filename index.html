@@ -6,19 +6,23 @@
 <title>Tangerine Takes</title>
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/logo.png">
-<script>try{var t=localStorage.getItem('bb-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script>try{var t=localStorage.getItem('bb-theme');if(t)document.documentElement.dataset.theme=t;var ft=localStorage.getItem('tg-font');if(ft)document.documentElement.dataset.font=ft;var sz=localStorage.getItem('tg-size');if(sz)document.documentElement.dataset.size=sz}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&family=Fraunces:opsz,wght@9..144,800;9..144,900&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light;--bg:#fff;--o:#FF8A00;--od:#D95F00;--os:#FFF1E0;--line:#FFD9A8;--ink:#3A2210;--mut:#8A6A4D;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-:root[data-theme="dark"]{color-scheme:dark;--bg:#1E140C;--o:#FF8A00;--od:#FF9A33;--os:#3A2412;--line:#5C3A1C;--ink:#FFE9D2;--mut:#C9A27F}
-@media(prefers-color-scheme:dark){:root:not([data-theme]){color-scheme:dark;--bg:#1E140C;--o:#FF8A00;--od:#FF9A33;--os:#3A2412;--line:#5C3A1C;--ink:#FFE9D2;--mut:#C9A27F}}
+:root{color-scheme:light;--bg:#fff;--o:#FF8A00;--od:#C2500A;--os:#FFF1E0;--line:#FFD9A8;--ink:#3A2210;--mut:#7A5A3F;--btn:#fff;--onod:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#1E140C;--o:#FF8A00;--od:#FF9A33;--os:#3A2412;--line:#6B4623;--ink:#FFF3E6;--mut:#E0C3A3;--btn:#1E140C;--onod:#1E140C}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){color-scheme:dark;--bg:#1E140C;--o:#FF8A00;--od:#FF9A33;--os:#3A2412;--line:#6B4623;--ink:#FFF3E6;--mut:#E0C3A3;--btn:#1E140C;--onod:#1E140C}}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg)}
 #tg{background:var(--bg);color:var(--ink);font:16px/1.55 "DM Sans",system-ui,sans-serif;max-width:760px;margin:0 auto;padding:0 18px 40px;min-height:100vh}
 #tg *{box-sizing:border-box}
 #tg h1,#tg h2,#tg h3{font-family:"Bricolage Grotesque","DM Sans",sans-serif;margin:0;line-height:1.1}
+html[data-font="times"] #tg{font-family:"Times New Roman",Times,"Liberation Serif",serif}
+html[data-font="narrow"] #tg{font-family:"Arial Narrow","Liberation Sans Narrow","Nimbus Sans Narrow","Roboto Condensed",Arial,sans-serif}
+html[data-size="large"] #tg{zoom:1.12}
+html[data-size="xl"] #tg{zoom:1.25}
 #tg button,#tg input,#tg select,#tg textarea{font:inherit;color:inherit}
 #tg :focus-visible{outline:3px solid var(--od);outline-offset:2px}
 #tg .top{display:flex;align-items:center;gap:20px;padding:26px 0 14px;flex-wrap:nowrap}
@@ -54,19 +58,19 @@ body{margin:0;background:var(--bg)}
 #tg .avpick .avrow{display:flex;gap:6px;flex-wrap:wrap}
 #tg .avpick button{border:2px solid var(--line);background:var(--bg);border-radius:50%;width:44px;height:44px;font-size:22px;cursor:pointer}
 #tg .avpick button[aria-pressed="true"]{border-color:var(--o);background:var(--os);box-shadow:0 0 0 2px var(--o)}
-#tg .btn{background:var(--o);color:#fff;border:0;border-radius:999px;padding:10px 20px;font-weight:700;cursor:pointer}
+#tg .btn{background:var(--o);color:var(--btn);border:0;border-radius:999px;padding:10px 20px;font-weight:700;cursor:pointer}
 #tg .btn:hover{filter:brightness(1.12)}
 #tg .btn.ghost{background:var(--os);color:var(--od)}
 #tg .btn.danger{background:var(--bg);color:#B3261E;border:2px solid #F2C4C0}
 #tg .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 #tg .chip{border:2px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 14px;cursor:pointer;font-weight:500}
-#tg .chip[aria-pressed="true"]{background:var(--o);border-color:var(--o);color:#fff;font-weight:700}
+#tg .chip[aria-pressed="true"]{background:var(--o);border-color:var(--o);color:var(--btn);font-weight:700}
 #tg .post{background:var(--bg);border:2px solid var(--line);border-radius:18px;padding:18px;margin-bottom:18px;position:relative}
 #tg .post>.open,#tg .post>h3{padding-right:52px}
 #tg .pmw{position:absolute;top:12px;right:12px;z-index:3}
 #tg .pmw.inl{position:relative;top:auto;right:auto;display:inline-block;vertical-align:middle}
 #tg .pdots{width:38px;height:38px;min-width:0;padding:0 0 4px;border:2px solid var(--line);border-radius:999px;background:var(--os);color:var(--od);font-size:24px;font-weight:800;line-height:1;cursor:pointer;display:grid;place-items:center}
-#tg .pdots:hover,#tg .pdots[aria-expanded="true"]{background:var(--o);border-color:var(--o);color:#fff}
+#tg .pdots:hover,#tg .pdots[aria-expanded="true"]{background:var(--o);border-color:var(--o);color:var(--btn)}
 #tg .pmw.inl .pdots{width:28px;height:28px;font-size:18px;padding-bottom:3px}
 #tg .pmenu button.dng{color:#B3261E}
 #tg .pmenu{position:absolute;top:100%;right:0;margin-top:4px;min-width:150px;background:var(--bg);border:2px solid var(--line);border-radius:12px;box-shadow:0 6px 18px rgba(217,95,0,.18);padding:4px;z-index:6;display:flex;flex-direction:column}
@@ -101,7 +105,7 @@ body{margin:0;background:var(--bg)}
 #tg .body{white-space:pre-wrap;max-width:68ch}
 #tg .actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 #tg .act{background:var(--os);border:0;border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:700;color:var(--od)}
-#tg .act[aria-pressed="true"]{background:var(--o);color:#fff}
+#tg .act[aria-pressed="true"]{background:var(--o);color:var(--btn)}
 #tg .act[data-a="like"][aria-pressed="true"]{background:var(--os);color:var(--od);box-shadow:inset 0 0 0 2px var(--o)}
 #tg .tl.off{filter:grayscale(1);opacity:.55}
 #tg .comments{margin-top:14px;border-top:2px dashed var(--line);padding-top:12px}
@@ -164,7 +168,7 @@ body{margin:0;background:var(--bg)}
 @media(min-width:640px){#tg .bingo{gap:8px}#tg .bc{aspect-ratio:1;min-height:0;font-size:1rem;padding:8px;border-radius:12px}}
 #tg .person{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px}
 /* badges */
-#tg .badge{display:inline-block;background:#D95F00;color:#fff;border-radius:999px;padding:1px 10px;font-weight:700;font-size:.78rem;line-height:1.5;margin-left:4px}
+#tg .badge{display:inline-block;background:var(--od);color:var(--onod);border-radius:999px;padding:1px 10px;font-weight:700;font-size:.78rem;line-height:1.5;margin-left:4px}
 #tg .badge:first-child{margin-left:0}
 /* The Tangerine Times */
 #tg.intimes{max-width:820px}
@@ -198,7 +202,7 @@ body{margin:0;background:var(--bg)}
 #tg .tt-soon p{max-width:58ch;font-size:1.05rem}
 #tg .tt-join{margin:26px 0 8px;border-left:8px solid var(--o);padding:4px 0 4px 16px}
 #tg .tt-join p{margin:0 0 10px}
-#tg .hb{position:relative;overflow:hidden;border-radius:18px;margin:10px -8px 14px;padding:18px 22px 10px;min-height:250px;display:flex;flex-direction:column;background:linear-gradient(135deg,#FFDDB0,#FFC78A);color:#D95F00}
+#tg .hb{position:relative;overflow:hidden;border-radius:18px;margin:10px -8px 14px;padding:18px 22px 10px;min-height:250px;display:flex;flex-direction:column;background:linear-gradient(135deg,#FFDDB0,#FFC78A);color:#C2500A}
 #tg .hb>*{position:relative;z-index:1}
 #tg .hb>.tt-fl{position:absolute;z-index:0}
 #tg .hb .tt-fl{font-size:2.4rem;opacity:.9}
@@ -208,11 +212,11 @@ body{margin:0;background:var(--bg)}
 #tg .hb-t{display:flex;flex:1 0 100%;min-width:100%;transition:transform .3s ease-out;will-change:transform}
 #tg .hb-s{flex:0 0 100%;box-sizing:border-box;min-height:180px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
 #tg .hb-k{font-weight:800;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
-#tg .hb h2{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:clamp(1.9rem,8vw,3.2rem);line-height:1;letter-spacing:-.02em;margin:6px 0 8px;color:#D95F00;max-width:12ch}
+#tg .hb h2{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:clamp(1.9rem,8vw,3.2rem);line-height:1;letter-spacing:-.02em;margin:6px 0 8px;color:#C2500A;max-width:12ch}
 #tg .hb p{margin:0;max-width:40ch;font-weight:500;font-size:.98rem}
 #tg .hb .btn{margin:14px 0 0;background:#D95F00;color:#fff;border-color:#D95F00}
 #tg .hb-bar{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px}
-#tg .hb-bar>button{background:none;border:0;font-size:1.3rem;font-weight:800;color:#D95F00;cursor:pointer;padding:4px 10px}
+#tg .hb-bar>button{background:none;border:0;font-size:1.3rem;font-weight:800;color:#C2500A;cursor:pointer;padding:4px 10px}
 #tg .hb-bar>.hb-ed{font-size:.9rem;text-decoration:underline;text-underline-offset:3px}
 #tg .hb-dots{display:flex;align-items:center;gap:8px}
 #tg .hb-dots button{width:10px;height:10px;min-width:0;min-height:0;padding:0;margin:0;border:0;border-radius:999px;background:rgba(217,95,0,.3);cursor:pointer;transition:width .25s,background-color .25s}
@@ -319,7 +323,7 @@ body{margin:0;background:var(--bg)}
 #tg .fbg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin:10px 0}
 #tg .fbg-i{position:relative;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:var(--os);cursor:grab}
 #tg .fbg-i img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;pointer-events:none}
-#tg .fbg-n{position:absolute;top:4px;left:4px;background:var(--od);color:#fff;border-radius:999px;font-size:.75rem;font-weight:800;padding:1px 7px}
+#tg .fbg-n{position:absolute;top:4px;left:4px;background:var(--od);color:var(--onod);border-radius:999px;font-size:.75rem;font-weight:800;padding:1px 7px}
 #tg .fbg-b{display:flex;justify-content:space-between;gap:2px;padding:3px;background:var(--bg)}
 #tg .fbg-b button{flex:1;padding:4px 0;font-size:.85rem;border:1px solid var(--line);border-radius:8px;background:var(--os);color:var(--od);cursor:pointer;box-shadow:none}
 #tg .fb-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
@@ -695,8 +699,11 @@ const noteLine=n=>{const q=n.pid&&postById(n.pid),t=q?' \u201c'+esc(q.title)+'\u
  return noteText[n.kind]||'sent you an update';};
 function notesView(){if(!me())return inboxView();const l=db.notes||[];
  return `<section class="panel"><h2>Notifications</h2></section>`+(l.length?l.map(n=>`<div class="panel person" style="${n.read?'':'border-color:var(--o)'}">${av(user(n.from),'sm')}<button class="link" data-a="${n.pid?'open':'profile'}" data-id="${n.pid||n.from}">${esc(user(n.from).name)} ${noteLine(n)}</button><span class="hint" style="margin:0">${ago(n.ts)}</span>${n.kind==='featinvite'&&(postById(n.pid)||{}).fInvite?`<button class="btn" data-a="featyes" data-id="${n.pid}">Accept</button><button class="btn ghost" data-a="featno" data-id="${n.pid}">No thanks</button>`:''}</div>`).join(''):'<p class="empty">No juicy news yet.</p>')}
+const FONTS=[['dm','DM Sans'],['times','Times'],['narrow','Arial Narrow']],SIZES=[['normal','Normal'],['large','Large'],['xl','Extra large']];
+const curFont=()=>document.documentElement.dataset.font||'dm',curSize=()=>document.documentElement.dataset.size||'normal';
 function settingsView(){if(!me())return inboxView();const A=adminTools();
- return `<section class="panel"><h2>Passwords</h2><h3 style="margin:8px 0 2px;font-size:1.05rem">Email for password reset</h3><p class="hint">${db.email?'Current: '+esc(db.email):'No email yet. Add one so you can reset a forgotten password.'}</p><label for="em-n">Email</label><input id="em-n" type="email" placeholder="you@example.com"><label for="em-p">Your password</label><input id="em-p" type="password" autocomplete="current-password"><div class="actions"><button class="btn" data-a="setemail">Save email</button></div><h3 style="margin:20px 0 2px;font-size:1.05rem">Change password</h3><label for="pw-o">Current password</label><input id="pw-o" type="password" autocomplete="current-password"><label for="pw-n">New password</label><input id="pw-n" type="password" autocomplete="new-password" placeholder="At least 6 characters"><div class="actions"><button class="btn" data-a="changepw">Change password</button></div></section>
+ return `<section class="panel"><h2>Reading</h2><h3 style="margin:8px 0 2px;font-size:1.05rem">Font</h3><p class="hint">Changes the text you read. Titles stay the same.</p><div class="actions">${FONTS.map(f=>`<button class="btn${curFont()===f[0]?'':' ghost'}" data-a="setfont" data-v="${f[0]}" aria-pressed="${curFont()===f[0]}">${f[1]}</button>`).join('')}</div><h3 style="margin:14px 0 2px;font-size:1.05rem">Text size</h3><p class="hint">Normal is the size the site has now.</p><div class="actions">${SIZES.map(f=>`<button class="btn${curSize()===f[0]?'':' ghost'}" data-a="setsize" data-v="${f[0]}" aria-pressed="${curSize()===f[0]}">${f[1]}</button>`).join('')}</div></section>
+ <section class="panel"><h2>Passwords</h2><h3 style="margin:8px 0 2px;font-size:1.05rem">Email for password reset</h3><p class="hint">${db.email?'Current: '+esc(db.email):'No email yet. Add one so you can reset a forgotten password.'}</p><label for="em-n">Email</label><input id="em-n" type="email" placeholder="you@example.com"><label for="em-p">Your password</label><input id="em-p" type="password" autocomplete="current-password"><div class="actions"><button class="btn" data-a="setemail">Save email</button></div><h3 style="margin:20px 0 2px;font-size:1.05rem">Change password</h3><label for="pw-o">Current password</label><input id="pw-o" type="password" autocomplete="current-password"><label for="pw-n">New password</label><input id="pw-n" type="password" autocomplete="new-password" placeholder="At least 6 characters"><div class="actions"><button class="btn" data-a="changepw">Change password</button></div></section>
  <section class="panel"><h2>Community safety rules</h2><ol style="margin:0;padding-left:20px;line-height:1.65"><li><strong>Be kind.</strong> Disagree with the take, never attack the person. No bullying, harassment or hate.</li><li><strong>Keep everyone safe.</strong> No threats, violence or encouraging anyone to hurt themselves. If someone is in danger, tell a trusted adult or local emergency services.</li><li><strong>Protect privacy.</strong> Never share anyone’s personal details (address, phone, school, email or private photos), including your own.</li><li><strong>Keep it appropriate.</strong> No sexual harassment or graphic violent content.</li><li><strong>Mark spoilers.</strong> Please mark them, and be respectful of others who have not seen, read or played it yet.</li><li><strong>Be real.</strong> No spam, scams, impersonation or fake accounts.</li><li><strong>Follow the rules.</strong> Your account will be suspended if other members report you or if you do not follow these rules.</li></ol><p class="hint" style="margin:10px 0 0">See something that breaks these rules? Use Report or Block. Any concerns? Email <a href="mailto:tangerinetakes@gmail.com">tangerinetakes@gmail.com</a>.</p><h3 style="margin:26px 0 6px;color:var(--od)">Terms of Use</h3><p class="hint" style="margin:0 0 10px">Last updated: 11/16/2026</p><p style="margin:0 0 8px">Welcome to Tangerine Takes. By creating an account or using the site, you agree to these terms.</p><h4 style="margin:16px 0 4px">1. Who can use it</h4><p style="margin:0 0 8px">You must be at least [13] years old. If you are under [18], you confirm that a parent or guardian knows you are using the site. You are responsible for your account and your password. Please don’t share your login.</p><h4 style="margin:16px 0 4px">2. Your content</h4><p style="margin:0 0 8px">Anything you post (reviews, comments, lists, messages, club chats, Times pitches) stays yours. By posting, you let Tangerine Takes display it on the site so other members can see it. You can delete your posts at any time, or delete your whole account.</p><p style="margin:0 0 8px">You promise that what you post is your own work or that you have permission to share it, and that it follows the community rules below.</p><h4 style="margin:16px 0 4px">3. Community rules</h4><ul style="margin:0 0 8px;padding-left:20px;line-height:1.65"><li>Be kind. Disagree with the take, never attack the person. No bullying, harassment or hate.</li><li>Keep everyone safe. No threats, violence, or encouraging anyone to hurt themselves.</li><li>Mark spoilers using the spoiler option.</li><li>Don’t copy other people’s writing or pass it off as your own.</li><li>No illegal content, spam, or pretending to be someone else.</li></ul><h4 style="margin:16px 0 4px">4. Reports, warnings and suspensions</h4><p style="margin:0 0 8px">Members can report posts and comments. Admins and moderators may remove content that breaks these rules. Usually you will get one warning first. Serious or repeated breaking of the rules can lead to suspension or removal of your account.</p><h4 style="margin:16px 0 4px">5. The Tangerine Times and Feature Picks</h4><p style="margin:0 0 8px">Pieces published in the Times or Feature Picks are chosen and edited by our team. If your post is invited to Feature Picks, you can accept or decline. If you accept, editors may send you notes or edit it before it goes live. You can ask us to take it down at any time.</p><h4 style="margin:16px 0 4px">6. Reviews and opinions</h4><p style="margin:0 0 8px">Posts express the opinions of their authors, not of Tangerine Takes. We aren’t responsible for what members write, but we will act on reports.</p><h4 style="margin:16px 0 4px">7. Changes and availability</h4><p style="margin:0 0 8px">We may change the site or these terms. If we change them in a big way, we will tell you on the site. The site is provided as is, and we can’t promise it will always be available or error free.</p><h4 style="margin:16px 0 4px">8. Contact</h4><p style="margin:0 0 8px">Questions or problems: <a href="mailto:tangerinetakes@gmail.com">tangerinetakes@gmail.com</a>.</p><h3 style="margin:26px 0 6px;color:var(--od)">Privacy Policy</h3><p class="hint" style="margin:0 0 10px">Last updated: 11/16/2026</p><h4 style="margin:16px 0 4px">What we collect</h4><ul style="margin:0 0 8px;padding-left:20px;line-height:1.65"><li><strong>Account details:</strong> display name, username, email address, and your password (stored only in scrambled form, so we cannot read it).</li><li><strong>Profile details:</strong> bio, avatar, pronouns, your top picks, and an Instagram name and links if you add them. You can make your Instagram name private.</li><li><strong>What you create:</strong> posts, drafts, comments, lists, watchlist, poll and bingo answers, club chats, and direct messages.</li><li><strong>Photos:</strong> images attached to Feature Picks or Times pieces.</li><li><strong>Activity and safety data:</strong> likes, follows, blocks, reports, warnings, and the times you joined and logged in.</li></ul><h4 style="margin:16px 0 4px">How we use it</h4><ul style="margin:0 0 8px;padding-left:20px;line-height:1.65"><li>To run your account and show your content to other members.</li><li>To send emails: password resets, Feature Picks invites and replies, and Times pitch updates. We don’t send advertising.</li><li>To keep the community safe and enforce the rules.</li><li>To count overall numbers (members, posts, comments, likes) for the team.</li></ul><h4 style="margin:16px 0 4px">Who can see what</h4><ul style="margin:0 0 8px;padding-left:20px;line-height:1.65"><li>Your name, username, bio, avatar and posts are visible to other members. Posts and the Times may also be visible to people who aren’t logged in.</li><li>Only the owner and admins can see member email addresses. Direct messages are visible only to the people in the chat, though we may look at a message that has been reported.</li><li>Club chats are visible to the club’s members.</li><li>We don’t sell your information and we don’t share it for advertising.</li></ul></section>
  ${isLead()?`<section class="panel"><h2>Email check (lead admin)</h2><p class="hint">Sends a test email to your own address and tells you exactly what is wrong if it fails. Password reset emails use the same setup.</p><div class="actions"><button class="btn" data-a="mailtest">Send test email</button></div></section>`:''}
  ${A.admins||''}
@@ -1547,6 +1554,8 @@ app.addEventListener('click',async e=>{
   if(!d.media){toast('Add a title to save a draft');return}
   if(await api('publish',{...d,prompt:pre&&pre.prompt})){const wp=pre&&pre.prompt;pre=null;rating=0;toast('Draft saved. Find it on your profile.');const nd=(db.drafts||[]).filter(x=>x.by===db.me).sort((a,b)=>b.ts-a.ts)[0];if(wp&&nd)go({n:'post',id:nd.id});else render()}}
  else if(a==='joinoff'){const w=b.dataset.w;if(!isLead())return;if(await api('setjoinoff',{where:w,off:!joinOff(w)})){hbI=0;toast(joinOff(w)?'Join us is off':'Join us is on');render()}}
+ else if(a==='setfont'){const v=b.dataset.v,de=document.documentElement;if(v==='dm')delete de.dataset.font;else de.dataset.font=v;try{if(v==='dm')localStorage.removeItem('tg-font');else localStorage.setItem('tg-font',v)}catch(e){}render()}
+ else if(a==='setsize'){const v=b.dataset.v,de=document.documentElement;if(v==='normal')delete de.dataset.size;else de.dataset.size=v;try{if(v==='normal')localStorage.removeItem('tg-size');else localStorage.setItem('tg-size',v)}catch(e){}render()}
  else if(a==='featinv'){menuOpen='';if(await api('featinvite',{id})){toast(p&&p.by===db.me?'Added to Feature Picks':'Invite sent to the author');render()}}
  else if(a==='featnote'){menuOpen='';const au=user(p.by),t=prompt('Note to '+au.name+' about "'+p.title+'":');if(t&&t.trim()&&await api('message',{id:p.by,t:('🍊 Feature Picks note on "'+p.title+'": '+t.trim()).slice(0,1000)})){toast('Note sent');render()}}
  else if(a==='featpub'){menuOpen='';if(await api('featpublish',{id})){toast('Added to Feature Picks');render()}}
