@@ -5,7 +5,7 @@ import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from
 
 const redis = Redis.fromEnv({ automaticDeserialization: false });
 const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts", "pitches", "flipbooks"];
-const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff"];
+const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff", "idOn", "idqr"];
 const pack = v => gzipSync(JSON.stringify(v)).toString("base64");
 const unpack = s => JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString());
 async function load() {
@@ -32,6 +32,8 @@ async function load() {
   db.tposts.forEach(x => { if (!Array.isArray(x.likedBy)) x.likedBy = []; });
   db.flipbooks.forEach(x => { if (!Array.isArray(x.likedBy)) x.likedBy = []; if (!Array.isArray(x.comments)) x.comments = []; });
   db.pitchOpen = !!db.pitchOpen;
+  db.idOn = !!db.idOn;
+  if (typeof db.idqr !== "string") db.idqr = "";
   db.joinOff = { home: !!(db.joinOff && db.joinOff.home), times: !!(db.joinOff && db.joinOff.times) };
   if (!Array.isArray(db.mods)) db.mods = [];
   db.polls.forEach(l => { if (l.kind === "thisthat" && !l.pairs) { l.pairs = [l.options]; Object.keys(l.votes).forEach(u => { l.votes[u] = { 0: l.votes[u] }; }); l.options = []; } });
@@ -49,7 +51,7 @@ async function save(db, raw) {
 
 const TYPES = ["Movie","Documentary","Book","Game","Show","Anime","Music","Musical","Other"];
 const TOPK = ["movies","albums","books","shows","games","other"];
-const CREW_TEAMS = ["Editorial", "Team"];
+const CREW_TEAMS = ["Editorial", "Community Management", "Promotion & Publication"];
 const TSEC = ["movies", "books", "games", "music", "culture", "magazine"];
 const TROLES = ["publisher", "writer", "artist", "operations", "publication"];
 const TKINDS = ["Article", "Essay", "Review", "Recommendation"];
@@ -77,7 +79,7 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, idOn: false, idqr: "", joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 const TP = (db, id) => db.tposts.find(x => x.id === id) || db.flipbooks.find(x => x.id === id) || bad("Piece not found");
 
@@ -137,7 +139,8 @@ const cleanPron = d => clip(Array.isArray(d.pronouns) ? d.pronouns.join(" / ") :
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const pub = (u, viewer) => ({
   id: u.id, name: u.name, handle: u.handle, bio: u.bio, avatar: u.avatar, following: u.following, top: u.top, pronouns: Array.isArray(u.pronouns) ? u.pronouns.join(" / ") : (u.pronouns || ""), bingoShares: u.bingoShares || [],
-  insta: viewer === u.id || !u.igPrivate ? u.insta : "", igPrivate: u.igPrivate, links: u.links, watch: u.watch
+  insta: viewer === u.id || !u.igPrivate ? u.insta : "", igPrivate: u.igPrivate, links: u.links, watch: u.watch,
+  ...(viewer === u.id ? { idtop: u.idtop || "", qr: u.qr || "", joined: u.joined || 0 } : {})
 });
 function blockedSet(db, uid) {
   const s = new Set();
@@ -218,7 +221,7 @@ function out(db, uid, extra) {
   const r = {
     features, isCore, isEditor, canWrite, core: admin ? db.core : {}, owner, mod, admins: owner ? db.admins : [], mods: owner ? db.mods : [],
     db: {
-      profiles: db.users.map(u => ({ ...pub(u, uid), warned: admin && u.warned ? u.warned : 0, crew: db.crew[u.id] ? (db.crew[u.id] === "Editorial" ? "Editorial" : "Team") : "" })), posts,
+      profiles: db.users.map(u => ({ ...pub(u, uid), warned: admin && u.warned ? u.warned : 0, crew: db.crew[u.id] ? String(db.crew[u.id]) : "" })), posts,
       reposts: db.reposts.filter(r => !bs.has(r.by) && posts.some(p => p.id === r.pid && !p.draft)),
       lists: db.lists.filter(l => !bs.has(l.by)).sort((a, b) => b.ts - a.ts).map(l => ({
         ...l,
@@ -237,6 +240,8 @@ function out(db, uid, extra) {
       })),
       tstaff: admin || canTimes ? db.tstaff : {},
       canTimes,
+      idOn: !!db.idOn,
+      idqr: db.idqr || "",
       flipbooks: db.flipbooks.slice().sort((x, y) => y.ts - x.ts).map(p => ({
         ...p,
         likedBy: (p.likedBy || []).filter(x => !bs.has(x)),
@@ -675,6 +680,7 @@ export default async function handler(req, res) {
         for (const x of [...db.posts.filter(p => p.by === id && p.img), ...db.features.filter(f => f.by === id && f.img)]) {
           try { await redis.del("tg:img:" + x.img); } catch (e) { console.error(e.message); }
         }
+        if (m.qr) { try { await redis.del("tg:img:" + m.qr); } catch (e) { console.error(e.message); } }
         db.users = db.users.filter(u => u.id !== id);
         db.users.forEach(u => { u.following = u.following.filter(x => x !== id); u.blocked = u.blocked.filter(x => x !== id); u.notes = u.notes.filter(n => n.from !== id); });
         db.posts = db.posts.filter(p => p.by !== id);
@@ -750,6 +756,27 @@ export default async function handler(req, res) {
         if (joinEmail && !emailOk(joinEmail)) bad("Enter a valid email for the join box");
         const editorial = parseStaff(d.editorial), artpub = parseStaff(d.artpub);
         db.times = head || body || about || joinHead || joinBody || joinEmail || abHead || abBody || joinLink || Object.values(bn).some(Boolean) || editorial.length || artpub.length ? { head, body, about, joinHead, joinBody, joinEmail, joinLink, abHead, abBody, bn, editorial, artpub, ts: Date.now() } : null;
+        break;
+      }
+      /* ---- Member ID card: lead admin turns it on, members pick their Top 4, avatar and QR ---- */
+      case "setidon": {
+        if (!isOwner()) bad("Lead admin only");
+        db.idOn = !!d.on;
+        break;
+      }
+      case "setidqr": {
+        if (!isOwner()) bad("Lead admin only");
+        if (d.rm) { if (db.idqr) await redis.del("tg:img:" + db.idqr); db.idqr = ""; }
+        else db.idqr = await putImg(db.idqr, { data: d.data });
+        break;
+      }
+      case "saveid": {
+        const m = me();
+        if (!db.idOn && !isOwner()) bad("Member ID cards are not open yet");
+        if (d.top !== undefined) m.idtop = TOPK.includes(d.top) ? d.top : "";
+        if (d.avatar !== undefined) { const av = clip(d.avatar, 8); if (av) m.avatar = av; }
+        if (typeof d.data === "string" && d.data) m.qr = await putImg(m.qr || "", { data: d.data });
+        else if (d.rmqr && m.qr) { await redis.del("tg:img:" + m.qr); m.qr = ""; }
         break;
       }
       case "setcrew": {
