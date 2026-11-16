@@ -771,7 +771,7 @@ export default async function handler(req, res) {
       case "fbsave": {
         const m = me();
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post flipbooks");
-        const title = clip(d.title, 140), desc = clip(d.desc, 1000);
+        const title = clip(d.title, 140), sub = clip(d.sub, 160), desc = clip(d.desc, 1000), roll = parseStaff(d.roll);
         if (!title) bad("Add a title first");
         const credit = (v, role, what) => {
           v = clip(v, 20);
@@ -795,8 +795,8 @@ export default async function handler(req, res) {
         for (const pid of want) if (!pages.includes(pid)) await redis.del("tg:pend:" + pid);
         for (const pid of pages) if (!want.includes(pid)) await redis.del("tg:img:" + pid);
         pages = want;
-        if (old) { Object.assign(old, { title, desc, by, art, layout, cpub, ops, pages, edited: true }); extra.fid = old.id; }
-        else { const nf = { id: id8(), title, desc, by, art, layout, cpub, ops, pages, ts: Date.now(), pub: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
+        if (old) { Object.assign(old, { title, sub, desc, roll, by, art, layout, cpub, ops, pages, edited: true }); extra.fid = old.id; }
+        else { const nf = { id: id8(), title, sub, desc, roll, by, art, layout, cpub, ops, pages, ts: Date.now(), pub: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
         break;
       }
       case "fbdel": {
