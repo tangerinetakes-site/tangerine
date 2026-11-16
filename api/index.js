@@ -49,7 +49,7 @@ const TYPES = ["Movie","Documentary","Book","Game","Show","Anime","Music","Music
 const TOPK = ["movies","albums","books","shows","games","other"];
 const CREW_TEAMS = ["Editorial", "Team"];
 const TSEC = ["movies", "books", "games", "music", "culture", "magazine"];
-const TROLES = ["publisher", "writer", "artist"];
+const TROLES = ["publisher", "writer", "artist", "operations", "publication"];
 const TKINDS = ["Article", "Essay", "Review", "Recommendation"];
 const DAY = 864e5;
 const REASONS = ["Spoiler", "Copying", "Not kind", "Crime"];
@@ -685,8 +685,8 @@ export default async function handler(req, res) {
         delete db.crew[id];
         delete db.tstaff[id];
         db.pitches = db.pitches.filter(x => x.by !== id);
-        db.flipbooks.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; });
-        db.tposts.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; });
+        db.flipbooks.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; if (x.cpub === id) x.cpub = ""; if (x.ops === id) x.ops = ""; });
+        db.tposts.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; if (x.cpub === id) x.cpub = ""; if (x.ops === id) x.ops = ""; });
         db.tposts.forEach(x => {
           x.comments = (x.comments || []).filter(c => c.by !== id);
           x.comments.forEach(c => { c.replies = (c.replies || []).filter(r => r.by !== id); });
@@ -780,6 +780,8 @@ export default async function handler(req, res) {
           return v;
         };
         const by = credit(d.by, "writer", "The writer"), art = credit(d.art, "artist", "The artist"), layout = credit(d.layout, "artist", "The layout artist");
+        const crPub = v => { v = clip(v, 20); if (!v) return ""; if (!U(db, v) || !(tRolesOf(db, v).includes("publication") || tRolesOf(db, v).includes("publisher"))) bad("The publisher must be someone on the Times team"); return v; };
+        const cpub = crPub(d.cpub), ops = credit(d.ops, "operations", "The operations person");
         const old = d.id ? (db.flipbooks.find(x => x.id === d.id) || bad("Flipbook not found")) : null;
         if (!old && db.flipbooks.length >= 100) bad("Delete some old flipbooks first");
         let pages = old ? old.pages : [];
@@ -793,8 +795,8 @@ export default async function handler(req, res) {
         for (const pid of want) if (!pages.includes(pid)) await redis.del("tg:pend:" + pid);
         for (const pid of pages) if (!want.includes(pid)) await redis.del("tg:img:" + pid);
         pages = want;
-        if (old) { Object.assign(old, { title, desc, by, art, layout, pages, edited: true }); extra.fid = old.id; }
-        else { const nf = { id: id8(), title, desc, by, art, layout, pages, ts: Date.now(), pub: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
+        if (old) { Object.assign(old, { title, desc, by, art, layout, cpub, ops, pages, edited: true }); extra.fid = old.id; }
+        else { const nf = { id: id8(), title, desc, by, art, layout, cpub, ops, pages, ts: Date.now(), pub: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
         break;
       }
       case "fbdel": {
@@ -821,6 +823,8 @@ export default async function handler(req, res) {
           return v;
         };
         const by = credit(d.by, "writer", "The writer"), art = credit(d.art, "artist", "The artist"), layout = credit(d.layout, "artist", "The layout artist");
+        const crPub = v => { v = clip(v, 20); if (!v) return ""; if (!U(db, v) || !(tRolesOf(db, v).includes("publication") || tRolesOf(db, v).includes("publisher"))) bad("The publisher must be someone on the Times team"); return v; };
+        const zine = sec === "magazine", cpub = zine ? crPub(d.cpub) : "", ops = zine ? credit(d.ops, "operations", "The operations person") : "";
         const old = d.id ? (db.tposts.find(x => x.id === d.id) || bad("Piece not found")) : null;
         let img = old ? old.img || "" : "";
         if (typeof d.data === "string" && d.data) {
@@ -834,9 +838,9 @@ export default async function handler(req, res) {
           await redis.del("tg:img:" + img);
           img = "";
         }
-        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, img, edited: true }); extra.tid = old.id; }
+        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, cpub, ops, img, edited: true }); extra.tid = old.id; }
         else {
-          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, img, comments: [], ts: Date.now(), pub: m.id };
+          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, cpub, ops, img, comments: [], ts: Date.now(), pub: m.id };
           db.tposts.push(np); extra.tid = np.id;
         }
         break;
