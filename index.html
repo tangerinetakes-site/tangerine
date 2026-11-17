@@ -137,6 +137,7 @@ html[data-size="xl"] #tg{zoom:1.25}
 #tg .topcard{border:2px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--os)}
 #tg .topcard h3{font-size:1.05rem;color:var(--od);margin-bottom:6px}
 #tg .topcard ol{margin:0;padding-left:20px}
+#tg .topcard li{overflow-wrap:anywhere}
 #tg .tblwrap{overflow-x:auto;border:2px solid var(--line);border-radius:14px;margin-bottom:22px}
 #tg .mtable{border-collapse:collapse;width:100%;font-size:.92rem;white-space:nowrap}
 #tg .mtable th,#tg .mtable td{padding:8px 12px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);text-align:left;vertical-align:middle}
@@ -351,7 +352,7 @@ html[data-size="xl"] #tg{zoom:1.25}
 const app=document.getElementById('tg-app');
 const TYPES=['All','Movie','Documentary','Book','Game','Show','Anime','Music','Musical','Internet','Other'];
 const TOPS=[['movies','Top 4 movies','Movie'],['albums','Top 4 albums','Album'],['books','Top 4 books','Book'],['shows','Top 4 shows','Show'],['games','Top 4 games','Game'],['other','Other faves','Fave']];
-const topInputs=(p,t)=>TOPS.map(([k,l,n])=>`<label>${l}</label><div class="row">${[0,1,2,3].map(i=>`<input id="${p}-${k}-${i}" maxlength="60" placeholder="${n} ${i+1}" aria-label="${l} ${i+1}" value="${esc(((t&&t[k])||[])[i]||'')}">`).join('')}</div>`).join('');
+const topInputs=(p,t)=>TOPS.map(([k,l,n])=>`<label>${l}</label><div class="row">${[0,1,2,3].map(i=>`<input id="${p}-${k}-${i}" maxlength="160" placeholder="${n} ${i+1}" aria-label="${l} ${i+1}" value="${esc(((t&&t[k])||[])[i]||'')}">`).join('')}</div>`).join('');
 const readTops=p=>{const o={};TOPS.forEach(([k])=>{o[k]=[0,1,2,3].map(i=>{const el=document.getElementById(p+'-'+k+'-'+i);return el?el.value.trim():''})});return o};
 const topsView=u=>`<section class="panel"><h2>Top 4</h2><div class="tops">${TOPS.map(([k,l])=>{const a=((u.top||{})[k]||[]).filter(Boolean);return `<div class="topcard"><h3>${l.replace('Top 4 ','')}</h3>${a.length?`<ol>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:'<p class="hint">Nothing picked yet.</p>'}</div>`}).join('')}</div></section>`;
 const ABOUT_INSTA='thetangerinetakes'; /* put your Instagram username here */
@@ -1146,6 +1147,27 @@ async function idFront(c,u){const pim=u.idpic?await idLoad('/api?img='+u.idpic):
  x.font='28px '+ID_EM;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#000';x.fillText(t.team?'🍊':'🌱',514,482);
  idTxt(x,t.team?'TEAM STATUS':'STATUS',549,467,{px:14,w:500,c:t.team?'rgba(255,255,255,.9)':'#B5702F',ls:1.5});
  idTxt(x,t.label,549,493,{px:23,w:700,c:t.team?'#fff':'#3A2210',max:340,min:14})}
+function idWrap(x,t,mw){const out=[];let cur='';
+ for(const w of String(t).split(/\s+/).filter(Boolean)){const n=cur?cur+' '+w:w;if(x.measureText(n).width<=mw){cur=n;continue}
+  if(cur){out.push(cur);cur=''}
+  if(x.measureText(w).width<=mw){cur=w;continue}
+  let p='';for(const ch of w){if(p&&x.measureText(p+ch).width>mw){out.push(p);p=ch}else p+=ch}cur=p}
+ if(cur)out.push(cur);return out}
+function idEll(x,s,mw){s=s.replace(/…$/,'');while(s.length>1&&x.measureText(s+'…').width>mw)s=s.slice(0,-1);return s.trimEnd()+'…'}
+function idTopPlan(x,items,bioLines){const ids=[];items.forEach((t,i)=>{if(t)ids.push([i,t])});
+ const W=410,B=499,gap=5;
+ const tryIt=(bn,px,pad,maxL)=>{x.font='700 '+px+'px '+ID_FF;const lh=Math.round(px*1.2),ly=258+(bn-1)*29+25,top=ly+22;
+  const rows=ids.map(([i,t])=>{let L=idWrap(x,t,W);if(maxL&&L.length>maxL){L=L.slice(0,maxL);L[maxL-1]=idEll(x,L[maxL-1]+'…',W)}return{i,L,h:Math.max(36,L.length*lh+2*pad)}});
+  const total=rows.reduce((n,r)=>n+r.h,0)+gap*Math.max(0,rows.length-1);
+  return{bn,px,lh,pad,ly,top,rows,gap,ok:total<=B-top}};
+ const bns=[];for(let b=Math.max(1,Math.min(2,bioLines));b>=1;b--)bns.push(b);
+ for(let px=19;px>=12;px--)for(const bn of bns){const p=tryIt(bn,px,px>=14?7:5,0);if(p.ok)return p}
+ return tryIt(bns[bns.length-1],11,4,2)}
+function idTopDraw(x,pl){let y=pl.top;
+ pl.rows.forEach(r=>{const X=416,w=471,cy=y+r.h/2;x.fillStyle='#FFE6C9';idRR(x,X,y,w,r.h,Math.min(16,r.h/2));x.fill();
+  x.fillStyle='#FF8A00';x.beginPath();x.arc(X+24,cy,13,0,6.2832);x.fill();idTxt(x,String(r.i+1),X+24,cy+.5,{px:16,w:700,c:'#fff',al:'center'});
+  x.font='700 '+pl.px+'px '+ID_FF;x.fillStyle='#3A2210';x.textAlign='left';x.textBaseline='middle';
+  const y0=cy-(r.L.length-1)*pl.lh/2;r.L.forEach((l,k)=>x.fillText(l,X+48,y0+k*pl.lh));y+=r.h+pl.gap})}
 async function idBack(c,u){const qid=db.idqr||'',im=qid?await idLoad('/api?img='+qid):null;
  const x=idFrame(c,[[70,60,110,.2],[990,190,70,.5],[62,566,46,1],[745,615,115,.8]]);
  idTxt(x,'SHARE YOUR TAKES',115,187,ID_LAB);
@@ -1157,12 +1179,18 @@ async function idBack(c,u){const qid=db.idqr||'',im=qid?await idLoad('/api?img='
  idTxt(x,'BIO',410,227,ID_LAB);
  x.font='500 22px '+ID_FF;const bio=(u.bio||'').trim()||'No bio yet.',words=bio.split(/\s+/),lines=[];let cur='';
  for(const w of words){const n=cur?cur+' '+w:w;if(x.measureText(n).width<=485||!cur)cur=n;else{lines.push(cur);cur=w}}if(cur)lines.push(cur);
- lines.slice(0,3).forEach((l,i,a)=>{if(i===2&&lines.length>3)l=l+'…';idTxt(x,l,410,258+i*29,{px:22,w:500,c:ID_VAL,max:485,min:14})});
  const cat=idCat(u),lab=(TOPS.find(k=>k[0]===cat)||TOPS[0])[1].toUpperCase();
- const hw=idTxt(x,lab,416,337,ID_LAB);x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,335.5,887-(416+hw+14),3);
  const items=((u.top||{})[cat]||[]).slice(0,4);
- if(!items.some(Boolean))idTxt(x,'Add your picks in Edit your profile',416,395,{px:19,c:'#B5702F'});
- items.forEach((t,i)=>{if(!t)return;const X=i%2?657:416,Y=i<2?359:413;x.fillStyle='#FFE6C9';idRR(x,X,Y,230,44,16);x.fill();
+ /* Long titles (up to about 15 words): when a pick will not fit on one line in its small box, the picks become full-width rows that wrap onto 2 or 3 lines. The bio gives up a line or two if it must, so nothing is cut off. */
+ x.font='700 14px '+ID_FF;
+ const long=items.some(t=>t&&x.measureText(t).width>168);
+ let bn=3,LY=337,plan=null;
+ if(long){plan=idTopPlan(x,items,lines.length);bn=plan.bn;LY=plan.ly}
+ lines.slice(0,bn).forEach((l,i)=>{if(i===bn-1&&lines.length>bn)l=l+'…';idTxt(x,l,410,258+i*29,{px:22,w:500,c:ID_VAL,max:485,min:14})});
+ const hw=idTxt(x,lab,416,LY,ID_LAB);x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,LY-1.5,887-(416+hw+14),3);
+ if(!items.some(Boolean))idTxt(x,'Add your picks in Edit your profile',416,LY+58,{px:19,c:'#B5702F'});
+ if(long)idTopDraw(x,plan);
+ else items.forEach((t,i)=>{if(!t)return;const X=i%2?657:416,Y=i<2?359:413;x.fillStyle='#FFE6C9';idRR(x,X,Y,230,44,16);x.fill();
   x.fillStyle='#FF8A00';x.beginPath();x.arc(X+26,Y+22,14,0,6.2832);x.fill();idTxt(x,String(i+1),X+26,Y+22.5,{px:17,w:700,c:'#fff',al:'center'});
   idTxt(x,t,X+50,Y+22.5,{px:20,w:700,c:'#3A2210',max:168,min:13})});
  x.fillStyle='#FF8A00';x.fillRect(115,506,781,3);
