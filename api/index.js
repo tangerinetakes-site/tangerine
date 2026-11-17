@@ -109,7 +109,7 @@ const canPitch = (db, id) => !!id && (canReviewPitch(db, id) || db.pitchOpen || 
 
 function cleanTop(t) {
   const o = {};
-  TOPK.forEach(k => { const a = Array.isArray(t && t[k]) ? t[k] : []; o[k] = [0, 1, 2, 3].map(i => clip(a[i], 60)); });
+  TOPK.forEach(k => { const a = Array.isArray(t && t[k]) ? t[k] : []; o[k] = [0, 1, 2, 3].map(i => clip(a[i], 160)); });
   return o;
 }
 function cleanIg(d) {
