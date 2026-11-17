@@ -58,7 +58,7 @@ const TOPK = ["movies","albums","books","shows","games","other"];
 const CREW_TEAMS = ["Core Team", "Editorial", "Community and Engagement", "Creatives and Publishing"];
 const TSEC = ["movies", "books", "games", "music", "culture", "magazine"];
 const TROLES = ["publisher", "writer", "artist", "operations", "publication"];
-const TKINDS = ["Article", "Essay", "Review", "Recommendation"];
+const TKINDS = ["Article", "Analysis", "Explainer", "Listicle", "Review", "Essay", "Recommendation"];
 const DAY = 864e5;
 const REASONS = ["Spoiler", "Copying", "Not kind", "Crime"];
 /* Report reasons shown to members. "Others" needs a short written detail. REASONS above is still used by the admin warning. */
@@ -861,7 +861,7 @@ export default async function handler(req, res) {
         if (!isAdmin() && !tRolesOf(db, m.id).includes("publisher")) bad("Only publishers can post in the Times");
         const sec = TSEC.includes(d.sec) ? d.sec : bad("Pick a section");
         const title = clip(d.title, 140), text = clip(d.text, 20000), refs = clip(d.refs, 3000);
-        const kind = TKINDS.includes(d.kind) ? d.kind : bad("Pick a type: Article, Essay, Review or Recommendation");
+        const kind = TKINDS.includes(d.kind) ? d.kind : bad("Pick a type: Article, Analysis, Explainer, Listicle, Review, Essay or Recommendation");
         if (!title) bad("Add a headline first");
         if (!text) bad("Add the content first");
         const credit = (v, role, what) => {
