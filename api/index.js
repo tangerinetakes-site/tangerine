@@ -25,6 +25,9 @@ async function load() {
     else if (!Array.isArray(v)) delete db.core[k];
   });
   if (!db.crew || typeof db.crew !== "object" || Array.isArray(db.crew)) db.crew = {};
+  /* CHANGED: team badges were renamed. Anyone who already holds an old badge name gets the new one. */
+  const CREW_OLD = { "Community Management": "Community and Engagement", "Promotion & Publication": "Creatives and Publishing" };
+  Object.keys(db.crew).forEach(k => { if (CREW_OLD[db.crew[k]]) db.crew[k] = CREW_OLD[db.crew[k]]; });
   if (!db.tstaff || typeof db.tstaff !== "object" || Array.isArray(db.tstaff)) db.tstaff = {};
   if (!Array.isArray(db.tposts)) db.tposts = [];
   if (!Array.isArray(db.pitches)) db.pitches = [];
@@ -51,7 +54,8 @@ async function save(db, raw) {
 
 const TYPES = ["Movie","Documentary","Book","Game","Show","Anime","Music","Musical","Other"];
 const TOPK = ["movies","albums","books","shows","games","other"];
-const CREW_TEAMS = ["Core Team", "Editorial", "Community Management", "Promotion & Publication"];
+/* CHANGED: team badge names */
+const CREW_TEAMS = ["Core Team", "Editorial", "Community and Engagement", "Creatives and Publishing"];
 const TSEC = ["movies", "books", "games", "music", "culture", "magazine"];
 const TROLES = ["publisher", "writer", "artist", "operations", "publication"];
 const TKINDS = ["Article", "Essay", "Review", "Recommendation"];
