@@ -5,7 +5,8 @@ import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from
 
 const redis = Redis.fromEnv({ automaticDeserialization: false });
 const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts", "pitches", "flipbooks"];
-const META = ["reports", "pick", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff", "idOn", "idqr"];
+/* CHANGED: "picks" added (Fresh pick list with draft / live / archived) */
+const META = ["reports", "pick", "picks", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff", "idOn", "idqr"];
 const pack = v => gzipSync(JSON.stringify(v)).toString("base64");
 const unpack = s => JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString());
 async function load() {
@@ -39,6 +40,10 @@ async function load() {
   if (typeof db.idqr !== "string") db.idqr = "";
   db.joinOff = { home: !!(db.joinOff && db.joinOff.home), times: !!(db.joinOff && db.joinOff.times) };
   if (!Array.isArray(db.mods)) db.mods = [];
+  /* CHANGED: Fresh picks are now a list. An old single pick becomes one live item (fixed id so it can be archived or deleted). */
+  if (!Array.isArray(db.picks)) db.picks = [];
+  if (!db.picks.length && db.pick && db.pick.media) db.picks.push({ id: "legacy", type: db.pick.type, media: db.pick.media, note: db.pick.note || "", status: "live", ts: Date.now() });
+  syncPick(db);
   db.polls.forEach(l => { if (l.kind === "thisthat" && !l.pairs) { l.pairs = [l.options]; Object.keys(l.votes).forEach(u => { l.votes[u] = { 0: l.votes[u] }; }); l.options = []; } });
   return { db, raw };
 }
@@ -52,14 +57,27 @@ async function save(db, raw) {
   if (Object.keys(now).length) await redis.mset(now);
 }
 
-const TYPES = ["Movie","Documentary","Book","Game","Show","Anime","Music","Musical","Other"];
+/* CHANGED: "Internet" added so it matches the category list on the site */
+const TYPES = ["Movie","Documentary","Book","Game","Show","Anime","Music","Musical","Internet","Other"];
 const TOPK = ["movies","albums","books","shows","games","other"];
 /* CHANGED: team badge names */
 const CREW_TEAMS = ["Core Team", "Editorial", "Community and Engagement", "Creatives and Publishing"];
 const TSEC = ["movies", "books", "games", "music", "culture", "magazine"];
 const TROLES = ["publisher", "writer", "artist", "operations", "publication"];
+/* CHANGED: more Times types */
 const TKINDS = ["Article", "Analysis", "Explainer", "Listicle", "Review", "Essay", "Recommendation"];
 const DAY = 864e5;
+/* CHANGED: activity status. No status = live, so old items keep working.
+   "draft" = admins only. "archived" = hidden from Home (and from members, except archived prompts, which stay linked from old replies). */
+const stOf = x => (x && (x.status === "draft" || x.status === "archived") ? x.status : "live");
+const isLive = x => stOf(x) === "live";
+const pollReady = l => l.kind === "thisthat"
+  ? (l.pairs || []).length >= 3 && l.pairs.length <= 9 && l.pairs.every(p => p[0] && p[1])
+  : (l.options || []).length >= 2;
+const syncPick = db => {
+  const l = db.picks.filter(isLive).sort((a, b) => b.ts - a.ts)[0];
+  db.pick = l ? { type: l.type, media: l.media, note: l.note || "" } : null;
+};
 const REASONS = ["Spoiler", "Copying", "Not kind", "Crime"];
 /* Report reasons shown to members. "Others" needs a short written detail. REASONS above is still used by the admin warning. */
 const REPORT_REASONS = ["Spoiler", "Plagiarism", "Bullying or harassment", "Others"];
@@ -83,7 +101,7 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, idOn: false, idqr: "", joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, suspended: [], sessions: {}, resets: {}, fails: {} });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, idOn: false, idqr: "", joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, picks: [], suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 const TP = (db, id) => db.tposts.find(x => x.id === id) || db.flipbooks.find(x => x.id === id) || bad("Piece not found");
 
@@ -231,7 +249,9 @@ function out(db, uid, extra) {
         ...l,
         comments: (l.comments || []).map((c, i) => ({ ...c, i })).filter(c => !bs.has(c.by))
       })),
+      /* CHANGED: pick is the newest LIVE one. Only the lead admin gets the full list (drafts, archived). */
       pick: db.pick || null,
+      picks: owner ? db.picks.slice().sort((a, b) => b.ts - a.ts).map(k => ({ ...k, status: stOf(k) })) : [],
       /* CHANGED: an announcement can be hidden from visitors who are not logged in (pub === false) */
       banner: db.banner && (uid || db.banner.pub !== false) ? db.banner : null,
       about: db.about || null,
@@ -258,9 +278,10 @@ function out(db, uid, extra) {
       pitchOpen: !!db.pitchOpen,
       joinOff: db.joinOff,
       pitches: !me ? [] : db.pitches.filter(p => canReviewPitch(db, me.id) || p.by === me.id).sort((a, b) => b.ts - a.ts),
-      bingos: db.bingos.slice().sort((a, b) => b.ts - a.ts).map(l => ({ id: l.id, title: l.title, cells: l.cells, ts: l.ts, marks: uid && l.marks[uid] ? l.marks[uid] : [] })),
-      prompts: db.prompts.slice().sort((a, b) => b.ts - a.ts),
-      polls: db.polls.slice().sort((a, b) => b.ts - a.ts).map(l => {
+      /* CHANGED: drafts and archived bingo cards, polls and drafts of prompts are only sent to admins */
+      bingos: db.bingos.filter(l => admin || isLive(l)).sort((a, b) => b.ts - a.ts).map(l => ({ id: l.id, title: l.title, cells: l.cells, ts: l.ts, status: stOf(l), marks: uid && l.marks[uid] ? l.marks[uid] : [] })),
+      prompts: db.prompts.filter(k => admin || stOf(k) !== "draft").sort((a, b) => b.ts - a.ts).map(k => ({ ...k, status: stOf(k) })),
+      polls: db.polls.filter(l => admin || isLive(l)).sort((a, b) => b.ts - a.ts).map(l => {
         if (l.kind === "thisthat") {
           const pairs = l.pairs.map((pr, i) => {
             let na = 0, nb = 0;
@@ -268,11 +289,11 @@ function out(db, uid, extra) {
             return { a: pr[0], b: pr[1], na, nb };
           });
           const mv = uid && l.votes[uid] && typeof l.votes[uid] === "object" ? l.votes[uid] : {};
-          return { id: l.id, q: l.q, kind: l.kind, closed: !!l.closed, ts: l.ts, options: [], pairs, mine: l.pairs.map((_, i) => (mv[i] === 0 || mv[i] === 1 ? mv[i] : -1)) };
+          return { id: l.id, q: l.q, kind: l.kind, closed: !!l.closed, status: stOf(l), ts: l.ts, options: [], pairs, mine: l.pairs.map((_, i) => (mv[i] === 0 || mv[i] === 1 ? mv[i] : -1)) };
         }
         const n = l.options.map(() => 0);
         Object.values(l.votes).forEach(v => { if (typeof v === "number" && n[v] !== undefined) n[v]++; });
-        return { id: l.id, q: l.q, kind: l.kind, closed: !!l.closed, ts: l.ts, options: l.options.map((t, i) => ({ t, n: n[i] })), mine: uid && typeof l.votes[uid] === "number" ? l.votes[uid] : -1 };
+        return { id: l.id, q: l.q, kind: l.kind, closed: !!l.closed, status: stOf(l), ts: l.ts, options: l.options.map((t, i) => ({ t, n: n[i] })), mine: uid && typeof l.votes[uid] === "number" ? l.votes[uid] : -1 };
       })
     },
     clubs: db.clubs.filter(c => !!uid && c.members.includes(uid)).sort((a, b) => b.ts - a.ts).map(c => ({
@@ -729,10 +750,42 @@ export default async function handler(req, res) {
         break;
       }
 
+      /* ---- CHANGED: Fresh pick with draft / live / archived (lead admin only, like before) ---- */
       case "setpick": {
         if (!isOwner()) bad("Lead admin only");
-        const type = clip(d.type, 20), media = clip(d.media, 80);
-        db.pick = media && TYPES.includes(type) ? { type, media, note: clip(d.note, 200) } : null;
+        const type = clip(d.type, 20), media = clip(d.media, 80), note = clip(d.note, 200);
+        if (!TYPES.includes(type) || !media) bad("Add a category and a title first");
+        const k = d.id ? (db.picks.find(x => x.id === d.id) || bad("Pick not found")) : null;
+        if (!k && db.picks.length >= 100) bad("Delete some old picks first");
+        const draft = !!d.draft, wasDraft = !!k && stOf(k) === "draft";
+        const next = !k ? (draft ? "draft" : "live") : wasDraft ? (draft ? "draft" : "live") : stOf(k);
+        /* only one live pick: publishing a new one archives the old one */
+        if (next === "live" && (!k || wasDraft)) db.picks.forEach(x => { if (x !== k && isLive(x)) x.status = "archived"; });
+        if (k) { Object.assign(k, { type, media, note, status: next, edited: true }); if (wasDraft && next === "live") k.ts = Date.now(); }
+        else db.picks.push({ id: id8(), type, media, note, status: next, ts: Date.now() });
+        syncPick(db);
+        break;
+      }
+      case "delpick": {
+        if (!isOwner()) bad("Lead admin only");
+        db.picks = db.picks.filter(x => x.id !== d.id);
+        syncPick(db);
+        break;
+      }
+      /* ---- CHANGED: move any activity between live, draft and archived ---- */
+      case "setstatus": {
+        const to = d.to === "draft" || d.to === "archived" ? d.to : "live";
+        const list = { pick: db.picks, prompt: db.prompts, poll: db.polls, bingo: db.bingos }[d.k] || bad("Unknown activity");
+        if (d.k === "pick" ? !isOwner() : !isAdmin()) bad(d.k === "pick" ? "Lead admin only" : "Admins only");
+        const x = list.find(i => i.id === d.id) || bad("Not found");
+        if (to === "live") {
+          if (d.k === "poll" && !pollReady(x)) bad("Finish the options first. Edit the draft, then publish.");
+          if (d.k === "bingo" && (x.cells || []).length !== 25) bad("A bingo card needs exactly 25 squares before it can go live");
+          x.ts = Date.now();
+          if (d.k === "pick") list.forEach(i => { if (i !== x && isLive(i)) i.status = "archived"; });
+        }
+        x.status = to;
+        if (d.k === "pick") syncPick(db);
         break;
       }
       case "setabout": {
@@ -1181,17 +1234,20 @@ export default async function handler(req, res) {
         db.banner = title ? { title, text, pub: d.pub !== false, ts: Date.now() } : null;
         break;
       }
+      /* ---- CHANGED: weekly prompts can be saved as drafts ---- */
       case "saveprompt": {
         if (!isAdmin()) bad("Admins only");
         const title = clip(d.title, 100);
         if (!title) bad("Write the prompt first");
         if (d.id) {
           const k = db.prompts.find(x => x.id === d.id) || bad("Prompt not found");
+          const wasDraft = stOf(k) === "draft";
           Object.assign(k, { title, desc: clip(d.desc, 300), edited: true });
+          if (wasDraft && !d.draft) { k.status = "live"; k.ts = Date.now(); }
           break;
         }
         if (db.prompts.length >= 100) bad("Delete some old prompts first");
-        db.prompts.push({ id: id8(), title, desc: clip(d.desc, 300), by: uid, ts: Date.now() });
+        db.prompts.push({ id: id8(), title, desc: clip(d.desc, 300), by: uid, ts: Date.now(), status: d.draft ? "draft" : "live" });
         break;
       }
       case "delprompt": {
@@ -1199,6 +1255,7 @@ export default async function handler(req, res) {
         db.prompts = db.prompts.filter(x => x.id !== d.id);
         break;
       }
+      /* ---- CHANGED: polls and This or that can be saved as drafts (drafts may be incomplete) ---- */
       case "savepoll": {
         if (!isAdmin()) bad("Admins only");
         const old = d.id ? (db.polls.find(x => x.id === d.id) || bad("Poll not found")) : null;
@@ -1206,22 +1263,31 @@ export default async function handler(req, res) {
         const lines = (Array.isArray(d.options) ? d.options : []).map(x => clip(x, 100)).filter(Boolean);
         if (!q) bad("Write the question or title first");
         if (!old && db.polls.length >= 100) bad("Delete some old polls first");
+        const wasDraft = !!old && stOf(old) === "draft";
+        const draft = (!old || wasDraft) && !!d.draft;
         let options = [], pairs;
         if (kind === "thisthat") {
-          pairs = lines.map(x => x.split("|").map(y => clip(y, 40))).filter(a => a.length >= 2 && a[0] && a[1]).map(a => [a[0], a[1]]);
-          if (pairs.length !== lines.length) bad("Each line needs two choices with a | between them, like: Pizza | Burgers");
-          if (pairs.length < 3 || pairs.length > 9) bad("This or that needs 3 to 9 lines (you have " + pairs.length + ")");
+          pairs = lines.map(x => x.split("|").map(y => clip(y, 40))).map(a => [a[0] || "", a[1] || ""]).filter(a => a[0] || a[1]);
+          if (!draft) {
+            if (pairs.length !== lines.length || pairs.some(a => !a[0] || !a[1])) bad("Each line needs two choices with a | between them, like: Pizza | Burgers");
+            if (pairs.length < 3 || pairs.length > 9) bad("This or that needs 3 to 9 lines (you have " + pairs.length + ")");
+          } else if (pairs.length > 9) bad("This or that can have up to 9 lines");
         } else {
           options = lines.map(x => clip(x, 60)).slice(0, 6);
-          if (options.length < 2) bad("Add at least 2 options, one per line");
+          if (!draft && options.length < 2) bad("Add at least 2 options, one per line");
         }
-        if (old) { Object.assign(old, { q, options, pairs, edited: true }); break; }
-        db.polls.push({ id: id8(), by: uid, q, kind, options, pairs, votes: {}, ts: Date.now(), closed: false });
+        if (old) {
+          Object.assign(old, { q, options, pairs, edited: true });
+          if (wasDraft && !draft) { old.status = "live"; old.ts = Date.now(); }
+          break;
+        }
+        db.polls.push({ id: id8(), by: uid, q, kind, options, pairs, votes: {}, ts: Date.now(), closed: false, status: draft ? "draft" : "live" });
         break;
       }
       case "pollvote": {
         const m = me(), l = db.polls.find(x => x.id === d.id) || bad("Poll not found");
-        if (l.closed) bad("This is closed");
+        /* CHANGED: drafts and archived polls cannot be voted on */
+        if (l.closed || !isLive(l)) bad("This is closed");
         const i = parseInt(d.i, 10);
         if (l.kind === "thisthat") {
           const c = parseInt(d.c, 10);
@@ -1245,18 +1311,23 @@ export default async function handler(req, res) {
         db.polls = db.polls.filter(x => x.id !== d.id);
         break;
       }
+      /* ---- CHANGED: bingo cards can be saved as drafts (a draft may have fewer than 25 squares) ---- */
       case "savebingo": {
         if (!isAdmin()) bad("Admins only");
         const title = clip(d.title, 80), cells = (Array.isArray(d.cells) ? d.cells : []).map(x => clip(x, 40)).filter(Boolean);
         if (!title) bad("Give the bingo card a title");
-        if (cells.length !== 25) bad("A bingo card needs exactly 25 squares, one per line (you have " + cells.length + ")");
-        if (d.id) {
-          const l = db.bingos.find(x => x.id === d.id) || bad("Bingo card not found");
-          Object.assign(l, { title, cells, edited: true });
+        const old = d.id ? (db.bingos.find(x => x.id === d.id) || bad("Bingo card not found")) : null;
+        const wasDraft = !!old && stOf(old) === "draft";
+        const draft = (!old || wasDraft) && !!d.draft;
+        if (!draft && cells.length !== 25) bad("A bingo card needs exactly 25 squares, one per line (you have " + cells.length + ")");
+        if (cells.length > 25) bad("A bingo card can have at most 25 squares (you have " + cells.length + ")");
+        if (old) {
+          Object.assign(old, { title, cells, edited: true });
+          if (wasDraft && !draft) { old.status = "live"; old.ts = Date.now(); }
           break;
         }
         if (db.bingos.length >= 50) bad("Delete some old bingo cards first");
-        db.bingos.push({ id: id8(), by: uid, title, cells, marks: {}, ts: Date.now() });
+        db.bingos.push({ id: id8(), by: uid, title, cells, marks: {}, ts: Date.now(), status: draft ? "draft" : "live" });
         break;
       }
       case "delbingo": {
@@ -1266,6 +1337,8 @@ export default async function handler(req, res) {
       }
       case "bingomark": {
         const m = me(), l = db.bingos.find(x => x.id === d.id) || bad("Bingo card not found");
+        /* CHANGED: drafts and archived cards cannot be played */
+        if (!isLive(l)) bad("This card is not open");
         const i = parseInt(d.i, 10);
         if (!(i >= 0 && i < 25)) bad("Pick a square");
         const a2 = l.marks[m.id] || (l.marks[m.id] = []), k = a2.indexOf(i);
