@@ -378,7 +378,7 @@ function ago(ts){const m=Math.round((Date.now()-ts)/60000);if(m<1)return'just no
 const excerpt=t=>{t=plainLk(t).replace(/\s+/g,' ');return t.length>150?t.slice(0,150).trim()+'...':t};
 const stars=n=>'🍊'.repeat(n)+'<span style="filter:grayscale(1);opacity:.3">'+'🍊'.repeat(5-n)+'</span>';
 const av=(u,c='')=>`<span class="av ${c}" aria-hidden="true">${esc(u.avatar)}</span>`;
-const CREW=['Core Team','Editorial','Community Management','Promotion & Publication'];
+const CREW=['Core Team','Editorial','Community and Engagement','Creatives and Publishing'];
 const badgeHtml=u=>u&&u.crew?`<span class="badge" title="Official Tangerine Takes staff">🍊 ${esc(u.crew)}</span>`:'';
 const userLink=u=>`<button class="link" data-a="profile" data-id="${u.id}">${av(u,'sm')}${esc(u.name)}</button>${badgeHtml(u)}`;
 const unread=()=>(db.msgs||[]).filter(m=>m.to===db.me&&!m.read).length;
