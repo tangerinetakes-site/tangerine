@@ -1105,7 +1105,7 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist'),pb=[.
  <label for="tt-refs">References (optional)</label>${fmtBar('tt-refs')}<textarea id="tt-refs" data-lk maxlength="3000" style="min-height:110px" placeholder="One source per line. For example: Author, Title, Year, or a link.">${esc(w.refs||'')}</textarea><p class="hint">Shows in small text at the end of the piece, as a numbered list. One reference per line.</p>
  <div class="actions"><button class="btn" data-a="ttsave">${w.id?'Save changes':'Publish'}</button><button class="btn ghost" data-a="ttcancel">Cancel</button></div></section>`}
 /* ---- Member ID card (drawn on a canvas so the picture you see is the picture you download) ---- */
-const ID_W=1011,ID_H=640,ID_URL='tangerinetakes.vercel.app';
+const ID_W=1011,ID_H=640,ID_R=32,ID_URL='tangerinetakes.vercel.app';
 const ID_FF='"DM Sans",system-ui,sans-serif',ID_HF='"Bricolage Grotesque","DM Sans",sans-serif',ID_EM='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
 const ID_LAB={px:18,w:500,ls:1.2},ID_VAL='#F27A00';
 const idOn=()=>!!(db.idOn||isLead());
@@ -1127,9 +1127,10 @@ function idSlice(x,cx,cy,r,rot){x.save();x.translate(cx,cy);x.rotate(rot);const 
  x.fillStyle='#FF9626';x.strokeStyle='#FF9626';x.lineJoin='round';x.lineWidth=Math.max(2,r*.05);
  for(let i=0;i<10;i++){const a0=i/10*T+.07,a1=(i+1)/10*T-.07,m=(a0+a1)/2;x.beginPath();x.moveTo(r*.09*Math.cos(m),r*.09*Math.sin(m));x.arc(0,0,r*.78,a0,a1);x.closePath();x.fill();x.stroke()}
  x.fillStyle='rgba(255,232,205,.6)';x.beginPath();x.arc(0,0,r*.07,0,T);x.fill();x.restore()}
-function idFrame(c,slices){const S=2;c.width=ID_W*S;c.height=ID_H*S;const x=c.getContext('2d');x.setTransform(S,0,0,S,0,0);
- x.fillStyle='#FF8A00';x.fillRect(0,0,ID_W,ID_H);slices.forEach(s=>idSlice(x,s[0],s[1],s[2],s[3]));
- x.save();x.shadowColor='rgba(120,50,0,.28)';x.shadowBlur=24;x.shadowOffsetY=8;x.fillStyle='#FFF5E6';idRR(x,64,64,883,511,64);x.fill();x.restore();
+function idFrame(c,slices,E){E=E||0;const S=2,H=ID_H+E;c.width=ID_W*S;c.height=H*S;c.style.aspectRatio=ID_W+' / '+H;const x=c.getContext('2d');x.setTransform(S,0,0,S,0,0);
+ x.clearRect(0,0,ID_W,H);idRR(x,0,0,ID_W,H,ID_R);x.clip();
+ x.fillStyle='#FF8A00';x.fillRect(0,0,ID_W,H);slices.forEach(s=>idSlice(x,s[0],s[1],s[2],s[3]));
+ x.save();x.shadowColor='rgba(120,50,0,.28)';x.shadowBlur=24;x.shadowOffsetY=8;x.fillStyle='#FFF5E6';idRR(x,64,64,883,511+E,64);x.fill();x.restore();
  x.textBaseline='middle';x.textAlign='left';x.fillStyle='#000';x.font='46px '+ID_EM;x.fillText('🍊',118,113);
  idTxt(x,'Tangerine Takes',178,113,{px:44,w:800,fam:ID_HF});
  x.fillStyle='#FF8A00';idRR(x,756,90,149,42,21);x.fill();idTxt(x,'MEMBER ID',830.5,111.5,{px:22,w:500,c:'#fff',al:'center'});
@@ -1154,54 +1155,48 @@ function idWrap(x,t,mw){const out=[];let cur='';
   let p='';for(const ch of w){if(p&&x.measureText(p+ch).width>mw){out.push(p);p=ch}else p+=ch}cur=p}
  if(cur)out.push(cur);return out}
 function idEll(x,s,mw){s=s.replace(/…$/,'');while(s.length>1&&x.measureText(s+'…').width>mw)s=s.slice(0,-1);return s.trimEnd()+'…'}
-function idTopPlan(x,items){const ids=[];items.forEach((t,i)=>{if(t)ids.push([i,t])});
- const W=410,B=499,gap=6,ly=227,top=ly+24;
- const tryIt=(px,pad,maxL)=>{x.font='700 '+px+'px '+ID_FF;const lh=Math.round(px*1.2);
-  const rows=ids.map(([i,t])=>{let L=idWrap(x,t,W);if(maxL&&L.length>maxL){L=L.slice(0,maxL);L[maxL-1]=idEll(x,L[maxL-1]+'…',W)}return{i,L,h:Math.max(40,L.length*lh+2*pad)}});
-  const total=rows.reduce((n,r)=>n+r.h,0)+gap*Math.max(0,rows.length-1);
-  return{px,lh,pad,ly,top,rows,gap,ok:total<=B-top}};
- for(let px=20;px>=12;px--){const p=tryIt(px,px>=15?9:6,0);if(p.ok)return p}
- return tryIt(11,4,2)}
+function idTopPlan(x,items,ly){const ids=[];items.forEach((t,i)=>{if(t)ids.push([i,t])});
+ const W=410,gap=8,top=ly+24,px=19,pad=9,maxL=4;x.font='700 '+px+'px '+ID_FF;const lh=Math.round(px*1.25);
+ const rows=ids.map(([i,t])=>{let L=idWrap(x,t,W);if(L.length>maxL){L=L.slice(0,maxL);L[maxL-1]=idEll(x,L[maxL-1]+'…',W)}return{i,L,h:Math.max(44,L.length*lh+2*pad)}});
+ const total=rows.reduce((n,r)=>n+r.h,0)+gap*Math.max(0,rows.length-1);
+ return{px,lh,pad,ly,top,rows,gap,bottom:top+total}}
 function idTopDraw(x,pl){let y=pl.top;
  pl.rows.forEach(r=>{const X=416,w=471,cy=y+r.h/2;x.fillStyle='#FFE6C9';idRR(x,X,y,w,r.h,Math.min(16,r.h/2));x.fill();
   x.fillStyle='#FF8A00';x.beginPath();x.arc(X+24,cy,13,0,6.2832);x.fill();idTxt(x,String(r.i+1),X+24,cy+.5,{px:16,w:700,c:'#fff',al:'center'});
   x.font='700 '+pl.px+'px '+ID_FF;x.fillStyle='#3A2210';x.textAlign='left';x.textBaseline='middle';
   const y0=cy-(r.L.length-1)*pl.lh/2;r.L.forEach((l,k)=>x.fillText(l,X+48,y0+k*pl.lh));y+=r.h+pl.gap})}
 async function idBack(c,u){const qid=db.idqr||'',im=qid?await idLoad('/api?img='+qid):null;
- const x=idFrame(c,[[70,60,110,.2],[990,190,70,.5],[62,566,46,1],[745,615,115,.8]]);
  const cat=idCat(u),lab=(TOPS.find(k=>k[0]===cat)||TOPS[0])[1].toUpperCase(),items=((u.top||{})[cat]||[]).slice(0,4);
- /* Long titles (up to about 15 words): the Top 4 gets the whole right side as wrapping full-width rows, the QR gets a little smaller and the bio moves under it, so nothing looks crowded or cut off. */
- x.font='700 14px '+ID_FF;
- const long=items.some(t=>t&&x.measureText(t).width>168),S=long?200:264;
+ const bio=(u.bio||'').trim()||'No bio yet.',S=264;
+ /* Measure first. The bio always stays on the right, above the Top 4. If everything does not fit, the card gets taller and the Top 4 moves lower in the middle. */
+ const m=document.createElement('canvas').getContext('2d');
+ m.font='500 22px '+ID_FF;const bl=idWrap(m,bio,477);
+ const labY=Math.max(337,258+(bl.length-1)*29+38);
+ m.font='700 14px '+ID_FF;const long=items.some(t=>t&&m.measureText(t).width>168),any=items.some(Boolean);
+ const pl=long?idTopPlan(m,items,labY):null,bottom=long?pl.bottom:labY+(any?120:58),E=Math.max(0,Math.round(bottom-495));
+ const sl=[[70,60,110,.2],[990,190,70,.5],[62,566+E,46,1],[745,615+E,115,.8]];if(E>120)sl.push([992,400+Math.round(E*.6),56,.9]);
+ const x=idFrame(c,sl,E);
  idTxt(x,'SHARE YOUR TAKES',115,187,ID_LAB);
  x.save();x.shadowColor='rgba(160,70,0,.28)';x.shadowBlur=16;x.shadowOffsetY=6;x.fillStyle='#FF8A00';idRR(x,108,208,S,S,24);x.fill();x.restore();
  x.fillStyle='#fff';idRR(x,117,217,S-18,S-18,16);x.fill();
  if(im)x.drawImage(im,131,231,S-46,S-46);
  else{x.save();x.setLineDash([8,7]);x.lineWidth=3;x.strokeStyle='#E8A56A';idRR(x,134,234,S-52,S-52,12);x.stroke();x.restore();
   idTxt(x,'Your QR',108+S/2,208+S/2-13,{px:22,w:700,c:'#B5702F',al:'center'});idTxt(x,'goes here',108+S/2,208+S/2+14,{px:22,w:700,c:'#B5702F',al:'center'})}
- const bio=(u.bio||'').trim()||'No bio yet.';
- if(long){
-  idTxt(x,'BIO',112,208+S+20,ID_LAB);
-  x.font='500 18px '+ID_FF;let bl=idWrap(x,bio,262);if(bl.length>2){bl=bl.slice(0,2);bl[1]=idEll(x,bl[1]+'…',262)}
-  bl.forEach((l,i)=>idTxt(x,l,112,208+S+46+i*25,{px:18,w:500,c:ID_VAL,max:262,min:12}));
-  const pl=idTopPlan(x,items),hw=idTxt(x,lab,416,pl.ly,ID_LAB);x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,pl.ly-1.5,887-(416+hw+14),3);
-  idTopDraw(x,pl)}
+ idTxt(x,'BIO',410,227,ID_LAB);
+ bl.forEach((l,i)=>idTxt(x,l,410,258+i*29,{px:22,w:500,c:ID_VAL,max:485,min:14}));
+ const hw=idTxt(x,lab,416,labY,ID_LAB);x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,labY-1.5,887-(416+hw+14),3);
+ if(long)idTopDraw(x,pl);
  else{
-  idTxt(x,'BIO',410,227,ID_LAB);
-  x.font='500 22px '+ID_FF;const words=bio.split(/\s+/),lines=[];let cur='';
-  for(const w of words){const n=cur?cur+' '+w:w;if(x.measureText(n).width<=485||!cur)cur=n;else{lines.push(cur);cur=w}}if(cur)lines.push(cur);
-  lines.slice(0,3).forEach((l,i)=>{if(i===2&&lines.length>3)l=l+'…';idTxt(x,l,410,258+i*29,{px:22,w:500,c:ID_VAL,max:485,min:14})});
-  const hw=idTxt(x,lab,416,337,ID_LAB);x.fillStyle='#FFD0A0';x.fillRect(416+hw+14,335.5,887-(416+hw+14),3);
-  if(!items.some(Boolean))idTxt(x,'Add your picks in Edit your profile',416,395,{px:19,c:'#B5702F'});
-  items.forEach((t,i)=>{if(!t)return;const X=i%2?657:416,Y=i<2?359:413;x.fillStyle='#FFE6C9';idRR(x,X,Y,230,44,16);x.fill();
+  if(!any)idTxt(x,'Add your picks in Edit your profile',416,labY+58,{px:19,c:'#B5702F'});
+  items.forEach((t,i)=>{if(!t)return;const X=i%2?657:416,Y=labY+(i<2?22:76);x.fillStyle='#FFE6C9';idRR(x,X,Y,230,44,16);x.fill();
    x.fillStyle='#FF8A00';x.beginPath();x.arc(X+26,Y+22,14,0,6.2832);x.fill();idTxt(x,String(i+1),X+26,Y+22.5,{px:17,w:700,c:'#fff',al:'center'});
    idTxt(x,t,X+50,Y+22.5,{px:20,w:700,c:'#3A2210',max:168,min:13})})}
- x.fillStyle='#FF8A00';x.fillRect(115,506,781,3);
- idTxt(x,u.name+' @'+u.handle,115,548,{px:24,w:500,c:ID_VAL,max:470,min:14});idTxt(x,ID_URL,895,548,{px:22,w:500,c:ID_VAL,al:'right'})}
+ x.fillStyle='#FF8A00';x.fillRect(115,506+E,781,3);
+ idTxt(x,u.name+' @'+u.handle,115,548+E,{px:24,w:500,c:ID_VAL,max:470,min:14});idTxt(x,ID_URL,895,548+E,{px:22,w:500,c:ID_VAL,al:'right'})}
 let idTok=0;
 async function idDraw(){const u=me();if(!u)return;const t=++idTok;await idFonts();const f=$('id-front'),b=$('id-back');if(!f||!b||t!==idTok)return;await idFront(f,u);await idBack(b,u)}
 function idDownload(w){const f=$('id-front'),b=$('id-back');if(!f||!b)return;let c=w==='front'?f:b;
- if(w==='both'){const gap=32*2;c=document.createElement('canvas');c.width=f.width;c.height=f.height+b.height+gap;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(f,0,0);x.drawImage(b,0,f.height+gap)}
+ if(w==='both'){const gap=32*2;c=document.createElement('canvas');c.width=f.width;c.height=f.height+b.height+gap;const x=c.getContext('2d');x.drawImage(f,0,0);x.drawImage(b,0,f.height+gap)}
  c.toBlob(bl=>{if(!bl){toast('Could not make the image');return}const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='tangerine-takes-id-'+(me()?me().handle:'member')+'-'+w+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)},'image/png')}
 function picJpeg(f,cb){if(!f)return;if(!/^image\//.test(f.type)){toast('Choose an image file');return}
  const url=URL.createObjectURL(f),im=new Image();
