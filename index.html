@@ -333,6 +333,7 @@ html[data-size="xl"] #tg{zoom:1.25}
 #tg .fb-cb img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;background:var(--os)}
 #tg .fb-card h3{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:1.1rem;line-height:1.15;margin:2px 0 0}
 #tg .fb-card h3 button{background:none;border:0;padding:0;margin:0;font:inherit;color:var(--ink);text-align:left;cursor:pointer;box-shadow:none}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -1141,7 +1142,7 @@ async function idFront(c,u){const pim=u.idpic?await idLoad('/api?img='+u.idpic):
  if(pim){x.save();x.beginPath();x.arc(cx,cy,164,0,T);x.clip();const k=Math.max(328/pim.width,328/pim.height),w=pim.width*k,h=pim.height*k;x.drawImage(pim,cx-w/2,cy-h/2,w,h);x.restore()}
  else{x.font='190px '+ID_EM;x.textAlign='center';x.textBaseline='middle';x.fillStyle='#000';x.fillText(u.avatar||'🍊',cx,cy+10)}
  const L=(t,y)=>idTxt(x,t,482,y,ID_LAB),V=(t,y)=>idTxt(x,String(t),482,y,{px:36,w:500,c:ID_VAL,max:425,min:20});
- L('NAME',194);V(u.name,226);L('USERNAME',276);V('@'+u.handle,308);L('DATE OF ISSUE',358);V(idDate(u),390);
+ L('NAME',194);V(u.name,226);L('USERNAME',276);V('@'+u.handle+(u.pronouns?' · '+u.pronouns:''),308);L('DATE OF ISSUE',358);V(idDate(u),390);
  const t=idTeam(u);x.save();
  if(t.team){x.shadowColor='rgba(160,70,0,.3)';x.shadowBlur=12;x.shadowOffsetY=4;const g2=x.createLinearGradient(478,0,909,0);g2.addColorStop(0,'#FF8A00');g2.addColorStop(1,'#F2600A');x.fillStyle=g2}else x.fillStyle='#FFE6C9';
  idRR(x,478,450,431,62,16);x.fill();x.restore();
@@ -1199,11 +1200,24 @@ async function idBack(c,u){const qid=db.idqr||'',im=qid?await idLoad('/api?img='
    idTxt(x,t,X+50,Y+22.5,{px:20,w:700,c:'#3A2210',max:168,min:13})})}
  x.fillStyle='#FF8A00';x.fillRect(115,506+E,781,3);
  idTxt(x,u.name+' @'+u.handle,115,548+E,{px:24,w:500,c:ID_VAL,max:470,min:14});idTxt(x,ID_URL,895,548+E,{px:22,w:500,c:ID_VAL,al:'right'})}
-let idTok=0;
-async function idDraw(){const u=me();if(!u)return;const t=++idTok;await idFonts();const f=$('id-front'),b=$('id-back');if(!f||!b||t!==idTok)return;await idFront(f,u);await idBack(b,u)}
-function idDownload(w){const f=$('id-front'),b=$('id-back');if(!f||!b)return;let c=w==='front'?f:b;
- if(w==='both'){const gap=32*2;c=document.createElement('canvas');c.width=f.width;c.height=f.height+b.height+gap;const x=c.getContext('2d');x.drawImage(f,0,0);x.drawImage(b,0,f.height+gap)}
- c.toBlob(bl=>{if(!bl){toast('Could not make the image');return}const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='tangerine-takes-id-'+(me()?me().handle:'member')+'-'+w+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)},'image/png')}
+let idTok=0,idReady=false;
+async function idDraw(){const u=me();if(!u)return;idReady=false;const t=++idTok;await idFonts();const f=$('id-front'),b=$('id-back');if(!f||!b||t!==idTok)return;await idFront(f,u);if(t!==idTok)return;await idBack(b,u);if(t!==idTok)return;
+ const nm=u.name+', @'+u.handle+', '+idTeam(u).label;f.setAttribute('aria-label','Member ID card front for '+nm);b.setAttribute('aria-label','Member ID card back for '+nm+'. Includes bio and top picks.');
+ idReady=true;document.querySelectorAll('[data-a="iddl"],[data-a="idshare"]').forEach(k=>{k.disabled=false})}
+/* Builds the picture to save or share: a white background with a margin, and the card keeps its rounded corners. */
+function idMake(w){const f=$('id-front'),b=$('id-back');if(!f||!b)return null;
+ const list=w==='front'?[f]:w==='back'?[b]:[f,b],gap=w==='both'?64:0,pad=48;
+ const c=document.createElement('canvas');c.width=Math.max(...list.map(k=>k.width))+pad*2;c.height=list.reduce((n,k)=>n+k.height,0)+gap*(list.length-1)+pad*2;
+ const x=c.getContext('2d');x.fillStyle='#FFFFFF';x.fillRect(0,0,c.width,c.height);let yy=pad;list.forEach(k=>{x.drawImage(k,pad,yy);yy+=k.height+gap});return c}
+const idFile=w=>'tangerine-takes-id-'+(me()?me().handle:'member')+'-'+w+'.png';
+function idSave(bl,name){const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+function idDownload(w){if(!idReady){toast('Your card is still loading. Try again in a second.');return}const c=idMake(w);if(!c)return;
+ c.toBlob(bl=>{if(!bl){toast('Could not make the image');return}idSave(bl,idFile(w))},'image/png')}
+function idShare(w){if(!idReady){toast('Your card is still loading. Try again in a second.');return}const c=idMake(w);if(!c)return;
+ c.toBlob(async bl=>{if(!bl){toast('Could not make the image');return}
+  const file=new File([bl],idFile(w),{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'My Tangerine Takes Member ID'})}catch(e){if(e&&e.name!=='AbortError')toast('Could not share. Try Download instead.')}}
+  else{idSave(bl,idFile(w));toast('Sharing is not supported here, so it was downloaded instead.')}},'image/png')}
 function picJpeg(f,cb){if(!f)return;if(!/^image\//.test(f.type)){toast('Choose an image file');return}
  const url=URL.createObjectURL(f),im=new Image();
  im.onload=()=>{const S=640,c=document.createElement('canvas');c.width=c.height=S;const x=c.getContext('2d'),k=Math.max(S/im.width,S/im.height),w=im.width*k,h=im.height*k;x.drawImage(im,(S-w)/2,(S-h)/2,w,h);URL.revokeObjectURL(url);
@@ -1222,7 +1236,8 @@ function idView(){const u=me();if(!u)return inboxView();
  const cat=idCat(u),cv=i=>`<canvas id="${i}" width="${ID_W}" height="${ID_H}" style="display:block;width:100%;height:auto;aspect-ratio:${ID_W}/${ID_H};border-radius:18px" aria-label="Member ID card"></canvas>`;
  return back+(db.idOn?'':'<p class="hint">Only you can see this for now. Members will see it when you turn Member ID on in Settings.</p>')
  +`<section class="panel"><h2>My Member ID 🍊</h2><p class="hint" style="margin:10px 0 6px">Front</p>${cv('id-front')}<p class="hint" style="margin:14px 0 6px">Back</p>${cv('id-back')}
- <div class="actions"><button class="btn" data-a="iddl" data-w="front">Download front</button><button class="btn" data-a="iddl" data-w="back">Download back</button><button class="btn ghost" data-a="iddl" data-w="both">Download both</button></div></section>
+ <div class="actions"><button class="btn" data-a="iddl" data-w="front" disabled>Download front</button><button class="btn" data-a="iddl" data-w="back" disabled>Download back</button><button class="btn ghost" data-a="iddl" data-w="both" disabled>Download both</button></div>
+ <div class="actions"><button class="btn ghost" data-a="idshare" data-w="front" disabled>Share front</button><button class="btn ghost" data-a="idshare" data-w="back" disabled>Share back</button></div>${u.bio&&u.bio.trim()?'':'<p class="hint">Your bio is empty, so the back says "No bio yet." Add one under Edit your profile.</p>'}</section>
  <section class="panel"><h2>Make it yours</h2>
  <label for="id-top">Top 4 on the back</label><select id="id-top">${TOPS.map(([k,l])=>`<option value="${k}"${k===cat?' selected':''}>${l}</option>`).join('')}</select><p class="hint">Fill in your lists under Edit your profile.</p>
  <label for="id-pic">Photo for the front</label><input type="file" id="id-pic" accept="image/*"><p class="hint">${u.idpic?'Showing your photo.':'No photo yet, so the front shows your emoji below.'} The photo is cropped to a circle.</p>${u.idpic?'<div class="actions"><button class="btn ghost" data-a="idpicrm">Use my emoji instead</button></div>':''}
@@ -1446,6 +1461,7 @@ app.addEventListener('click',async e=>{
  else if(a==='idav'){const y=window.scrollY;if(await api('saveid',{avatar:b.dataset.v})){pickAv=b.dataset.v;render();window.scrollTo(0,y)}}
  else if(a==='idpicrm'){if(await api('saveid',{rmpic:true})){toast('Back to your emoji');render()}}
  else if(a==='iddl')idDownload(b.dataset.w);
+ else if(a==='idshare')idShare(b.dataset.w);
  else if(a==='idon'){if(!isLead())return;if(await api('setidon',{on:!db.idOn})){toast(db.idOn?'Member ID is on':'Member ID is off');render()}}
  else if(a==='iddqrrm'){if(!isLead())return;if(await api('setidqr',{rm:true})){toast('Default QR removed');render()}}
  else if(a==='ptopen'){if(await api('setpitchopen',{on:!db.pitchOpen})){toast(db.pitchOpen?'Open for everyone':'Team only');render()}}
