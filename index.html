@@ -1258,9 +1258,9 @@ let idTok=0,idReady=false;
 async function idDraw(){const u=me();if(!u)return;idReady=false;const t=++idTok;await idFonts();const f=$('id-front'),b=$('id-back');if(!f||!b||t!==idTok)return;await idFront(f,u);if(t!==idTok)return;await idBack(b,u);if(t!==idTok)return;
  const nm=u.name+', @'+u.handle+', '+idTeam(u).label;f.setAttribute('aria-label','Member ID card front for '+nm);b.setAttribute('aria-label','Member ID card back for '+nm+'. Includes bio and top picks.');
  idReady=true;document.querySelectorAll('[data-a="iddl"]').forEach(k=>{k.disabled=false})}
-/* Builds the picture to save or share: solid white background (no transparency), and the card keeps its rounded corners. */
+/* Builds the picture to save or share: solid white background with a white margin around the card (no transparency), and the card keeps its rounded corners. */
 function idMake(w){const f=$('id-front'),b=$('id-back');if(!f||!b)return null;
- const list=w==='front'?[f]:w==='back'?[b]:[f,b],gap=w==='both'?64:0,pad=0;
+ const list=w==='front'?[f]:w==='back'?[b]:[f,b],gap=w==='both'?64:0,pad=48;
  const c=document.createElement('canvas');c.width=Math.max(...list.map(k=>k.width))+pad*2;c.height=list.reduce((n,k)=>n+k.height,0)+gap*(list.length-1)+pad*2;
  const x=c.getContext('2d');x.fillStyle='#FFFFFF';x.fillRect(0,0,c.width,c.height);let yy=pad;list.forEach(k=>{x.drawImage(k,pad,yy);yy+=k.height+gap});return c}
 const idFile=w=>'tangerine-takes-id-'+(me()?me().handle:'member')+'-'+w+'.jpg';
