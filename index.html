@@ -1257,7 +1257,7 @@ async function idBack(c,u){const qid=db.idqr||'',mine=idQrMine(),im=qid&&!mine?a
 let idTok=0,idReady=false;
 async function idDraw(){const u=me();if(!u)return;idReady=false;const t=++idTok;await idFonts();const f=$('id-front'),b=$('id-back');if(!f||!b||t!==idTok)return;await idFront(f,u);if(t!==idTok)return;await idBack(b,u);if(t!==idTok)return;
  const nm=u.name+', @'+u.handle+', '+idTeam(u).label;f.setAttribute('aria-label','Member ID card front for '+nm);b.setAttribute('aria-label','Member ID card back for '+nm+'. Includes bio and top picks.');
- idReady=true;document.querySelectorAll('[data-a="iddl"],[data-a="idshare"]').forEach(k=>{k.disabled=false})}
+ idReady=true;document.querySelectorAll('[data-a="iddl"]').forEach(k=>{k.disabled=false})}
 /* Builds the picture to save or share: solid white background (no transparency), and the card keeps its rounded corners. */
 function idMake(w){const f=$('id-front'),b=$('id-back');if(!f||!b)return null;
  const list=w==='front'?[f]:w==='back'?[b]:[f,b],gap=w==='both'?64:0,pad=0;
@@ -1267,11 +1267,6 @@ const idFile=w=>'tangerine-takes-id-'+(me()?me().handle:'member')+'-'+w+'.jpg';
 function idSave(bl,name){const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
 function idDownload(w){if(!idReady){toast('Your card is still loading. Try again in a second.');return}const c=idMake(w);if(!c)return;
  c.toBlob(bl=>{if(!bl){toast('Could not make the image');return}idSave(bl,idFile(w))},'image/jpeg',0.95)}
-function idShare(w){if(!idReady){toast('Your card is still loading. Try again in a second.');return}const c=idMake(w);if(!c)return;
- c.toBlob(async bl=>{if(!bl){toast('Could not make the image');return}
-  const file=new File([bl],idFile(w),{type:'image/jpeg'});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],title:'My Tangerine Takes Member ID'})}catch(e){if(e&&e.name!=='AbortError')toast('Could not share. Try Download instead.')}}
-  else{idSave(bl,idFile(w));toast('Sharing is not supported here, so it was downloaded instead.')}},'image/jpeg',0.95)}
 /* Photo cropper: drag to move, slider to zoom, then the picture is saved as a 640px square */
 function picCrop(f,cb){if(!f)return;if(!/^image\//.test(f.type)){toast('Choose an image file');return}
  const url=URL.createObjectURL(f),im=new Image();
@@ -1316,7 +1311,7 @@ function idView(){const u=me();if(!u)return inboxView();
  return back+(db.idOn?'':'<p class="hint">Only you can see this for now. Members will see it when you turn Member ID on in Settings.</p>')
  +`<section class="panel"><h2>My Member ID 🍊</h2><p class="hint" style="margin:10px 0 6px">Front</p>${cv('id-front')}<p class="hint" style="margin:14px 0 6px">Back</p>${cv('id-back')}
  <div class="actions"><button class="btn" data-a="iddl" data-w="front" disabled>Download front</button><button class="btn" data-a="iddl" data-w="back" disabled>Download back</button><button class="btn ghost" data-a="iddl" data-w="both" disabled>Download both</button></div>
- <div class="actions"><button class="btn ghost" data-a="idshare" data-w="front" disabled>Share front</button><button class="btn ghost" data-a="idshare" data-w="back" disabled>Share back</button></div>${u.bio&&u.bio.trim()?'':'<p class="hint">Your bio is empty, so the back says "No bio yet." Add one under Edit your profile.</p>'}</section>
+${u.bio&&u.bio.trim()?'':'<p class="hint">Your bio is empty, so the back says "No bio yet." Add one under Edit your profile.</p>'}</section>
  <section class="panel"><h2>Make it yours</h2>
  <label for="id-top">Top 4 on the back</label><select id="id-top">${TOPS.map(([k,l])=>`<option value="${k}"${k===cat?' selected':''}>${l}</option>`).join('')}</select><p class="hint">Fill in your lists under Edit your profile.</p>
  ${db.idqr?`<label for="id-qr">QR on the back</label><select id="id-qr"><option value="site"${idQrMine()?'':' selected'}>Site QR from the admins</option><option value="mine"${idQrMine()?' selected':''}>My profile QR</option></select><p class="hint">The profile QR opens your profile. This choice is saved on this device.</p>`:'<p class="hint">The QR on your back opens your profile.</p>'}
@@ -1542,7 +1537,6 @@ app.addEventListener('click',async e=>{
  else if(a==='idav'){const y=window.scrollY;if(await api('saveid',{avatar:b.dataset.v})){pickAv=b.dataset.v;render();window.scrollTo(0,y)}}
  else if(a==='idpicrm'){if(await api('saveid',{rmpic:true})){toast('Back to your emoji');render()}}
  else if(a==='iddl')idDownload(b.dataset.w);
- else if(a==='idshare')idShare(b.dataset.w);
  else if(a==='idon'){if(!isLead())return;if(await api('setidon',{on:!db.idOn})){toast(db.idOn?'Member ID is on':'Member ID is off');render()}}
  else if(a==='iddqrrm'){if(!isLead())return;if(await api('setidqr',{rm:true})){toast('Default QR removed');render()}}
  else if(a==='ptopen'){if(await api('setpitchopen',{on:!db.pitchOpen})){toast(db.pitchOpen?'Open for everyone':'Team only');render()}}
