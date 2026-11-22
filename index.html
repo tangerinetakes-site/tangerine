@@ -268,6 +268,10 @@ html[data-size="xl"] #tg{zoom:1.25}
 #tg .crew-u,#tg .crew-u .link{font-size:1.05rem;font-weight:500}
 #tg .crew-r{color:var(--mut);font-size:1.05rem;line-height:1.35;margin-top:2px}
 #tg .tt-team{margin:0 0 26px}
+#tg .tt-team.sm .crew-h{font-size:1.2rem}
+#tg .tt-team.sm .crew-n,#tg .tt-team.sm .crew-n b{font-size:1rem}
+#tg .tt-team.sm .crew-u,#tg .tt-team.sm .crew-u .link,#tg .tt-team.sm .crew-r{font-size:.9rem}
+#tg .tt-team.sm .crew{gap:12px 36px}
 #tg .tt-refs{margin:28px 0 0;padding-top:14px;border-top:1px solid var(--line);max-width:64ch}
 #tg .tt-refs h4{margin:0 0 6px;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
 #tg .tt-refs ol{margin:0;padding-left:20px;font-size:.82rem;line-height:1.5;color:var(--mut)}
@@ -1336,7 +1340,9 @@ const crewBox=()=>{const cr=db.profiles.filter(u=>u.crew);
 const TS=[['publisher','Publishers (Times admins)','Can post, edit and delete pieces in the Times. They get no other admin powers.'],['writer','Writers','Show up in the byline dropdown.'],['artist','Artists','Show up in the Art by and Layout by dropdowns.'],['publication','Publication team','Show up in the Published by dropdown on Zine pieces. They get no admin powers.'],['operations','Operations','Show up in the Operations by dropdown on Zine pieces. They get no admin powers.']];
 const tsBox=()=>`<section class="panel"><h2>Times team ✍️</h2><p class="hint">Only the lead admin can change this.</p>${TS.map(x=>{const r=x[0],cur=tRole(r),rest=db.profiles.filter(u=>!cur.some(c=>c.id===u.id));
  return `<h3 style="font-size:1.05rem;margin:16px 0 2px">${x[1]}</h3><p class="hint" style="margin:0 0 6px">${x[2]}</p>${cur.length?cur.map(u=>`<div class="cm" style="align-items:center;flex-wrap:wrap">${av(u,'sm')}<span style="flex:1 1 160px">@${esc(u.handle)} <span class="hint">${esc(u.name)}</span></span><button class="link" data-a="tsrm" data-r="${r}" data-id="${u.id}">Remove</button></div>`).join(''):'<p class="hint">Nobody yet.</p>'}<div class="cform"><select id="ts-${r}" aria-label="Pick a username">${rest.map(u=>`<option value="${u.id}">@${esc(u.handle)} · ${esc(u.name)}</option>`).join('')}</select><button class="btn" data-a="tsadd" data-r="${r}">Add</button></div>`}).join('')}</section>`;
-const ttTeams=(T,adm)=>[['The Team',T.cr,1],['Editorial Team',T.ed,0],['Creatives and Publishing Team',T.ap,0]].map(x=>x[1].length||adm?`<section class="tt-team"><h3 class="crew-h ln">${x[0]}</h3>${x[1].length?staffList(x[1]):`<p class="hint">${x[2]?'No team listed yet.':'Nobody listed yet. Tap "Edit this page" at the bottom to add people.'}</p>`}${x[2]&&adm?`<p style="margin:8px 0 0"><button class="link" data-a="editcrew">Edit the team (on the About us page)</button></p>`:''}</section>`:'').join('');
+const teamBtn=()=>isLead()?`<button class="link" data-a="joinoff" data-w="team">The Team: ${joinOff('team')?'OFF · turn on':'ON · turn off'}</button>`:'';
+/* Order: Editorial, Creatives and Publishing, then The Team (which the lead admin can turn off and on). small = a bit smaller (Latest page) */
+const ttTeams=(T,adm,small)=>[['Editorial Team',T.ed,0],['Creatives and Publishing Team',T.ap,0],['The Team',T.cr,1]].map(x=>{const tm=!!x[2];if(tm&&joinOff('team')&&!adm)return '';return x[1].length||adm?`<section class="tt-team${small?' sm':''}"${tm&&joinOff('team')?' style="opacity:.55"':''}><h3 class="crew-h ln">${x[0]}${tm&&joinOff('team')?' <span class="hint" style="font-size:.85rem;font-weight:600">(hidden from visitors)</span>':''}</h3>${x[1].length?staffList(x[1]):`<p class="hint">${tm?'No team listed yet.':'Nobody listed yet. Tap "Edit this page" at the bottom to add people.'}</p>`}${tm&&adm?`<p style="margin:8px 0 0;display:flex;gap:16px;flex-wrap:wrap"><button class="link" data-a="editcrew">Edit the team (on the About us page)</button>${teamBtn()}</p>`:''}</section>`:''}).join('');
 function timesView(){
  const tp=db.tposts||[],pst=view.pid&&tp.find(x=>x.id===view.pid),s=pst?pst.sec:(TT.some(x=>x[0]===view.s)?view.s:'latest'),t=db.times||{},adm=isLead(),can=!!db.canTimes;
  const T={head:t.head||TT_DEF.head,body:t.body||TT_DEF.body,about:t.about||TT_DEF.about,jh:t.joinHead||TT_DEF.joinHead,jb:t.joinBody||TT_DEF.joinBody,je:t.joinEmail||ABOUT_EMAIL,ah:t.abHead||TT_DEF.abHead,ab:t.abBody||TT_DEF.abBody,jl:/^https?:\/\//i.test(t.joinLink||'')?t.joinLink:'',ed:t.editorial||[],bn:bnT(t),ap:t.artpub||[],cr:(db.about&&db.about.crew)||[]};
@@ -1351,10 +1357,10 @@ function timesView(){
  const pitchBtns=!pst&&(s==='latest'||s==='magazine'||s==='about')&&(db.canPitch||db.canReviewPitch)?`<div class="actions" style="margin:0 0 22px">${db.canPitch?`<button class="btn" data-a="ptnew">Pitch my idea</button>`:''}<button class="btn" data-a="ptopenbox">${db.canReviewPitch?'Pitch box'+((db.pitches||[]).length?' ('+db.pitches.length+')':''):'My pitches'}</button></div>`:'';
  if(s==='magazine'&&fbFind())body=fbOpen(fbFind())+join;
  else if(pst)body=ttArticle(pst)+join;
- else if(s==='about')body=pitchBtns+`<section class="tt-soon"><h2>About the Times</h2>${timesParas(T.about)}</section>${join}${editBtn}`;
+ else if(s==='about')body=pitchBtns+`<section class="tt-soon"><h2>About the Times</h2>${timesParas(T.about)}</section>${ttTeams(T,adm,false)}${join}${editBtn}`;
  else{const list=s==='latest'?tp:tp.filter(x=>x.sec===s);
-  if(list.length)body=pitchBtns+writeBtn+(s==='latest'?ttHero(tp)+ttFeatured(tp,can)+ttTeams(T,adm)+join+editBtn:list.map(ttRow).join('')+join);
-  else if(s==='latest')body=pitchBtns+writeBtn+`<section class="tt-soon"><h2>${esc(T.head)}</h2>${timesParas(T.body)}</section>${ttTeams(T,adm)}${join}${editBtn}`;
+  if(list.length)body=pitchBtns+writeBtn+(s==='latest'?ttHero(tp)+ttFeatured(tp,can)+ttTeams(T,adm,true)+join+editBtn:list.map(ttRow).join('')+join);
+  else if(s==='latest')body=pitchBtns+writeBtn+`<section class="tt-soon"><h2>${esc(T.head)}</h2>${timesParas(T.body)}</section>${ttTeams(T,adm,true)}${join}${editBtn}`;
   else body=pitchBtns+writeBtn+(s==='magazine'&&(db.flipbooks||[]).length?'':`<section class="tt-soon"><h2>${esc(ttLabel(s))} is coming soon.</h2><p>Nothing has been published here yet.</p></section>`)+join}
  if(s==='magazine'&&!pst&&!fbFind())body=fbShelf()+body;
  if(s==='latest'&&!pst&&isLead())body+=tsBox();
@@ -1689,7 +1695,7 @@ app.addEventListener('click',async e=>{
   const d={type:g('f-type'),media:g('f-media'),title:g('f-title')||g('f-media'),rating,text:g('f-text'),spoiler:$('f-spoil').checked,draft:true};
   if(!d.media){toast('Add a title to save a draft');return}
   if(await api('publish',{...d,prompt:pre&&pre.prompt})){const wp=pre&&pre.prompt;pre=null;rating=0;toast('Draft saved. Find it on your profile.');const nd=(db.drafts||[]).filter(x=>x.by===db.me).sort((a,b)=>b.ts-a.ts)[0];if(wp&&nd)go({n:'post',id:nd.id});else render()}}
- else if(a==='joinoff'){const w=b.dataset.w;if(!isLead())return;if(await api('setjoinoff',{where:w,off:!joinOff(w)})){hbI=0;toast(joinOff(w)?'Join us is off':'Join us is on');render()}}
+ else if(a==='joinoff'){const w=b.dataset.w;if(!isLead())return;if(await api('setjoinoff',{where:w,off:!joinOff(w)})){hbI=0;toast(w==='team'?(joinOff(w)?'The Team is off':'The Team is on'):(joinOff(w)?'Join us is off':'Join us is on'));render()}}
  else if(a==='setfont'){const v=b.dataset.v,de=document.documentElement;if(v==='dm')delete de.dataset.font;else de.dataset.font=v;try{if(v==='dm')localStorage.removeItem('tg-font');else localStorage.setItem('tg-font',v)}catch(e){}render()}
  else if(a==='setsize'){const v=b.dataset.v,de=document.documentElement;if(v==='normal')delete de.dataset.size;else de.dataset.size=v;try{if(v==='normal')localStorage.removeItem('tg-size');else localStorage.setItem('tg-size',v)}catch(e){}render()}
  else if(a==='featinv'){menuOpen='';if(await api('featinvite',{id})){toast(p&&p.by===db.me?'Added to Feature Picks':'Invite sent to the author');render()}}
