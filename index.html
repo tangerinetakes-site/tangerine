@@ -176,7 +176,7 @@ html[data-size="xl"] #tg{zoom:1.25}
 #tg.intimes .top{display:none}
 #tg a.btn{display:inline-block;text-decoration:none}
 /* Same peach gradient as the Times banner on Home. border-image + outset stretches it edge to edge like the old shadow did. */
-#tg .tt-mast{position:relative;background:linear-gradient(135deg,#FFDDB0,#FFC78A);color:#FF8A00;margin:0 -18px;padding:14px 18px 26px;border:0 solid transparent;border-image:linear-gradient(135deg,#FFDDB0,#FFC78A) fill 1/0/100vmax 100vmax 0 100vmax;clip-path:inset(-100vmax -100vmax 0 -100vmax)}
+#tg .tt-mast{position:relative;background:linear-gradient(135deg,#FFDDB0,#FFC78A);color:#C2500A;margin:0 -18px;padding:14px 18px 26px;border:0 solid transparent;border-image:linear-gradient(135deg,#FFDDB0,#FFC78A) fill 1/0/100vmax 100vmax 0 100vmax;clip-path:inset(-100vmax -100vmax 0 -100vmax)}
 #tg .tt-mast>*:not(.tt-fl){position:relative;z-index:1}
 #tg .tt-fl{position:absolute;z-index:0;pointer-events:none;opacity:.22;font-size:2.4rem;animation:ttfloat 7s ease-in-out infinite}
 #tg .tt-fl.f1{right:7%;top:12%}
@@ -185,9 +185,9 @@ html[data-size="xl"] #tg{zoom:1.25}
 @keyframes ttfloat{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-14px) rotate(10deg)}}
 #tg .tt-bk{font-weight:800;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin-top:14px}
 #tg .tt-bbtns{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:16px}
-#tg .tt-mast :focus-visible{outline-color:#FF8A00}
-#tg .tt-back{background:none;border:0;padding:6px 0;cursor:pointer;font-weight:700;color:#FF8A00;text-decoration:underline;text-underline-offset:3px}
-#tg .tt-mast h1{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:clamp(2.5rem,10vw,4.8rem);letter-spacing:-.02em;line-height:.95;margin:20px 0 10px;color:#FF8A00}
+#tg .tt-mast :focus-visible{outline-color:#C2500A}
+#tg .tt-back{background:none;border:0;padding:6px 0;cursor:pointer;font-weight:700;color:#C2500A;text-decoration:underline;text-underline-offset:3px}
+#tg .tt-mast h1{font-family:"Fraunces","Bricolage Grotesque",Georgia,serif;font-weight:900;font-size:clamp(2.5rem,10vw,4.8rem);letter-spacing:-.02em;line-height:.95;margin:20px 0 10px;color:#C2500A}
 #tg .tt-mast p{margin:0;max-width:42ch;font-weight:500}
 #tg .tt-mast>.tt-fl{opacity:.9}
 #tg .tt-nav{position:relative;display:flex;gap:2px 22px;flex-wrap:wrap;margin:0 0 28px;background:var(--bg);box-shadow:0 0 0 100vmax var(--bg);clip-path:inset(0 -100vmax)}
@@ -1334,7 +1334,7 @@ const ttTeams=(T,adm)=>[['The Team',T.cr,1],['Editorial Team',T.ed,0],['Creative
 function timesView(){
  const tp=db.tposts||[],pst=view.pid&&tp.find(x=>x.id===view.pid),s=pst?pst.sec:(TT.some(x=>x[0]===view.s)?view.s:'latest'),t=db.times||{},adm=isLead(),can=!!db.canTimes;
  const T={head:t.head||TT_DEF.head,body:t.body||TT_DEF.body,about:t.about||TT_DEF.about,jh:t.joinHead||TT_DEF.joinHead,jb:t.joinBody||TT_DEF.joinBody,je:t.joinEmail||ABOUT_EMAIL,ah:t.abHead||TT_DEF.abHead,ab:t.abBody||TT_DEF.abBody,jl:/^https?:\/\//i.test(t.joinLink||'')?t.joinLink:'',ed:t.editorial||[],bn:bnT(t),ap:t.artpub||[],cr:(db.about&&db.about.crew)||[]};
- const mast=`<header class="tt-mast"><span class="tt-fl f1" aria-hidden="true">🍊</span><span class="tt-fl f2" aria-hidden="true">🍊</span><span class="tt-fl f3" aria-hidden="true">🍊</span><button class="tt-back" data-a="feed">← Back to Tangerine Takes</button><h1>The Tangerine Times</h1><p>Features, essays, reviews, and recommendations from the Tangerine Takes team.</p></header><nav class="tt-nav" aria-label="Tangerine Times sections"><span class="tt-ind" aria-hidden="true"></span>${TT.map(x=>`<button data-a="timestab" data-s="${x[0]}" aria-current="${x[0]===s}">${x[1]}</button>`).join('')}</nav>`;
+ const mast=`<header class="tt-mast"><button class="tt-back" data-a="feed">← Back to Tangerine Takes</button><h1>The Tangerine Times</h1><p>Features, essays, reviews, and recommendations from the Tangerine Takes team.</p></header><nav class="tt-nav" aria-label="Tangerine Times sections"><span class="tt-ind" aria-hidden="true"></span>${TT.map(x=>`<button data-a="timestab" data-s="${x[0]}" aria-current="${x[0]===s}">${x[1]}</button>`).join('')}</nav>`;
  if(timesPitch&&db.canPitch)return mast+ptForm();
  if(timesBox&&(db.canPitch||db.canReviewPitch))return mast+ptBox();
  if(fbWrite&&can)return mast+fbFormHtml();
