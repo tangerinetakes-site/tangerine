@@ -38,7 +38,8 @@ async function load() {
   db.pitchOpen = !!db.pitchOpen;
   db.idOn = !!db.idOn;
   if (typeof db.idqr !== "string") db.idqr = "";
-  db.joinOff = { home: !!(db.joinOff && db.joinOff.home), times: !!(db.joinOff && db.joinOff.times) };
+  /* CHANGED: "team" added so the lead admin can turn The Team section on and off */
+  db.joinOff = { home: !!(db.joinOff && db.joinOff.home), times: !!(db.joinOff && db.joinOff.times), team: !!(db.joinOff && db.joinOff.team) };
   if (!Array.isArray(db.mods)) db.mods = [];
   /* CHANGED: Fresh picks are now a list. An old single pick becomes one live item (fixed id so it can be archived or deleted). */
   if (!Array.isArray(db.picks)) db.picks = [];
@@ -101,7 +102,7 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, idOn: false, idqr: "", joinOff: { home: false, times: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, picks: [], suspended: [], sessions: {}, resets: {}, fails: {} });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, idOn: false, idqr: "", joinOff: { home: false, times: false, team: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, picks: [], suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 const TP = (db, id) => db.tposts.find(x => x.id === id) || db.flipbooks.find(x => x.id === id) || bad("Piece not found");
 
@@ -1080,7 +1081,8 @@ export default async function handler(req, res) {
       }
       case "setjoinoff": {
         if (!isOwner()) bad("Lead admin only");
-        if (d.where !== "home" && d.where !== "times") bad("Unknown place");
+        /* CHANGED: "team" added (turns The Team section on the Times pages off and on) */
+        if (d.where !== "home" && d.where !== "times" && d.where !== "team") bad("Unknown place");
         db.joinOff[d.where] = !!d.off;
         break;
       }
