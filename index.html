@@ -61,6 +61,7 @@ html[data-size="xl"] #tg{zoom:1.25}
 #tg .btn{background:var(--o);color:var(--btn);border:0;border-radius:999px;padding:10px 20px;font-weight:700;cursor:pointer}
 #tg .btn:hover{filter:brightness(1.12)}
 #tg .btn.ghost{background:var(--os);color:var(--od)}
+#tg .who.on{border-color:var(--line)}
 #tg .bar .btn.ghost.on{box-shadow:inset 0 0 0 2px var(--line)}
 #tg .btn.danger{background:var(--bg);color:#B3261E;border:2px solid #F2C4C0}
 #tg .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
@@ -407,7 +408,7 @@ function bar(){const u=me();
   const on=n=>view&&view.n===n?' on" aria-current="page':'';
   const nav=`<button class="btn ghost${on('feed')}" data-a="feed">Home</button>`;
   const lists=`<button class="btn ghost${on('lists')}" data-a="lists">Lists 📋</button><button class="btn ghost${on('features')}" data-a="features">Feature Picks🧺</button><button class="btn ghost${on('search')}" data-a="searchview">Search 🔍</button>`;
-  return `<div class="bar">`+(u?`<button class="who" data-a="profile" data-id="${u.id}">${av(u)}${esc(u.handle)}</button>${nav}<button class="btn ghost${view&&view.n==='diary'&&view.id===u.id?' on" aria-current="page':''}" data-a="diary" data-id="${u.id}">Diary 📒</button>${lists}<button class="btn ghost${on('inbox')}" data-a="inbox" aria-label="Messages" title="Messages">✉️${unread()?` (${unread()})`:''}</button><button class="btn ghost${on('notes')}" data-a="notes" aria-label="Alerts" title="Alerts">🔔${unreadN()?` (${unreadN()})`:''}</button><button class="btn ghost${on('settings')}" data-a="settings" aria-label="Settings" title="Settings">⚙️</button><button class="btn ghost" data-a="logout">Log out</button>`
+  return `<div class="bar">`+(u?`<button class="who${view&&view.n==='profile'&&view.id===u.id?' on" aria-current="page':''}" data-a="profile" data-id="${u.id}">${av(u)}${esc(u.handle)}</button>${nav}<button class="btn ghost${view&&view.n==='diary'&&view.id===u.id?' on" aria-current="page':''}" data-a="diary" data-id="${u.id}">Diary 📒</button>${lists}<button class="btn ghost${on('inbox')}" data-a="inbox" aria-label="Messages" title="Messages">✉️${unread()?` (${unread()})`:''}</button><button class="btn ghost${on('notes')}" data-a="notes" aria-label="Alerts" title="Alerts">🔔${unreadN()?` (${unreadN()})`:''}</button><button class="btn ghost${on('settings')}" data-a="settings" aria-label="Settings" title="Settings">⚙️</button><button class="btn ghost" data-a="logout">Log out</button>`
   :`<button class="btn" data-a="join">Sign up or log in</button>${nav}${lists}`)+`</div>`}
 
 function avPicker(sel){return `<div class="avpick" id="avpick" role="group" aria-label="Pick an avatar">${AVATAR_ROWS.map(r=>`<div class="avrow">${r.map(a=>`<button type="button" data-a="pickav" data-v="${a}" aria-pressed="${a===sel}">${a}</button>`).join('')}</div>`).join('')}</div>`}
