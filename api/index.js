@@ -6,7 +6,8 @@ import { randomBytes, randomUUID, scryptSync, timingSafeEqual, createHash } from
 const redis = Redis.fromEnv({ automaticDeserialization: false });
 const PIECES = ["users", "posts", "lists", "msgs", "clubs", "cmsgs", "features", "meta", "tposts", "pitches", "flipbooks"];
 /* CHANGED: "picks" added (Fresh pick list with draft / live / archived) */
-const META = ["reports", "pick", "picks", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff", "idOn", "idqr"];
+/* CHANGED: "issues" added (Zine issues, written by Editorial) */
+const META = ["reports", "pick", "picks", "suspended", "sessions", "resets", "fails", "core", "admins", "mods", "banner", "prompts", "polls", "bingos", "reposts", "about", "times", "crew", "tstaff", "pitchOpen", "joinOff", "idOn", "idqr", "issues"];
 const pack = v => gzipSync(JSON.stringify(v)).toString("base64");
 const unpack = s => JSON.parse(gunzipSync(Buffer.from(s, "base64")).toString());
 async function load() {
@@ -36,6 +37,7 @@ async function load() {
   db.tposts.forEach(x => { if (!Array.isArray(x.likedBy)) x.likedBy = []; });
   db.flipbooks.forEach(x => { if (!Array.isArray(x.likedBy)) x.likedBy = []; if (!Array.isArray(x.comments)) x.comments = []; });
   db.pitchOpen = !!db.pitchOpen;
+  if (!Array.isArray(db.issues)) db.issues = [];
   db.idOn = !!db.idOn;
   if (typeof db.idqr !== "string") db.idqr = "";
   /* CHANGED: "team" added so the lead admin can turn The Team section on and off */
@@ -102,9 +104,22 @@ const checkPw = (pw, h) => {
   return a.length === b.length && timingSafeEqual(a, b);
 };
 const emailOk = e => e.length <= 120 && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, idOn: false, idqr: "", joinOff: { home: false, times: false, team: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, picks: [], suspended: [], sessions: {}, resets: {}, fails: {} });
+const fresh = () => ({ users: [], posts: [], lists: [], msgs: [], clubs: [], cmsgs: [], features: [], core: {}, crew: {}, tstaff: {}, tposts: [], pitches: [], flipbooks: [], pitchOpen: false, issues: [], idOn: false, idqr: "", joinOff: { home: false, times: false, team: false }, admins: [], mods: [], banner: null, about: null, times: null, prompts: [], polls: [], bingos: [], reposts: [], reports: [], pick: null, picks: [], suspended: [], sessions: {}, resets: {}, fails: {} });
 const U = (db, id) => db.users.find(u => u.id === id);
 const TP = (db, id) => db.tposts.find(x => x.id === id) || db.flipbooks.find(x => x.id === id) || bad("Piece not found");
+
+/* Zine issues: only Editorial (admins, Editorial Team roles or the Editorial badge) can write an issue.
+   Cover by = Creatives and Publishing badge. Review by = Editorial. */
+const isEditorial = (db, id) => !!id && (isAdminU(db, U(db, id)) || rolesOf(db, id).length > 0 || db.crew[id] === "Editorial");
+const isCreative = (db, id) => !!id && db.crew[id] === "Creatives and Publishing";
+function zineExtra(db, d, on) {
+  if (!on) return { issue: "", cover: "", review: "" };
+  const issue = clip(d.issue, 20), cover = clip(d.cover, 20), review = clip(d.review, 20);
+  if (issue && !db.issues.some(i => i.id === issue)) bad("That issue does not exist");
+  if (cover && !isCreative(db, cover)) bad("Cover by must be someone from Creatives and Publishing");
+  if (review && !isEditorial(db, review)) bad("Review by must be someone from Editorial");
+  return { issue, cover, review };
+}
 
 /* Photos (16:9 jpeg) for Feature Picks pieces and featured posts.
    New photo (d.data) replaces the old one. No d.keepImg means "remove the photo". */
@@ -244,7 +259,7 @@ function out(db, uid, extra) {
   const r = {
     features, isCore, isEditor, canWrite, core: admin ? db.core : {}, owner, mod, admins: owner ? db.admins : [], mods: owner ? db.mods : [],
     db: {
-      profiles: db.users.map(u => ({ ...pub(u, uid), warned: admin && u.warned ? u.warned : 0, crew: db.crew[u.id] ? String(db.crew[u.id]) : "" })), posts,
+      profiles: db.users.map(u => ({ ...pub(u, uid), warned: admin && u.warned ? u.warned : 0, crew: db.crew[u.id] ? String(db.crew[u.id]) : "", edt: isEditorial(db, u.id), cre: isCreative(db, u.id) })), posts,
       reposts: db.reposts.filter(r => !bs.has(r.by) && posts.some(p => p.id === r.pid && !p.draft)),
       lists: db.lists.filter(l => !bs.has(l.by)).sort((a, b) => b.ts - a.ts).map(l => ({
         ...l,
@@ -265,6 +280,9 @@ function out(db, uid, extra) {
       })),
       tstaff: admin || canTimes ? db.tstaff : {},
       canTimes,
+      /* Zine issues (written by Editorial) */
+      issues: db.issues.slice().sort((a, b) => b.ts - a.ts),
+      canIssue: !!(me && isEditorial(db, me.id)),
       idOn: !!db.idOn,
       idqr: db.idqr || "",
       flipbooks: db.flipbooks.slice().sort((x, y) => y.ts - x.ts).map(p => ({
@@ -727,6 +745,7 @@ export default async function handler(req, res) {
         delete db.crew[id];
         delete db.tstaff[id];
         db.pitches = db.pitches.filter(x => x.by !== id);
+        [...db.tposts, ...db.flipbooks].forEach(x => { if (x.cover === id) x.cover = ""; if (x.review === id) x.review = ""; });
         db.flipbooks.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; if (x.cpub === id) x.cpub = ""; if (x.ops === id) x.ops = ""; });
         db.tposts.forEach(x => { if (x.by === id) x.by = ""; if (x.art === id) x.art = ""; if (x.layout === id) x.layout = ""; if (x.cpub === id) x.cpub = ""; if (x.ops === id) x.ops = ""; });
         db.tposts.forEach(x => {
@@ -883,6 +902,7 @@ export default async function handler(req, res) {
         const by = credit(d.by, "writer", "The writer"), art = credit(d.art, "artist", "The artist"), layout = credit(d.layout, "artist", "The layout artist");
         const crPub = v => { v = clip(v, 20); if (!v) return ""; if (!U(db, v) || !(tRolesOf(db, v).includes("publication") || tRolesOf(db, v).includes("publisher"))) bad("The publisher must be someone on the Times team"); return v; };
         const cpub = crPub(d.cpub), ops = credit(d.ops, "operations", "The operations person");
+        const zx = zineExtra(db, d, true);
         const old = d.id ? (db.flipbooks.find(x => x.id === d.id) || bad("Flipbook not found")) : null;
         if (!old && db.flipbooks.length >= 100) bad("Delete some old flipbooks first");
         let pages = old ? old.pages : [];
@@ -896,8 +916,8 @@ export default async function handler(req, res) {
         for (const pid of want) if (!pages.includes(pid)) await redis.del("tg:pend:" + pid);
         for (const pid of pages) if (!want.includes(pid)) await redis.del("tg:img:" + pid);
         pages = want;
-        if (old) { Object.assign(old, { title, sub, desc, roll, by, art, layout, cpub, ops, pages, edited: true }); extra.fid = old.id; }
-        else { const nf = { id: id8(), title, sub, desc, roll, by, art, layout, cpub, ops, pages, ts: Date.now(), pub: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
+        if (old) { Object.assign(old, { title, sub, desc, roll, by, art, layout, cpub, ops, pages, ...zx, edited: true }); extra.fid = old.id; }
+        else { const nf = { id: id8(), title, sub, desc, roll, by, art, layout, cpub, ops, pages, ...zx, ts: Date.now(), pub: m.id }; db.flipbooks.push(nf); extra.fid = nf.id; }
         break;
       }
       case "fbdel": {
@@ -927,6 +947,7 @@ export default async function handler(req, res) {
         const by = credit(d.by, "writer", "The writer"), art = credit(d.art, "artist", "The artist"), layout = credit(d.layout, "artist", "The layout artist");
         const crPub = v => { v = clip(v, 20); if (!v) return ""; if (!U(db, v) || !(tRolesOf(db, v).includes("publication") || tRolesOf(db, v).includes("publisher"))) bad("The publisher must be someone on the Times team"); return v; };
         const zine = sec === "magazine", cpub = zine ? crPub(d.cpub) : "", ops = zine ? credit(d.ops, "operations", "The operations person") : "";
+        const zx = zineExtra(db, d, zine);
         const old = d.id ? (db.tposts.find(x => x.id === d.id) || bad("Piece not found")) : null;
         let img = old ? old.img || "" : "";
         if (typeof d.data === "string" && d.data) {
@@ -940,11 +961,32 @@ export default async function handler(req, res) {
           await redis.del("tg:img:" + img);
           img = "";
         }
-        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, cpub, ops, img, edited: true }); extra.tid = old.id; }
+        if (old) { Object.assign(old, { sec, kind, title, text, refs, by, art, layout, cpub, ops, img, ...zx, edited: true }); extra.tid = old.id; }
         else {
-          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, cpub, ops, img, comments: [], ts: Date.now(), pub: m.id };
+          const np = { id: id8(), sec, kind, title, text, refs, by, art, layout, cpub, ops, img, ...zx, comments: [], ts: Date.now(), pub: m.id };
           db.tposts.push(np); extra.tid = np.id;
         }
+        break;
+      }
+
+      /* ---- Zine issues (only Editorial can write an issue) ---- */
+      case "saveissue": {
+        const m = me();
+        if (!isEditorial(db, m.id)) bad("Only the Editorial team can write an issue");
+        const name = clip(d.name, 60);
+        if (!name) bad("Give the issue a name, like Issue 1: Tangerine");
+        if (d.id) { const k = db.issues.find(x => x.id === d.id) || bad("Issue not found"); k.name = name; }
+        else {
+          if (db.issues.length >= 100) bad("Delete some old issues first");
+          db.issues.push({ id: id8(), name, by: m.id, ts: Date.now() });
+        }
+        break;
+      }
+      case "delissue": {
+        const m = me();
+        if (!isEditorial(db, m.id)) bad("Only the Editorial team can delete an issue");
+        db.issues = db.issues.filter(x => x.id !== d.id);
+        [...db.tposts, ...db.flipbooks].forEach(x => { if (x.issue === d.id) x.issue = ""; });
         break;
       }
 
