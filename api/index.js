@@ -946,8 +946,9 @@ export default async function handler(req, res) {
         };
         const by = credit(d.by, "writer", "The writer"), art = credit(d.art, "artist", "The artist"), layout = credit(d.layout, "artist", "The layout artist");
         const crPub = v => { v = clip(v, 20); if (!v) return ""; if (!U(db, v) || !(tRolesOf(db, v).includes("publication") || tRolesOf(db, v).includes("publisher"))) bad("The publisher must be someone on the Times team"); return v; };
-        const zine = sec === "magazine", cpub = zine ? crPub(d.cpub) : "", ops = zine ? credit(d.ops, "operations", "The operations person") : "";
-        const zx = zineExtra(db, d, zine);
+        /* CHANGED: Issue, Cover by, Review by, Published by and Operations by are now saved for every section, not only the Zine. */
+        const cpub = crPub(d.cpub), ops = credit(d.ops, "operations", "The operations person");
+        const zx = zineExtra(db, d, true);
         const old = d.id ? (db.tposts.find(x => x.id === d.id) || bad("Piece not found")) : null;
         let img = old ? old.img || "" : "";
         if (typeof d.data === "string" && d.data) {
