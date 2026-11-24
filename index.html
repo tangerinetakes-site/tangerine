@@ -1125,8 +1125,8 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist'),pb=[.
  <label for="tt-by">Byline (written by)</label><select id="tt-by">${opt(wr,w.by,'No byline')}</select>
  <label for="tt-art">Art by</label><select id="tt-art">${opt(ar,w.art,'No artist')}</select>
  <label for="tt-layout">Layout by</label><select id="tt-layout">${opt(ar,w.layout,'No artist')}</select>
- <label for="tt-cover">Cover by (Creatives and Publishing)</label><select id="tt-cover">${pplOpt(db.profiles.filter(u=>u.cre),w.cover,'No cover artist')}</select>
- <label for="tt-review">Review by (Editorial)</label><select id="tt-review">${pplOpt(db.profiles.filter(u=>u.edt),w.review,'No reviewer')}</select>
+ <label for="tt-cover">Cover by </label><select id="tt-cover">${pplOpt(db.profiles.filter(u=>u.cre),w.cover,'No cover artist')}</select>
+ <label for="tt-review">Review by </label><select id="tt-review">${pplOpt(db.profiles.filter(u=>u.edt),w.review,'No reviewer')}</select>
  <label for="tt-pub">Published by</label><select id="tt-pub">${opt(pb,w.cpub,'No publisher')}</select>
  <label for="tt-ops">Operations by</label><select id="tt-ops">${opt(op,w.ops,'No operations')}</select>
  ${!wr.length||!ar.length?'<p class="hint">Writers and artists show up in these lists once an admin adds them under Times team (bottom of the Latest page).</p>':''}
