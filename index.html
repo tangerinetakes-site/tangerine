@@ -1794,7 +1794,55 @@ document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)ret
 app.addEventListener('click',e=>{const h=e.target.closest&&e.target.closest('.hw');if(h&&!h.closest('.rte'))h.classList.toggle('on')});
 app.addEventListener('keydown',e=>{const h=e.target.classList&&e.target.classList.contains('hw')?e.target:null;if(h&&!h.closest('.rte')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();h.classList.toggle('on')}});
 app.addEventListener('input',e=>{const r=e.target;if(r&&r.classList&&r.classList.contains('rte'))rteSync(r)});
-app.addEventListener('paste',e=>{const r=e.target&&e.target.closest?e.target.closest('.rte'):null;if(!r)return;e.preventDefault();const t=(e.clipboardData||window.clipboardData).getData('text/plain');document.execCommand('insertText',false,t)});
+/* PASTE: keep bold, italic, underline, strikethrough, links and paragraphs from Word, Google Docs, websites. Everything else (fonts, colors, sizes, images) is dropped. */
+function cleanPaste(html){
+ const doc=new DOMParser().parseFromString(html,'text/html');
+ const SKIP=/^(SCRIPT|STYLE|META|LINK|TITLE|HEAD|NOSCRIPT|SVG|IMG|IFRAME|BUTTON|INPUT|SELECT|TEXTAREA|CANVAS|VIDEO|AUDIO)$/;
+ const PARA=/^(P|H[1-6]|BLOCKQUOTE|UL|OL|PRE|TABLE|FIGURE|HR)$/;
+ const LINE=/^(DIV|LI|TR|SECTION|ARTICLE|HEADER|FOOTER|FIGCAPTION|DT|DD|DL|MAIN|ASIDE|NAV|BODY|TBODY|THEAD|TFOOT)$/;
+ const BLANK='<div><br></div>';
+ const ex=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ const isBlk=n=>n&&n.nodeType===1&&(PARA.test(n.tagName)||LINE.test(n.tagName));
+ function kids(el){return Array.from(el.childNodes).filter(c=>{
+  if(c.nodeType!==3||c.nodeValue.trim())return true;
+  return !(!c.previousSibling||!c.nextSibling||isBlk(c.previousSibling)||isBlk(c.nextSibling))})}
+ function walk(n,f){
+  if(n.nodeType===3)return ex(n.nodeValue.replace(/[\s\u00a0]+/g,' '));
+  if(n.nodeType!==1)return '';
+  const tg=n.tagName;if(SKIP.test(tg))return '';
+  if(tg==='BR')return '<br>';
+  if(tg==='HR')return BLANK;
+  const s=n.style||{},fw=String(s.fontWeight||''),td=String(s.textDecorationLine||s.textDecoration||'');
+  const want={
+   b:fw?(fw==='bold'||fw==='bolder'||+fw>=600):/^(B|STRONG|TH|H[1-6])$/.test(tg),
+   i:s.fontStyle?(s.fontStyle==='italic'||s.fontStyle==='oblique'):/^(I|EM|CITE)$/.test(tg),
+   u:!f.a&&tg!=='A'&&(tg==='U'||/underline/.test(td)),
+   s:/^(S|STRIKE|DEL)$/.test(tg)||/line-through/.test(td)};
+  const nf=Object.assign({},f);let open='',close='';
+  ['b','i','u','s'].forEach(k=>{if(want[k]&&!f[k]){nf[k]=true;open+='<'+k+'>';close='</'+k+'>'+close}});
+  if(tg==='A'){
+   const hr=(n.getAttribute('href')||'').trim().replace(/\s/g,'%20').replace(/\)/g,'%29');
+   if(/^https?:\/\//i.test(hr)){nf.a=true;open+='<a href="'+ex(hr)+'">';close='</a>'+close}}
+  let inner;
+  if(tg==='UL'||tg==='OL'){let c=0;inner=kids(n).map(x=>{
+   if(x.nodeType===1&&x.tagName==='LI'){c++;return '<div>'+(tg==='OL'?c+'. ':'\u2022 ')+kids(x).map(y=>walk(y,nf)).join('')+'</div>'}
+   return walk(x,nf)}).join('')}
+  else inner=kids(n).map(x=>walk(x,nf)).join('');
+  if(tg==='LI')return open+'<div>'+inner+'</div>'+close;
+  if(tg==='TD'||tg==='TH')return open+inner+close+' ';
+  if(PARA.test(tg))return open+'<div>'+inner+'</div>'+BLANK+close;
+  if(LINE.test(tg))return open+'<div>'+inner+'</div>'+close;
+  return open+inner+close}
+ let h=kids(doc.body).map(x=>walk(x,{})).join('');
+ h=h.replace(/<div>\s+/g,'<div>').replace(/\s+<\/div>/g,'</div>').replace(/<div><\/div>/g,'')
+  .replace(/(<div><br><\/div>){2,}/g,BLANK).replace(/^(<div><br><\/div>)+/,'').replace(/(<div><br><\/div>)+$/,'');
+ return h}
+app.addEventListener('paste',e=>{const r=e.target&&e.target.closest?e.target.closest('.rte'):null;if(!r)return;e.preventDefault();
+ const cd=e.clipboardData||window.clipboardData,html=cd.getData('text/html'),txt=cd.getData('text/plain');
+ let clean='';if(html){try{clean=cleanPaste(html)}catch(x){clean=''}}
+ if(clean&&clean.replace(/<[^>]*>/g,'').trim()){document.execCommand('insertHTML',false,clean)}
+ else document.execCommand('insertText',false,txt);
+ rteSync(r);rteBar(r)});
 app.addEventListener('mousedown',e=>{if(e.target.closest&&e.target.closest('.fmt button'))e.preventDefault()});
 document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(a&&a.classList&&a.classList.contains('rte'))rteBar(a)});
 
