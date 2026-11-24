@@ -611,6 +611,7 @@ function profileView(u){const mine=me()&&me().id===u.id, posts=db.posts.filter(p
  <div class="actions"><button class="btn ghost" data-a="diary" data-id="${u.id}">📔 Diary</button>${mine&&idOn()?'<button class="btn ghost" data-a="idcard">🪪 Member ID</button>':''}${fbtn(u)}${me()&&!mine?`<button class="btn ghost" data-a="chat" data-id="${u.id}">✉️ Message</button><button class="btn ghost" data-a="block" data-id="${u.id}">🚫 Block</button>`:''}${isLead()&&!mine?`<button class="btn ghost" data-a="suspend" data-id="${u.id}">${(db.suspended||[]).includes(u.id)?'Unsuspend':'Suspend'}</button>`:''}</div></div></div>
  <p>${u.bio?lk(u.bio):'No bio yet.'}</p>${profLinks(u)}</section>
  ${topsView(u)}
+ ${mine?streaksSection():''}
  ${bingoShares(u)}
  ${mine?`<section class="panel"><h2>Edit your profile</h2><label for="e-name">Display name</label><input id="e-name" maxlength="30" value="${esc(u.name)}">
  <label for="e-handle">Username</label><input id="e-handle" maxlength="20" value="${esc(u.handle)}">
