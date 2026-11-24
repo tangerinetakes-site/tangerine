@@ -1089,14 +1089,14 @@ const fbFormHtml=()=>{const w=fbWrite;return `<section class="panel"><h2>${w.id?
  <div class="actions"><button class="btn" data-a="fbsave">${w.id?'Save changes':'Publish flipbook'}</button><button class="btn ghost" data-a="fbcancel">Cancel</button></div></section>`};
 const fbCard=f=>`<article class="fb-card"><button type="button" class="fb-cb" data-a="fbopen" data-id="${f.id}" aria-label="Open ${esc(f.title)}"><img src="/api?img=${f.pages[0]}" alt="" loading="lazy"></button><h3><button type="button" data-a="fbopen" data-id="${f.id}">${esc(f.title)}</button></h3>${f.sub?`<span class="hint" style="display:block">${esc(f.sub)}</span>`:''}<span class="hint">${f.pages.length} pages · ${ttDate(f.ts)}</span>${ttCredits(f)}<button type="button" class="link" data-a="ttshare" data-u="/times/f/${f.id}" data-t="${esc(f.title)}">🔗 Copy link</button></article>`;
 /* inside the Zine section: the upload button and the flipbook shelf */
-const issueBox=()=>db.canIssue?`<section class="panel" style="margin-bottom:22px"><h2>Issues</h2><p class="hint">Only the Editorial team can write an issue. Issues show in the Issue dropdown when a piece is published in the Zine.</p>${(db.issues||[]).length?db.issues.map(i=>`<div class="cm" style="align-items:center;flex-wrap:wrap"><span style="flex:1 1 160px">🍊 ${esc(i.name)}</span><button class="link" data-a="issuedel" data-id="${i.id}">Delete</button></div>`).join(''):'<p class="hint">No issues yet.</p>'}<div class="cform"><input id="issue-name" maxlength="60" placeholder="Issue 1: Tangerine" aria-label="Issue name"><button class="btn" data-a="issueadd">Add issue</button></div></section>`:'';
+const issueBox=()=>db.canIssue?`<section class="panel" style="margin-bottom:22px"><h2>Issues</h2><p class="hint">Only the Editorial team can write an issue. Issues show in the Issue dropdown when you publish a piece. A piece with an issue shows in its own section and in the Zine.</p>${(db.issues||[]).length?db.issues.map(i=>`<div class="cm" style="align-items:center;flex-wrap:wrap"><span style="flex:1 1 160px">🍊 ${esc(i.name)}</span><button class="link" data-a="issuedel" data-id="${i.id}">Delete</button></div>`).join(''):'<p class="hint">No issues yet.</p>'}<div class="cform"><input id="issue-name" maxlength="60" placeholder="Issue 1: Tangerine" aria-label="Issue name"><button class="btn" data-a="issueadd">Add issue</button></div></section>`:'';
 const fbShelf=()=>{const L=db.flipbooks||[],can=!!db.canTimes;if(!can&&!L.length)return'';
  return `<section class="tt-featsec" style="margin-bottom:26px">${can?`<div class="actions" style="margin:0 0 14px"><button class="btn" data-a="fbnew">Upload a flipbook</button></div>`:''}${L.length?`<div class="fb-cards">${L.map(fbCard).join('')}</div>`:'<p class="hint">No flipbooks yet.</p>'}</section>`};
 const fbRoll=l=>{const out=[];let cur=null;const flush=()=>{if(cur&&cur.p.length)out.push(`<h4 style="margin:18px 0 8px;font-size:1.05rem;color:var(--od)">${esc(cur.h)}</h4>${staffList(cur.p)}`);else if(cur&&cur.h)out.push(`<h4 style="margin:18px 0 8px;font-size:1.05rem;color:var(--od)">${esc(cur.h)}</h4>`)};
  (l||[]).forEach(x=>{const n=String(x.name||'');if(n[0]==='#'){flush();cur={h:n.replace(/^#+\s*/,''),p:[]}}else{if(!cur)cur={h:'',p:[]};cur.p.push(x)}});flush();return out.join('')};
 const fbOpen=f=>`<article class="tt-art"><button class="link" data-a="timestab" data-s="magazine">← Zine</button><span class="hint" style="display:block;margin-top:14px">Flipbook · Zine · ${ttDate(f.ts)}</span><h2 class="tt-h">${esc(f.title)}</h2>${f.sub?`<p style="font-size:1.2rem;font-style:italic;color:var(--mut);margin:4px 0 12px">${esc(f.sub)}</p>`:''}${ttCredits(f)}${f.desc?`<div class="tt-text">${timesParas(f.desc)}</div>`:''}${fbHtml(f)}${(f.roll||[]).length?`<h3 class="crew-h ln" style="margin-top:26px">Behind the zine</h3>${fbRoll(f.roll)}`:''}<div class="actions"><button type="button" class="btn ghost" data-a="ttshare" data-u="/times/f/${f.id}" data-t="${esc(f.title)}">Share</button></div>${db.canTimes?`<div class="actions"><button class="btn ghost" data-a="fbedit" data-id="${f.id}">Edit</button><button class="btn ghost" data-a="fbdel" data-id="${f.id}">Delete</button></div>`:''}</article>`;
 
-const PT_SEC=TT_SEC;
+const PT_SEC=TT_SEC.filter(x=>x[0]!=='magazine');
 const ptStatus=p=>p.status==='returned'?'<span class="badge">↩ Sent back</span>':'<span class="badge">⏳ Waiting</span>';
 function ptForm(){const w=timesPitch;
  return `<section class="panel"><h2>${w.id?'Edit pitch':'Pitch my idea'}</h2><p class="hint">Tell the Times team what you want to write. Publishers and editors will read it.</p>
@@ -1115,7 +1115,7 @@ function ptBox(){const L=db.pitches||[],rv=!!db.canReviewPitch;
 function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist'),pb=[...new Set([...tRole('publication'),...tRole('publisher')])],op=tRole('operations');
  const opt=(l,sel,none)=>`<option value="">${none}</option>`+l.map(u=>`<option value="${u.id}"${u.id===sel?' selected':''}>@${esc(u.handle)} · ${esc(u.name)}</option>`).join('');
  return `<section class="panel"><h2>${w.id?'Edit piece':'New piece for the Times'}</h2>
- <label for="tt-sec">Section</label><select id="tt-sec">${TT_SEC.map(x=>`<option value="${x[0]}"${x[0]===w.sec?' selected':''}>${x[1]}</option>`).join('')}</select>
+ <label for="tt-sec">Section</label><select id="tt-sec">${TT_SEC.filter(x=>x[0]!=='magazine'||w.sec==='magazine').map(x=>`<option value="${x[0]}"${x[0]===w.sec?' selected':''}>${x[1]}</option>`).join('')}</select>
  <label for="tt-kind">Type</label><select id="tt-kind">${TT_KINDS.map(k=>`<option${k===(w.kind||'Article')?' selected':''}>${k}</option>`).join('')}</select>
  <label for="tt-file">Photo (16:9, optional)</label><div id="tt-prev">${ttPrevHtml()}</div>
  <div class="actions"><input type="file" id="tt-file" accept="image/*"><button class="link" data-a="ttnophoto">Remove photo</button></div>
@@ -1125,8 +1125,8 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist'),pb=[.
  <label for="tt-by">Byline (written by)</label><select id="tt-by">${opt(wr,w.by,'No byline')}</select>
  <label for="tt-art">Art by</label><select id="tt-art">${opt(ar,w.art,'No artist')}</select>
  <label for="tt-layout">Layout by</label><select id="tt-layout">${opt(ar,w.layout,'No artist')}</select>
- <label for="tt-cover">Cover by </label><select id="tt-cover">${pplOpt(db.profiles.filter(u=>u.cre),w.cover,'No cover artist')}</select>
- <label for="tt-review">Review by </label><select id="tt-review">${pplOpt(db.profiles.filter(u=>u.edt),w.review,'No reviewer')}</select>
+ <label for="tt-cover">Cover by (Creatives and Publishing)</label><select id="tt-cover">${pplOpt(db.profiles.filter(u=>u.cre),w.cover,'No cover artist')}</select>
+ <label for="tt-review">Review by (Editorial)</label><select id="tt-review">${pplOpt(db.profiles.filter(u=>u.edt),w.review,'No reviewer')}</select>
  <label for="tt-pub">Published by</label><select id="tt-pub">${opt(pb,w.cpub,'No publisher')}</select>
  <label for="tt-ops">Operations by</label><select id="tt-ops">${opt(op,w.ops,'No operations')}</select>
  ${!wr.length||!ar.length?'<p class="hint">Writers and artists show up in these lists once an admin adds them under Times team (bottom of the Latest page).</p>':''}
@@ -1370,7 +1370,7 @@ function timesView(){
  if(s==='magazine'&&fbFind())body=fbOpen(fbFind())+join;
  else if(pst)body=ttArticle(pst)+join;
  else if(s==='about')body=pitchBtns+`<section class="tt-soon"><h2>About the Times</h2>${timesParas(T.about)}</section>${ttTeams(T,adm,false)}${join}${editBtn}`;
- else{const list=s==='latest'?tp:tp.filter(x=>x.sec===s);
+ else{const list=s==='latest'?tp:tp.filter(x=>s==='magazine'?(x.sec==='magazine'||!!x.issue):x.sec===s);
   if(list.length)body=pitchBtns+writeBtn+(s==='latest'?ttHero(tp)+ttFeatured(tp,can)+ttTeams(T,adm,true)+join+editBtn:list.map(ttRow).join('')+join);
   else if(s==='latest')body=pitchBtns+writeBtn+`<section class="tt-soon"><h2>${esc(T.head)}</h2>${timesParas(T.body)}</section>${ttTeams(T,adm,true)}${join}${editBtn}`;
   else body=pitchBtns+writeBtn+(s==='magazine'&&(db.flipbooks||[]).length?'':`<section class="tt-soon"><h2>${esc(ttLabel(s))} is coming soon.</h2><p>Nothing has been published here yet.</p></section>`)+join}
@@ -1551,7 +1551,7 @@ app.addEventListener('click',async e=>{
  else if(a==='crewrm'){if(await api('setcrew',{id,team:''})){toast('Badge removed');render()}}
  else if(a==='tsadd'){const r=b.dataset.r,v=$('ts-'+r)&&$('ts-'+r).value;if(v&&await api('settstaff',{id:v,role:r,on:true})){toast('Added');render()}}
  else if(a==='tsrm'){if(await api('settstaff',{id,role:b.dataset.r,on:false})){toast('Removed');render()}}
- else if(a==='ptnew'){if(!db.canPitch)return;timesEdit=false;timesWrite=null;timesBox=false;timesPitch={id:'',sec:TT_SEC.some(x=>x[0]===view.s)?view.s:'movies',kind:'Article',title:'',text:''};render();window.scrollTo(0,0)}
+ else if(a==='ptnew'){if(!db.canPitch)return;timesEdit=false;timesWrite=null;timesBox=false;timesPitch={id:'',sec:TT_SEC.some(x=>x[0]===view.s&&x[0]!=='magazine')?view.s:'movies',kind:'Article',title:'',text:''};render();window.scrollTo(0,0)}
  else if(a==='ptopenbox'){timesPitch=null;timesWrite=null;timesEdit=false;timesBox=true;render();window.scrollTo(0,0)}
  else if(a==='ptclose'){timesBox=false;timesPitch=null;render()}
  else if(a==='ptcancel'){timesPitch=null;render()}
@@ -1566,7 +1566,7 @@ app.addEventListener('click',async e=>{
  else if(a==='idon'){if(!isLead())return;if(await api('setidon',{on:!db.idOn})){toast(db.idOn?'Member ID is on':'Member ID is off');render()}}
  else if(a==='iddqrrm'){if(!isLead())return;if(await api('setidqr',{rm:true})){toast('Default QR removed');render()}}
  else if(a==='ptopen'){if(await api('setpitchopen',{on:!db.pitchOpen})){toast(db.pitchOpen?'Open for everyone':'Team only');render()}}
- else if(a==='ttwrite'){if(!db.canTimes)return;timesEdit=false;timesWrite={id:'',sec:TT_SEC.some(x=>x[0]===view.s)?view.s:'movies',kind:'Article',refs:'',img:'',data:'',title:'',text:'',by:'',art:'',layout:'',cpub:'',ops:'',issue:'',cover:'',review:''};render();window.scrollTo(0,0)}
+ else if(a==='ttwrite'){if(!db.canTimes)return;timesEdit=false;timesWrite={id:'',sec:TT_SEC.some(x=>x[0]===view.s&&x[0]!=='magazine')?view.s:'movies',kind:'Article',refs:'',img:'',data:'',title:'',text:'',by:'',art:'',layout:'',cpub:'',ops:'',issue:'',cover:'',review:''};render();window.scrollTo(0,0)}
  else if(a==='ttedit'){const q=(db.tposts||[]).find(x=>x.id===id);if(!q||!db.canTimes)return;timesEdit=false;timesWrite={id:q.id,sec:q.sec,kind:q.kind||'Article',refs:q.refs||'',img:q.img||'',data:'',title:q.title,text:q.text,by:q.by||'',art:q.art||'',layout:q.layout||'',cpub:q.cpub||'',ops:q.ops||'',issue:q.issue||'',cover:q.cover||'',review:q.review||''};render();window.scrollTo(0,0)}
  else if(a==='ttcancel'){timesWrite=null;render()}
  else if(a==='ttshare'){const url=location.origin+b.dataset.u;try{await navigator.clipboard.writeText(url);toast('Link copied')}catch(e){const i=document.createElement('textarea');i.value=url;document.body.appendChild(i);i.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}i.remove();if(ok)toast('Link copied');else prompt('Copy this link',url)}}
