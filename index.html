@@ -254,6 +254,7 @@ html[data-size="xl"] #tg{zoom:1.25}
 #tg .rte.is-empty::before{content:attr(data-ph);color:var(--mut);position:absolute;pointer-events:none}
 #tg .rte a{color:inherit;text-decoration:underline}
 #tg a.link{color:inherit;font-weight:inherit;text-decoration:underline;display:inline;gap:0}
+#tg a.link:visited,#tg a.link:hover,#tg a.link:active,#tg .rte a:visited,#tg .rte a:hover{color:inherit}
 #tg .hw{border-radius:4px;padding:0 3px;cursor:pointer;background:var(--ink);color:transparent;user-select:none}
 #tg .hw *{color:inherit!important}
 #tg .hw.on{background:var(--os);color:inherit;user-select:auto}
@@ -1120,14 +1121,14 @@ function ttForm(){const w=timesWrite,wr=tRole('writer'),ar=tRole('artist'),pb=[.
  <div class="actions"><input type="file" id="tt-file" accept="image/*"><button class="link" data-a="ttnophoto">Remove photo</button></div>
  <p class="hint">Any photo works. It is cropped to 16:9 from the center.</p>
  <label for="tt-title">Headline</label><input id="tt-title" maxlength="140" value="${esc(w.title||'')}">
- <label for="tt-issue">Issue (Zine only)</label><select id="tt-issue">${ISS(w.issue)}</select>
+ <label for="tt-issue">Issue</label><select id="tt-issue">${ISS(w.issue)}</select>
  <label for="tt-by">Byline (written by)</label><select id="tt-by">${opt(wr,w.by,'No byline')}</select>
  <label for="tt-art">Art by</label><select id="tt-art">${opt(ar,w.art,'No artist')}</select>
  <label for="tt-layout">Layout by</label><select id="tt-layout">${opt(ar,w.layout,'No artist')}</select>
- <label for="tt-cover">Cover by (Zine only · Creatives and Publishing)</label><select id="tt-cover">${pplOpt(db.profiles.filter(u=>u.cre),w.cover,'No cover artist')}</select>
- <label for="tt-review">Review by (Zine only · Editorial)</label><select id="tt-review">${pplOpt(db.profiles.filter(u=>u.edt),w.review,'No reviewer')}</select>
- <label for="tt-pub">Published by (Zine only)</label><select id="tt-pub">${opt(pb,w.cpub,'No publisher')}</select>
- <label for="tt-ops">Operations by (Zine only)</label><select id="tt-ops">${opt(op,w.ops,'No operations')}</select>
+ <label for="tt-cover">Cover by (Creatives and Publishing)</label><select id="tt-cover">${pplOpt(db.profiles.filter(u=>u.cre),w.cover,'No cover artist')}</select>
+ <label for="tt-review">Review by (Editorial)</label><select id="tt-review">${pplOpt(db.profiles.filter(u=>u.edt),w.review,'No reviewer')}</select>
+ <label for="tt-pub">Published by</label><select id="tt-pub">${opt(pb,w.cpub,'No publisher')}</select>
+ <label for="tt-ops">Operations by</label><select id="tt-ops">${opt(op,w.ops,'No operations')}</select>
  ${!wr.length||!ar.length?'<p class="hint">Writers and artists show up in these lists once an admin adds them under Times team (bottom of the Latest page).</p>':''}
  <label for="tt-text">Content</label>${fmtBar('tt-text')}<textarea id="tt-text" data-lk maxlength="20000" style="min-height:340px">${esc(w.text||'')}</textarea>
  <label for="tt-refs">References (optional)</label>${fmtBar('tt-refs')}<textarea id="tt-refs" data-lk maxlength="3000" style="min-height:110px" placeholder="One source per line. For example: Author, Title, Year, or a link.">${esc(w.refs||'')}</textarea><p class="hint">Shows in small text at the end of the piece, as a numbered list. One reference per line.</p>
